@@ -2,7 +2,7 @@
 Projeto de aprendizado em conjunto
 
 
-# 📌 Guia de Instalação - JDK, Angular, VS Code e PostgreSQL no Linux Mint 22.1
+# 📌 Guia de Instalação - JDK, Angular, VS Code, PostgreSQL e Git no Linux Mint 22.1
 
 Este guia fornece instruções detalhadas para instalar as ferramentas essenciais no **Linux Mint 22.1**.
 
@@ -146,5 +146,50 @@ Agora, você pode conectar-se ao PostgreSQL usando `psql`, DBeaver ou pgAdmin!
 
 ---
 
-Agora sua máquina está pronta para desenvolvimento! 🚀
+## 🔴 5. Instalar e Configurar Git
+
+### 🔹 Instalar Git
+
+```bash
+sudo apt install git -y
+```
+
+### 🔹 Verificar instalação
+
+```bash
+git --version
+```
+
+### 🔹 Configurar nome e e-mail
+
+```bash
+git config --global user.name "Seu Nome"
+git config --global user.email "seuemail@example.com"
+```
+
+### 🔹 Criar um repositório Git no projeto
+
+```bash
+cd meu-projeto
+git init
+git add .
+git commit -m "Primeiro commit"
+```
+
+### 🔹 Conectar ao GitHub (ou GitLab, Bitbucket)
+
+Crie um repositório no GitHub e copie a URL. Depois, rode:
+
+```bash
+git remote add origin https://github.com/seuusuario/meu-projeto.git
+git branch -M main
+git push -u origin main
+```
+
+Agora seu projeto está versionado e pronto para colaboração!
+
+---
+
+Agora sua máquina está totalmente preparada para desenvolvimento! 🚀
+
 
