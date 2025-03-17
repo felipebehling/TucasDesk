@@ -2,7 +2,7 @@
 Projeto de aprendizado em conjunto
 
 
-# 📌 Guia de Instalação - JDK, Angular, VS Code, PostgreSQL e Git no Linux Mint 22.1
+# 📌 Guia de Instalação - JDK, Angular, VS Code, PostgreSQL, Git e Spring Boot no Linux Mint 22.1
 
 Este guia fornece instruções detalhadas para instalar as ferramentas essenciais no **Linux Mint 22.1**.
 
@@ -105,7 +105,7 @@ code
 
 ---
 
-## 🟣 4. Instalar PostgreSQL
+## 🕖 4. Instalar PostgreSQL
 
 ### 🔹 Instalar PostgreSQL
 
@@ -190,6 +190,38 @@ Agora seu projeto está versionado e pronto para colaboração!
 
 ---
 
-Agora sua máquina está totalmente preparada para desenvolvimento! 🚀
+## 🟣 6. Instalar Spring Boot
 
+### 🔹 Instalar Spring Boot CLI
+
+```bash
+curl -s "https://get.sdkman.io" | bash
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+sdk install springboot
+```
+
+### 🔹 Verificar instalação
+
+```bash
+spring --version
+```
+
+### 🔹 Criar um novo projeto Spring Boot
+
+```bash
+spring init --dependencies=web,data-jpa,h2,lombok meu-projeto-spring
+cd meu-projeto-spring
+```
+
+### 🔹 Rodar o projeto Spring Boot
+
+```bash
+./mvnw spring-boot:run
+```
+
+O servidor iniciará em `http://localhost:8080`.
+
+---
+
+Agora sua máquina está totalmente preparada para desenvolvimento! 🚀
 
