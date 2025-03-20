@@ -1,14 +1,14 @@
 # 📌 Guia de Instalação - JDK, Angular, VS Code, PostgreSQL, Git e Spring Boot
 
-## 🖥️ Linux Mint 22.1 | Manjaro (Arch Linux) | Windows
+## 🖥️ Ubuntu 22.1 | Arch Linux | Windows
 
-Este guia fornece instruções detalhadas para instalar as ferramentas essenciais no Linux Mint 22.1, Manjaro (Arch Linux) e Windows.
+Este guia fornece instruções detalhadas para instalar as ferramentas essenciais no Ubuntu 22.1, Arch Linux e Windows.
 
 ---
 
 ## 🟢 1. Instalar JDK (Java Development Kit)
 
-### 🔹 Linux Mint
+### 🔹 Ubuntu
 ```sh
 sudo apt update && sudo apt upgrade -y
 sudo apt install openjdk-17-jdk -y  # Ou substitua por openjdk-21-jdk se desejar a versão mais recente
@@ -16,7 +16,7 @@ java -version
 javac -version
 ```
 
-### 🔹 Manjaro (Arch Linux)
+### 🔹 Arch Linux
 ```sh
 sudo pacman -Syu
 sudo pacman -S jdk17-openjdk  # Ou jdk21-openjdk para a versão mais recente
@@ -41,10 +41,10 @@ javac -version
 
 ## 🔵 2. Instalar Angular
 
-### 🔹 Linux Mint e Manjaro
+### 🔹 Ubuntu e Arch Linux
 ```sh
-sudo apt install -y nodejs npm  # Para Linux Mint
-sudo pacman -S nodejs npm       # Para Manjaro (Arch Linux)
+sudo apt install -y nodejs npm  # Para Ubuntu
+sudo pacman -S nodejs npm       # Para Arch Linux
 node -v
 npm -v
 npm install -g @angular/cli
@@ -66,7 +66,7 @@ ng version
 
 ## 🟠 3. Instalar VS Code
 
-### 🔹 Linux Mint
+### 🔹 Ubuntu
 ```sh
 sudo apt update
 sudo apt install wget gpg -y
@@ -76,7 +76,7 @@ sudo apt update
 sudo apt install code -y
 ```
 
-### 🔹 Manjaro
+### 🔹 Arch Linux
 ```sh
 sudo pacman -S code
 ```
@@ -97,7 +97,7 @@ code
 
 ## 🕖 4. Instalar PostgreSQL
 
-### 🔹 Linux Mint
+### 🔹 Ubuntu
 ```sh
 sudo apt update
 sudo apt install postgresql postgresql-contrib -y
@@ -105,7 +105,7 @@ sudo systemctl enable postgresql
 sudo systemctl start postgresql
 ```
 
-### 🔹 Manjaro
+### 🔹 Arch Linux
 ```sh
 sudo pacman -S postgresql
 sudo -iu postgres initdb --locale en_US.UTF-8 -D /var/lib/postgres/data
@@ -122,10 +122,10 @@ sudo systemctl start postgresql
 
 ## 🔴 5. Instalar e Configurar Git
 
-### 🔹 Linux Mint e Manjaro
+### 🔹 Ubuntu e Arch Linux
 ```sh
-sudo apt install git -y   # Linux Mint
-sudo pacman -S git        # Manjaro
+sudo apt install git -y   # Ubuntu
+sudo pacman -S git        # Arch Linux
 git --version
 git config --global user.name "Seu Nome"
 git config --global user.email "seuemail@example.com"
@@ -145,7 +145,7 @@ git config --global user.email "seuemail@example.com"
 
 ## 🟣 6. Instalar Spring Boot
 
-### 🔹 Linux Mint e Manjaro
+### 🔹 Ubuntu e Arch Linux
 ```sh
 curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
@@ -165,5 +165,5 @@ Ou baixe diretamente do [Spring Initializr](https://start.spring.io/).
 
 ---
 
-Agora você pode rodar projetos em qualquer sistema operacional! 🚀
+Agora você pode rodar o projetoX em qualquer sistema operacional! 🚀
 
