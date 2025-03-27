@@ -1,4 +1,4 @@
-# 📌 Guia de Instalação - JDK, Angular, VS Code, PostgreSQL, Git e Spring Boot
+# 📌 Guia de Instalação - JDK, Angular, VS Code, PostgreSQL, Git, Spring Boot e React
 
 ## 🖥️ Ubuntu 22.1 | Arch Linux | Windows
 
@@ -64,7 +64,23 @@ ng version
 
 ---
 
-## 🟠 3. Instalar VS Code
+## 🟠 3. Instalar React
+
+### 🔹 Ubuntu e Arch Linux
+```sh
+npm install -g create-react-app
+create-react-app --version
+```
+
+### 🔹 Windows
+```sh
+npm install -g create-react-app
+create-react-app --version
+```
+
+---
+
+## 🟠 4. Instalar VS Code
 
 ### 🔹 Ubuntu
 ```sh
@@ -95,7 +111,7 @@ code
 
 ---
 
-## 🕖 4. Instalar PostgreSQL
+## 🕖 5. Instalar PostgreSQL
 
 ### 🔹 Ubuntu
 ```sh
@@ -120,7 +136,7 @@ sudo systemctl start postgresql
 
 ---
 
-## 🔴 5. Instalar e Configurar Git
+## 🔴 6. Instalar e Configurar Git
 
 ### 🔹 Ubuntu e Arch Linux
 ```sh
@@ -143,7 +159,7 @@ git config --global user.email "seuemail@example.com"
 
 ---
 
-## 🟣 6. Instalar Spring Boot
+## 🔷 7. Instalar Spring Boot
 
 ### 🔹 Ubuntu e Arch Linux
 ```sh
@@ -165,5 +181,28 @@ Ou baixe diretamente do [Spring Initializr](https://start.spring.io/).
 
 ---
 
-Agora você pode rodar o projetoX em qualquer sistema operacional! 🚀
+## 🚀 Instalação Completa em Linux (Ubuntu GNOME e Arch Linux)
+Para instalar tudo de uma vez no Ubuntu GNOME:
+```sh
+sudo apt update && sudo apt upgrade -y && \
+sudo apt install -y openjdk-17-jdk nodejs npm code git postgresql postgresql-contrib && \
+npm install -g @angular/cli create-react-app && \
+curl -s "https://get.sdkman.io" | bash && \
+source "$HOME/.sdkman/bin/sdkman-init.sh" && \
+sdk install springboot
+```
+
+Para instalar tudo de uma vez no Arch Linux:
+```sh
+sudo pacman -Syu --noconfirm && \
+sudo pacman -S --noconfirm jdk17-openjdk nodejs npm code git postgresql && \
+sudo -iu postgres initdb --locale en_US.UTF-8 -D /var/lib/postgres/data && \
+sudo systemctl enable postgresql && sudo systemctl start postgresql && \
+npm install -g @angular/cli create-react-app && \
+curl -s "https://get.sdkman.io" | bash && \
+source "$HOME/.sdkman/bin/sdkman-init.sh" && \
+sdk install springboot
+```
+
+Agora você pode rodar seu projeto em qualquer sistema operacional! 🚀
 
