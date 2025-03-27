@@ -9,29 +9,30 @@ Este guia fornece instruções detalhadas para instalar as ferramentas essenciai
 ## 🟢 1. Instalar JDK (Java Development Kit)
 
 ### 🔹 Distros GNOME
+
 ```sh
-sudo apt update && sudo apt upgrade -y
-sudo apt install openjdk-17-jdk -y  # Ou substitua por openjdk-21-jdk se desejar a versão mais recente
-java -version
-javac -version
+sudo apt update && sudo apt upgrade -y && \
+sudo apt install -y openjdk-21-jdk && \
+java -version && javac -version
 ```
 
 ### 🔹 Arch Linux
+
 ```sh
-sudo pacman -Syu
-sudo pacman -S jdk17-openjdk  # Ou jdk21-openjdk para a versão mais recente
-java -version
-javac -version
+sudo pacman -Syu --noconfirm && \
+sudo pacman -S --noconfirm jdk21-openjdk && \
+java -version && javac -version
 ```
 
 ### 🔹 Windows
-1. Baixe o instalador do OpenJDK ou Oracle JDK:
+
+1. Baixe e instale o OpenJDK ou Oracle JDK:
    - [OpenJDK](https://jdk.java.net/)
    - [Oracle JDK](https://www.oracle.com/java/technologies/javase-downloads.html)
 
-2. Instale e configure a variável de ambiente `JAVA_HOME` no Painel de Controle → Sistema → Configurações Avançadas → Variáveis de Ambiente.
-
+2. Configure a variável de ambiente `JAVA_HOME` no Painel de Controle.
 3. Verifique a instalação no Prompt de Comando:
+
 ```sh
 java -version
 javac -version
@@ -39,62 +40,39 @@ javac -version
 
 ---
 
-## 🔵 2. Instalar Angular
+## 🟠 2. Instalar Angular e React
 
 ### 🔹 Distros GNOME e Arch Linux
 ```sh
-sudo apt install -y nodejs npm  # Para distros GNOME
-sudo pacman -S nodejs npm       # Para Arch Linux
-node -v
-npm -v
-npm install -g @angular/cli
-ng version
+npm install -g @angular/cli create-react-app && \
+ng version && create-react-app --version
 ```
 
 ### 🔹 Windows
+
 1. Baixe e instale o Node.js: [Node.js](https://nodejs.org/)
-
-2. Após a instalação, abra o Prompt de Comando e execute:
+2. Instale Angular e React:
 ```sh
-node -v
-npm -v
-npm install -g @angular/cli
+npm install -g @angular/cli create-react-app
 ng version
-```
-
----
-
-## 🟠 3. Instalar React
-
-### 🔹 Distros GNOME e Arch Linux
-```sh
-npm install -g create-react-app
-create-react-app --version
-```
-
-### 🔹 Windows
-```sh
-npm install -g create-react-app
 create-react-app --version
 ```
 
 ---
 
-## 🟠 4. Instalar VS Code
+## 🟢 3. Instalar VS Code
 
 ### 🔹 Distros GNOME
 ```sh
-sudo apt update
-sudo apt install wget gpg -y
-wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/packages.microsoft.gpg > /dev/null
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list
-sudo apt update
-sudo apt install code -y
+sudo apt update && sudo apt install -y wget gpg && \
+wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/packages.microsoft.gpg > /dev/null && \
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list && \
+sudo apt update && sudo apt install -y code
 ```
 
 ### 🔹 Arch Linux
 ```sh
-sudo pacman -S code
+sudo pacman -S --noconfirm code
 ```
 Ou, se usar o AUR:
 ```sh
@@ -102,55 +80,43 @@ yay -S visual-studio-code-bin
 ```
 
 ### 🔹 Windows
-1. Baixe o instalador do VS Code: [VS Code](https://code.visualstudio.com/)
-
-2. Instale normalmente e abra com:
-```sh
-code
-```
+- Baixe o instalador do VS Code: [VS Code](https://code.visualstudio.com/)
 
 ---
 
-## 🕖 5. Instalar PostgreSQL
+## 🕐 4. Instalar PostgreSQL
 
 ### 🔹 Distros GNOME
 ```sh
-sudo apt update
-sudo apt install postgresql postgresql-contrib -y
-sudo systemctl enable postgresql
-sudo systemctl start postgresql
+sudo apt update && sudo apt install -y postgresql postgresql-contrib && \
+sudo systemctl enable postgresql && sudo systemctl start postgresql
 ```
 
 ### 🔹 Arch Linux
 ```sh
-sudo pacman -S postgresql
-sudo -iu postgres initdb --locale en_US.UTF-8 -D /var/lib/postgres/data
-sudo systemctl enable postgresql
-sudo systemctl start postgresql
+sudo pacman -S --noconfirm postgresql && \
+sudo -iu postgres initdb --locale en_US.UTF-8 -D /var/lib/postgres/data && \
+sudo systemctl enable postgresql && sudo systemctl start postgresql
 ```
 
 ### 🔹 Windows
-1. Baixe o instalador do PostgreSQL: [PostgreSQL](https://www.postgresql.org/download/)
-
-2. Instale com o pgAdmin ou configure manualmente via psql.
+- Baixe e instale o PostgreSQL: [PostgreSQL](https://www.postgresql.org/download/)
 
 ---
 
-## 🔴 6. Instalar e Configurar Git
+## 🔴 5. Instalar Git
 
 ### 🔹 Distros GNOME e Arch Linux
 ```sh
-sudo apt install git -y   # Distros GNOME
-sudo pacman -S git        # Arch Linux
-git --version
-git config --global user.name "Seu Nome"
+sudo apt install -y git || sudo pacman -S --noconfirm git && \
+git --version && \
+git config --global user.name "Seu Nome" && \
 git config --global user.email "seuemail@example.com"
 ```
 
 ### 🔹 Windows
-1. Baixe e instale o Git: [Git para Windows](https://git-scm.com/download/win)
-
-2. Configure no Git Bash ou Prompt de Comando:
+- Baixe o instalador do Git: [Git para Windows](https://git-scm.com/download/win)
+- Configure no Prompt de Comando ou Git Bash:
 ```sh
 git --version
 git config --global user.name "Seu Nome"
@@ -159,41 +125,42 @@ git config --global user.email "seuemail@example.com"
 
 ---
 
-## 🔷 7. Instalar Spring Boot
+## 🔷 6. Instalar Spring Boot
 
 ### 🔹 Distros GNOME e Arch Linux
 ```sh
-curl -s "https://get.sdkman.io" | bash
-source "$HOME/.sdkman/bin/sdkman-init.sh"
-sdk install springboot
+curl -s "https://get.sdkman.io" | bash && \
+source "$HOME/.sdkman/bin/sdkman-init.sh" && \
+sdk install springboot && \
 spring --version
 ```
 
 ### 🔹 Windows
-Baixe diretamente do [Spring Initializr](https://start.spring.io/).
+- Baixe diretamente do [Spring Initializr](https://start.spring.io/).
 
 ---
 
-Agora você pode rodar seu projeto em qualquer sistema operacional! 🚀
+## 🛠️ Comandos Únicos para Instalação Completa
 
-### Caso queira baixar tudo de uma vez
-## GNOME
-```
+### 🔹 GNOME
+```sh
 sudo apt update && sudo apt upgrade -y && \
-sudo apt install -y openjdk-17-jdk nodejs npm wget gpg code postgresql postgresql-contrib git && \
+sudo apt install -y openjdk-21-jdk nodejs npm wget gpg code postgresql postgresql-contrib git && \
 curl -s "https://get.sdkman.io" | bash && source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk install springboot && \
 npm install -g @angular/cli create-react-app && \
 sudo systemctl enable postgresql && sudo systemctl start postgresql && \
 git config --global user.name "Seu Nome" && git config --global user.email "seuemail@example.com"
 ```
 
-## ARCH
-```
+### 🔹 Arch Linux
+```sh
 sudo pacman -Syu --noconfirm && \
-sudo pacman -S --noconfirm jdk17-openjdk nodejs npm code postgresql git && \
+sudo pacman -S --noconfirm jdk21-openjdk nodejs npm code postgresql git && \
 sudo -iu postgres initdb --locale en_US.UTF-8 -D /var/lib/postgres/data && \
 sudo systemctl enable postgresql && sudo systemctl start postgresql && \
 curl -s "https://get.sdkman.io" | bash && source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk install springboot && \
 npm install -g @angular/cli create-react-app && \
 git config --global user.name "Seu Nome" && git config --global user.email "seuemail@example.com"
 ```
+
+Agora você pode rodar seu projeto em qualquer sistema operacional! 🚀
