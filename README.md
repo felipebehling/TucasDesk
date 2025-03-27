@@ -1,6 +1,6 @@
 # 📌 Guia de Instalação - JDK, Angular, VS Code, PostgreSQL, Git, Spring Boot e React
 
-## 🖥️ Ubuntu 22.1 | Arch Linux | Windows
+## 🖥️ Ubuntu Linux | Arch Linux | Windows 10 & 11
 
 Este guia fornece instruções detalhadas para instalar as ferramentas essenciais no Ubuntu 22.1, Arch Linux e Windows.
 
