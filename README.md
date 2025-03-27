@@ -185,17 +185,20 @@ Ou baixe diretamente do [Spring Initializr](https://start.spring.io/).
 Para instalar tudo de uma vez no Ubuntu GNOME:
 ```sh
 sudo apt update && sudo apt upgrade -y && \
-sudo apt install -y openjdk-17-jdk nodejs npm code git postgresql postgresql-contrib && \
+sudo apt install -y openjdk-17-jdk nodejs npm git postgresql postgresql-contrib wget gpg && \
 npm install -g @angular/cli create-react-app && \
 curl -s "https://get.sdkman.io" | bash && \
 source "$HOME/.sdkman/bin/sdkman-init.sh" && \
-sdk install springboot
+sdk install springboot && \
+wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/packages.microsoft.gpg > /dev/null && \
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list && \
+sudo apt update && sudo apt install -y code
 ```
 
 Para instalar tudo de uma vez no Arch Linux:
 ```sh
 sudo pacman -Syu --noconfirm && \
-sudo pacman -S --noconfirm jdk17-openjdk nodejs npm code git postgresql && \
+sudo pacman -S --noconfirm jdk17-openjdk nodejs npm git postgresql code && \
 sudo -iu postgres initdb --locale en_US.UTF-8 -D /var/lib/postgres/data && \
 sudo systemctl enable postgresql && sudo systemctl start postgresql && \
 npm install -g @angular/cli create-react-app && \
