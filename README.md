@@ -176,3 +176,24 @@ Baixe diretamente do [Spring Initializr](https://start.spring.io/).
 
 Agora você pode rodar seu projeto em qualquer sistema operacional! 🚀
 
+### Caso queira baixar tudo de uma vez
+## GNOME
+```
+sudo apt update && sudo apt upgrade -y && \
+sudo apt install -y openjdk-17-jdk nodejs npm wget gpg code postgresql postgresql-contrib git && \
+curl -s "https://get.sdkman.io" | bash && source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk install springboot && \
+npm install -g @angular/cli create-react-app && \
+sudo systemctl enable postgresql && sudo systemctl start postgresql && \
+git config --global user.name "Seu Nome" && git config --global user.email "seuemail@example.com"
+```
+
+## ARCH
+```
+sudo pacman -Syu --noconfirm && \
+sudo pacman -S --noconfirm jdk17-openjdk nodejs npm code postgresql git && \
+sudo -iu postgres initdb --locale en_US.UTF-8 -D /var/lib/postgres/data && \
+sudo systemctl enable postgresql && sudo systemctl start postgresql && \
+curl -s "https://get.sdkman.io" | bash && source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk install springboot && \
+npm install -g @angular/cli create-react-app && \
+git config --global user.name "Seu Nome" && git config --global user.email "seuemail@example.com"
+```
