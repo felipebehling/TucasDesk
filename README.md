@@ -1,12 +1,3 @@
-Perfeito! Vou atualizar seu guia para:
-
-* Remover **PostgreSQL**
-* Adicionar **MySQL/MariaDB**
-* Adicionar **GitHub Desktop**
-
-Segue a versão revisada:
-
----
 
 # 📌 Guia de Instalação - JDK, Angular, VS Code, Git, GitHub Desktop, Spring Boot, MySQL/MariaDB e React
 
