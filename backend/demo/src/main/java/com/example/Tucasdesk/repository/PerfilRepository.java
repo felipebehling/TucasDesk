@@ -1,15 +1,14 @@
 package com.example.Tucasdesk.repository;
 
-import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.example.Tucasdesk.model.Categoria;
 import com.example.Tucasdesk.model.Perfil;
 
 @Repository
 public interface PerfilRepository extends JpaRepository<Perfil, Integer> {
-    List<Perfil> findAll();
-
-    Perfil save(Perfil Perfil);
+    Optional<Categoria> findByNome(String nome);
 }
