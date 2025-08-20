@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Login from "./pages/Login/Login.tsx";
 import Chamados from "./pages/Chamados/Chamados.tsx";
 import Categorias from "./pages/Categorias/Categorias.tsx";
-import Usuarios from "./pages/Usuarios/Usuarios.tsx";
+import Usuarios from "./pages/Usuario/Usuarios.tsx";
 import { useContext, type JSX } from "react";
 import { AuthContext } from "./context/AuthContext";
 
