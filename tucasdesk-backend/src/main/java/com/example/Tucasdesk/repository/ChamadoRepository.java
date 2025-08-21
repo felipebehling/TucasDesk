@@ -10,5 +10,5 @@ import com.example.Tucasdesk.model.Chamado;
 
 @Repository
 public interface ChamadoRepository extends JpaRepository<Chamado, Integer> {
-    Optional<Categoria> findByNome(String nome);
+    Optional<Categoria> findByTitulo(String titulo);
 }
