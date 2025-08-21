@@ -8,6 +8,7 @@ import com.example.Tucasdesk.repository.ChamadoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/Chamados")
 public class ChamadoController {
