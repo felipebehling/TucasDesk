@@ -35,12 +35,13 @@
             <version>8.1.0</version>
         </dependency>
 
-        <!-- Testes -->
+        <!-- Testes 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        -->
     </dependencies>
 
     <build>
