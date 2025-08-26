@@ -1,28 +1,20 @@
 package com.example.Tucasdesk.dtos;
 
 public class LoginDTO {
-    private String nome;
+    private String email;
     private String senha;
 
-    public LoginDTO() {}
-
-    public LoginDTO(String nome, String senha) {
-        this.nome = nome;
-        this.senha = senha;
+    // getters e setters
+    public String getEmail() {
+        return email;
     }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getSenha() {
         return senha;
     }
-
     public void setSenha(String senha) {
         this.senha = senha;
     }

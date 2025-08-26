@@ -18,17 +18,17 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO loginDTO) {
-        return usuarioRepository.findByNome(loginDTO.getNome())
+        return usuarioRepository.findByNome(loginDTO.getEmail())
                 .map(usuario -> {
                     if(usuario.getSenha().equals(loginDTO.getSenha())) {
                         // Aqui você pode gerar JWT depois
                         return ResponseEntity.ok(new LoginResponseDTO("fake-jwt-token", usuario.getNome(), "Login bem-sucedido"));
                     } else {
                         return ResponseEntity.status(401)
-                                .body(new LoginResponseDTO(null, loginDTO.getNome(), "Senha incorreta"));
+                                .body(new LoginResponseDTO(null, loginDTO.getEmail(), "Senha incorreta"));
                     }
                 })
                 .orElse(ResponseEntity.status(401)
-                        .body(new LoginResponseDTO(null, loginDTO.getNome(), "Usuário não encontrado")));
+                        .body(new LoginResponseDTO(null, loginDTO.getEmail(), "Usuário não encontrado")));
     }
 }
