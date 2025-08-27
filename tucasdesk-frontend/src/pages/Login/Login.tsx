@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import "./login.css";
+import "../fonts.css";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,15 +17,18 @@ export default function Login() {
   };
 
   return (
-    <div className="page">
+    <div className="login-page">
       {/* Left Side */}
-      <div className="left">
-        <form onSubmit={handleSubmit} className="card">
-          <div className="brand">
-            <div className="brand-mark">Tucasdesk</div>
-            <h1 className="title">Bem-vindo de volta!</h1>
-            <p className="muted">
-              Nao tem uma conta? <a href="#" className="link">Registre-se</a>
+      <div className="login-content">
+        <form onSubmit={handleSubmit} className="login-card">
+          <div className="brand-section">
+            <div className="brand-logo">Tucasdesk</div>
+            <h1 className="page-title">Bem-vindo de volta!</h1>
+            <p className="subtitle">
+              Não tem uma conta?{" "}
+              <a href="#" className="text-link">
+                Registre-se
+              </a>
             </p>
           </div>
 
@@ -35,25 +39,25 @@ export default function Login() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="input"
+              className="form-input"
               required
             />
           </div>
 
           {/* Password */}
-          <div className="input-wrap">
+          <div className="input-container">
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input"
+              className="form-input"
               required
             />
             <button
               type="button"
               onClick={togglePassword}
-              className="icon-btn"
+              className="input-icon-button"
               aria-label="Toggle password visibility"
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -61,23 +65,22 @@ export default function Login() {
           </div>
 
           {/* Remember me + Forgot password */}
-          <div className="row between small">
-            <label className="check">
-              <input type="checkbox" />
+          <div className="flex-row flex-row--justify-between text-small">
+            <label className="checkbox-label">
+              <input type="checkbox" className="checkbox-input" />
               <span>Lembrar-me</span>
             </label>
-            <a href="#" className="link">Esqueci minha senha!</a>
+            <a href="#" className="text-link">
+              Esqueci minha senha!
+            </a>
           </div>
 
           {/* Button */}
-          <button type="submit" className="primary-btn">Login</button>
+          <button type="submit" className="btn-primary">
+            Login
+          </button>
         </form>
       </div>
-
-      {/* Right Side */}
-      <div className="right">
-      </div>
-
     </div>
   );
 }
