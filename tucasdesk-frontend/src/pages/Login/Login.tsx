@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import "./login.css";
-import "../fonts.css";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
