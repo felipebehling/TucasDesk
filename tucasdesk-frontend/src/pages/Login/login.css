@@ -64,7 +64,6 @@ body {
 }
 
 .brand-logo {
-  margin-bottom: 10px;
   background: #dbeafe; /* azul bem claro */
   color: var(--color-primary);
   width: 90%;
