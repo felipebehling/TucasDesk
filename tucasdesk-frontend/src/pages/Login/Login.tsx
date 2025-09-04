@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { Link } from "react-router-dom";
 import "./login.css";
 
 export default function Login() {
@@ -21,14 +22,19 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="login-card">
           <div className="brand-section">
             <div className="brand-logo">
-              <img className="tucas-logo" src="/tucas-icon-nobg.png" alt="tucas-icon" />
-              Tucasdesk</div>
+              <img
+                className="tucas-logo"
+                src="/tucas-icon-nobg.png"
+                alt="tucas-icon"
+              />
+              Tucasdesk
+            </div>
             <h1 className="page-title">Bem-vindo de volta!</h1>
             <p className="subtitle">
               Não tem uma conta?{" "}
-              <a href="#" className="text-link">
+              <Link to="registro" className="text-link">
                 Registre-se
-              </a>
+              </Link>
             </p>
           </div>
 

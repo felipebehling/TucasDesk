@@ -1,42 +1,31 @@
-import { useEffect, useState } from "react";
-import api from "../api/api";
+import { useState } from "react";
 
+// Definição da interface para o objeto de usuário.
 interface Usuario {
-  id_usuario: number;
+  id: number;
   nome: string;
   email: string;
-  perfil_id: number;
+  perfil: string;
   ativo: boolean;
-  data_criacao: string;
 }
 
-const UsuarioPage: React.FC = () => {
-  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  // Carregar usuários ao montar o componente
-  useEffect(() => {
-    fetchUsuarios();
-  }, []);
-
-  const fetchUsuarios = async () => {
-    try {
-      const response = await api.get<Usuario[]>("/usuarios");
-      setUsuarios(response.data);
-    } catch (error) {
-      console.error("Erro ao carregar usuários:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+export default function UsuariosPage() {
+  const [usuarios] = useState<Usuario[]>([
+    { id: 1, nome: "Felipe Behling", email: "felipe@tucasdesk.com", perfil: "Administrador", ativo: true },
+    { id: 2, nome: "Ana Souza", email: "ana@tucasdesk.com", perfil: "Técnico", ativo: true },
+    { id: 3, nome: "Maria Oliveira", email: "maria@tucasdesk.com", perfil: "Usuário", ativo: false },
+  ]);
 
   return (
-    <div className="container mt-4">
-      <h3>Usuários</h3>
-      {loading ? (
-        <p>Carregando...</p>
-      ) : (
-        <table className="table table-striped mt-3">
+    <>
+      <div className="content-header">
+        <h2>Usuários</h2>
+      </div>
+      <div className="card">
+        <div className="card-header">
+          <h3>Lista de Usuários</h3>
+        </div>
+        <table className="table-list">
           <thead>
             <tr>
               <th>ID</th>
@@ -44,25 +33,21 @@ const UsuarioPage: React.FC = () => {
               <th>Email</th>
               <th>Perfil</th>
               <th>Ativo</th>
-              <th>Data de Criação</th>
             </tr>
           </thead>
           <tbody>
-            {usuarios.map((usuario) => (
-              <tr key={usuario.id_usuario}>
-                <td>{usuario.id_usuario}</td>
-                <td>{usuario.nome}</td>
-                <td>{usuario.email}</td>
-                <td>{usuario.perfil_id}</td>
-                <td>{usuario.ativo ? "Sim" : "Não"}</td>
-                <td>{new Date(usuario.data_criacao).toLocaleString()}</td>
+            {usuarios.map(u => (
+              <tr key={u.id}>
+                <td>{u.id}</td>
+                <td>{u.nome}</td>
+                <td>{u.email}</td>
+                <td>{u.perfil}</td>
+                <td>{u.ativo ? "Sim" : "Não"}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      )}
-    </div>
+      </div>
+    </>
   );
-};
-
-export default UsuarioPage;
+}

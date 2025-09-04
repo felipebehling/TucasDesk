@@ -1,68 +1,51 @@
-import { useEffect, useState } from "react";
-import api from "../api/api";
+import React, { useState } from "react";
 
+// Definição da interface para o objeto de categoria.
 interface Categoria {
-  id_categoria: number;
+  id: number;
   nome: string;
 }
 
-const CategoriasPage: React.FC = () => {
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
-  const [novoNome, setNovoNome] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
+export default function CategoriasPage() {
+  const [categorias] = useState<Categoria[]>([
+    { id: 1, nome: "Infraestrutura" },
+    { id: 2, nome: "Sistema" },
+    { id: 3, nome: "Rede" },
+  ]);
+  const [novaCategoria, setNovaCategoria] = useState<string>("");
 
-  // Carregar categorias ao montar o componente
-  useEffect(() => {
-    fetchCategorias();
-  }, []);
-
-  const fetchCategorias = async () => {
-    try {
-      const response = await api.get<Categoria[]>("/categorias");
-      setCategorias(response.data);
-    } catch (error) {
-      console.error("Erro ao carregar categorias:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const adicionarCategoria = async (e: React.FormEvent) => {
+  const adicionarCategoria = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!novoNome) return;
-
-    try {
-      await api.post("/categorias", { nome: novoNome });
-      setNovoNome("");
-      fetchCategorias(); // Atualiza a lista
-    } catch (error) {
-      console.error("Erro ao adicionar categoria:", error);
-    }
+    if (!novaCategoria) return;
+    console.log("Adicionar categoria:", novaCategoria);
+    setNovaCategoria("");
   };
 
   return (
-    <div className="container mt-4">
-      <h3>Categorias</h3>
-
-      <form onSubmit={adicionarCategoria} className="mb-3">
-        <div className="input-group">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Nova categoria"
-            value={novoNome}
-            onChange={(e) => setNovoNome(e.target.value)}
-          />
-          <button className="btn btn-success" type="submit">
-            Adicionar
-          </button>
+    <>
+      <div className="content-header">
+        <h2>Categorias</h2>
+      </div>
+      <div className="card">
+        <div className="card-header">
+          <h3>Gerenciar Categorias</h3>
         </div>
-      </form>
-
-      {loading ? (
-        <p>Carregando categorias...</p>
-      ) : (
-        <table className="table table-striped">
+        <form onSubmit={adicionarCategoria} style={{ marginBottom: "1rem" }}>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="Nova categoria"
+              value={novaCategoria}
+              onChange={(e) => setNovaCategoria(e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <button className="btn-primary" type="submit">
+              Adicionar
+            </button>
+          </div>
+        </form>
+        <table className="table-list">
           <thead>
             <tr>
               <th>ID</th>
@@ -70,17 +53,15 @@ const CategoriasPage: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {categorias.map((categoria) => (
-              <tr key={categoria.id_categoria}>
-                <td>{categoria.id_categoria}</td>
-                <td>{categoria.nome}</td>
+            {categorias.map(cat => (
+              <tr key={cat.id}>
+                <td>{cat.id}</td>
+                <td>{cat.nome}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      )}
-    </div>
+      </div>
+    </>
   );
-};
-
-export default CategoriasPage;
+}

@@ -1,81 +1,61 @@
-import { useEffect, useState } from "react";
-import api from "../api/api";
+import { useState } from "react";
 
+// Definição da interface para o objeto de chamado.
 interface Chamado {
-  id_chamado: number;
+  id: number;
   titulo: string;
-  descricao: string;
-  categoria_nome: string;
-  status_nome: string;
-  prioridade_nome: string;
-  usuario_nome: string;
-  tecnico_nome?: string;
-  data_abertura: string;
-  data_fechamento?: string;
+  status: string;
+  prioridade: string;
 }
 
-const ChamadosPage: React.FC = () => {
-  const [chamados, setChamados] = useState<Chamado[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+// Interface para as propriedades do componente.
+interface ChamadosPageProps {
+  onSelectChamado: (id: number) => void;
+}
 
-  // Carregar chamados ao montar o componente
-  useEffect(() => {
-    fetchChamados();
-  }, []);
-
-  const fetchChamados = async () => {
-    try {
-      const response = await api.get<Chamado[]>("/chamados");
-      setChamados(response.data);
-    } catch (error) {
-      console.error("Erro ao carregar chamados:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+// Componente para a página de chamados.
+export default function ChamadosPage({ onSelectChamado }: ChamadosPageProps) {
+  // Estado para armazenar a lista de chamados.
+  const [chamados] = useState<Chamado[]>([
+    { id: 1, titulo: "Erro no sistema de login", status: "Aberto", prioridade: "Alta" },
+    { id: 2, titulo: "Instalação de software", status: "Em Andamento", prioridade: "Média" },
+    { id: 3, titulo: "Troca de monitor", status: "Pendente", prioridade: "Baixa" },
+  ]);
 
   return (
-    <div className="container mt-4">
-      <h3>Chamados</h3>
-
-      {loading ? (
-        <p>Carregando chamados...</p>
-      ) : (
-        <table className="table table-striped">
+    <>
+      <div className="content-header">
+        <h2>Chamados</h2>
+      </div>
+      <div className="card">
+        <div className="card-header">
+          <h3>Lista de Chamados</h3>
+        </div>
+        <table className="table-list">
           <thead>
             <tr>
               <th>ID</th>
               <th>Título</th>
-              <th>Descrição</th>
-              <th>Categoria</th>
               <th>Status</th>
               <th>Prioridade</th>
-              <th>Usuário</th>
-              <th>Técnico</th>
-              <th>Abertura</th>
-              <th>Fechamento</th>
             </tr>
           </thead>
           <tbody>
-            {chamados.map((c) => (
-              <tr key={c.id_chamado}>
-                <td>{c.id_chamado}</td>
-                <td>{c.titulo}</td>
-                <td>{c.descricao}</td>
-                <td>{c.categoria_nome}</td>
-                <td>{c.status_nome}</td>
-                <td>{c.prioridade_nome}</td>
-                <td>{c.usuario_nome}</td>
-                <td>{c.tecnico_nome || "-"}</td>
-                <td>{new Date(c.data_abertura).toLocaleString()}</td>
-                <td>{c.data_fechamento ? new Date(c.data_fechamento).toLocaleString() : "-"}</td>
+            {chamados.map(c => (
+              <tr key={c.id}>
+                <td>{c.id}</td>
+                <td>
+                  <a href="#" className="table-link" onClick={() => onSelectChamado(c.id)}>
+                    {c.titulo}
+                  </a>
+                </td>
+                <td>{c.status}</td>
+                <td>{c.prioridade}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      )}
-    </div>
+      </div>
+    </>
   );
-};
-
-export default ChamadosPage;
+}

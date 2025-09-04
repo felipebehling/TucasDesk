@@ -1,18 +1,22 @@
+/* login.css */
+
+/* Reutilizamos todas as regras existentes */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
 :root {
-  /* Novo esquema de cores inspirado no tema escuro da MetaMask */
-  --bg-primary: #14171a; /* Fundo escuro */
-  --text-primary: #ffffff; /* Texto claro */
-  --text-muted: #a6a6a6; /* Texto secundário claro */
-  --border-default: #333333; /* Borda escura para os inputs */
-  --color-primary: #f6851b; /* Laranja da MetaMask */
-  --color-primary-dark: #cc6c00; /* Laranja mais escuro para hover */
-  --bg-accent: #1e2124; /* Fundo do card */
+  --bg-primary: #14171a;
+  --text-primary: #ffffff;
+  --text-muted: #a6a6a6;
+  --border-default: #333333;
+  --color-primary: #f6851b;
+  --color-primary-dark: #cc6c00;
+  --bg-accent: #1e2124;
   --inter-font: "Inter", monospace, sans-serif;
+  
+  /* Nova variável para a cor de erro */
+  --color-error: #e53e3e;
 }
 
-/* Remove a imagem de fundo para um visual mais limpo */
 body {
   margin: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
@@ -33,9 +37,7 @@ body {
   align-items: center;
 }
 
-/* Container do formulário */
 .login-page {
-  /* Altera para um layout simples e centralizado */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -43,7 +45,6 @@ body {
 }
 
 .login-content {
-  /* Centraliza o formulário dentro do seu container */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -61,12 +62,11 @@ body {
   gap: 20px;
 }
 
-/* Seções de texto */
 .brand-logo {
   font-family: var(--inter-font);
   font-weight: 700;
   font-size: 24px;
-  color: var(--color-primary); /* Laranja para o logo */
+  color: var(--color-primary);
   text-align: center;
   display: flex;
   justify-content: center;
@@ -91,7 +91,6 @@ body {
   color: var(--text-muted);
 }
 
-/* Links */
 .text-link {
   font-family: var(--inter-font);
   color: var(--color-primary);
@@ -103,13 +102,12 @@ body {
   text-decoration: underline;
 }
 
-/* Elementos do Formulário */
 .form-input {
   width: 94%;
   padding: 10px 12px;
   border: 1px solid var(--border-default);
-  background: var(--bg-primary); /* Fundo escuro para o input */
-  color: var(--text-primary); /* Texto claro */
+  background: var(--bg-primary);
+  color: var(--text-primary);
   border-radius: 10px;
   font-size: 14px;
   outline: none;
@@ -122,10 +120,9 @@ body {
 
 .form-input:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(246, 133, 27, 0.4); /* Sombra laranja */
+  box-shadow: 0 0 0 3px rgba(246, 133, 27, 0.4);
 }
 
-/* Botões */
 .btn-primary {
   width: 100%;
   padding: 12px;
@@ -163,7 +160,6 @@ body {
   opacity: 0.85;
 }
 
-/* Utilitários */
 .flex-row {
   display: flex;
   align-items: center;
@@ -177,7 +173,6 @@ body {
   font-size: 13px;
 }
 
-/* Checkbox */
 .checkbox-label {
   display: flex;
   align-items: center;
@@ -213,4 +208,21 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+/* --- Novas classes para a página de registro --- */
+
+/* Estilo para input com erro de validação */
+.form-input.error {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.4);
+}
+
+/* Estilo para a mensagem de erro */
+.error-message {
+  color: var(--color-error);
+  font-size: 12px;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  text-align: center;
 }
