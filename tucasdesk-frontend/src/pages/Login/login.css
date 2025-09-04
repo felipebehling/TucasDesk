@@ -1,116 +1,146 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-  --bg-primary: #f9fafb; /* cinza claro de fundo */
-  --text-primary: #1e293b; /* slate-800 */
-  --text-muted: #64748b; /* slate-500 */
-  --border-default: #cbd5e1; /* slate-300 */
-  --color-primary: #3b82f6; /* azul-500 */
-  --color-primary-dark: #1d4ed8; /* azul-700 */
-  --bg-accent: #0f172a; /* azul bem escuro para contraste */
-  --bg-image: url("/login-page-img.png");
-  --noto-serif-font: "Noto Serif", serif;}
-
-* {
-  box-sizing: border-box;
+  /* Novo esquema de cores inspirado no tema escuro da MetaMask */
+  --bg-primary: #14171a; /* Fundo escuro */
+  --text-primary: #ffffff; /* Texto claro */
+  --text-muted: #a6a6a6; /* Texto secundário claro */
+  --border-default: #333333; /* Borda escura para os inputs */
+  --color-primary: #f6851b; /* Laranja da MetaMask */
+  --color-primary-dark: #cc6c00; /* Laranja mais escuro para hover */
+  --bg-accent: #1e2124; /* Fundo do card */
+  --noto-serif-font: "Noto Serif", serif;
 }
 
-html,
-body,
-#root {
-  height: 100%;
-}
-
+/* Remove a imagem de fundo para um visual mais limpo */
 body {
   margin: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
     Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   color: var(--text-primary);
   background: var(--bg-primary);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Layout */
-.login-page {
+#root {
+  height: 100%;
+  width: 100%;
   display: flex;
-  height: 100vh;
-  width: 100vw;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Container do formulário */
+.login-page {
+  /* Altera para um layout simples e centralizado */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 .login-content {
-  flex: 1;
+  /* Centraliza o formulário dentro do seu container */
   display: flex;
-  align-items: center;
   justify-content: center;
-  background: #fff;
-  padding: 16px;
+  align-items: center;
+  width: 100%;
 }
 
 .login-card {
+  background: var(--bg-accent);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   width: 100%;
-  max-width: 420px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* Brand Section */
-.brand-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.brand-logo {
-  background: #dbeafe; /* azul bem claro */
-  color: var(--color-primary);
-  width: 90%;
+  max-width: 400px;
   display: grid;
-  place-items: center;
-  border-radius: 999px;
-  font-weight: 800;
-  font-size: 48px;
+  gap: 20px;
+}
+
+/* Seções de texto */
+.brand-logo {
+  font-family: var(--noto-serif-font);
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--color-primary); /* Laranja para o logo */
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.brand-logo img {
+  width: 80px;
 }
 
 .page-title {
-  margin: 0;
-  font-size: 28px;
-  line-height: 1.2;
-  font-weight: 800;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  color: var(--text-primary);
 }
 
 .subtitle {
-  margin: 0;
+  text-align: center;
+  margin-top: 0;
   color: var(--text-muted);
-  font-size: 14px;
 }
 
 /* Links */
 .text-link {
-  color: var(--color-primary-dark);
+  font-family: var(--noto-serif-font);
+  color: var(--color-primary);
   text-decoration: none;
+  font-weight: 600;
 }
 
 .text-link:hover {
   text-decoration: underline;
 }
 
-/* Form Elements */
+/* Elementos do Formulário */
 .form-input {
-  width: 100%;
+  width: 94%;
   padding: 10px 12px;
   border: 1px solid var(--border-default);
+  background: var(--bg-primary); /* Fundo escuro para o input */
+  color: var(--text-primary); /* Texto claro */
   border-radius: 10px;
   font-size: 14px;
   outline: none;
   transition: box-shadow 0.2s, border-color 0.2s;
 }
 
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+
 .form-input:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 0 3px rgba(246, 133, 27, 0.4); /* Sombra laranja */
+}
+
+/* Botões */
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: var(--color-primary);
+  color: var(--text-primary);
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark);
 }
 
 .input-container {
@@ -125,19 +155,18 @@ body {
   border: 0;
   background: transparent;
   cursor: pointer;
-  color: #6b7280;
-  padding: 2px;
+  color: var(--text-muted);
+  padding: 2px 2px 0 2px;
 }
 
 .input-icon-button:hover {
   opacity: 0.85;
 }
 
-/* Layout Utilities */
+/* Utilitários */
 .flex-row {
   display: flex;
   align-items: center;
-  gap: 8px;
 }
 
 .flex-row--justify-between {
@@ -145,36 +174,43 @@ body {
 }
 
 .text-small {
-  font-size: 14px;
-  color: var(--text-primary);
+  font-size: 13px;
 }
 
 /* Checkbox */
 .checkbox-label {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 8px;
+  color: var(--text-muted);
   cursor: pointer;
 }
 
 .checkbox-input {
-  width: 16px;
-  height: 16px;
-}
-
-/* Buttons */
-.btn-primary {
-  width: 100%;
-  padding: 10px 14px;
-  border: 0;
-  border-radius: 10px;
-  background: var(--color-primary);
-  color: #fff;
-  font-weight: 600;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  background-color: var(--bg-primary);
+  outline: none;
   cursor: pointer;
-  transition: background 0.2s, transform 0.02s;
+  transition: background-color 0.2s, border-color 0.2s;
+  position: relative;
 }
 
-.btn-primary:hover {
-  background: var(--color-primary-dark);
+.checkbox-input:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.checkbox-input:checked::after {
+  content: "✔";
+  color: white;
+  font-size: 12px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

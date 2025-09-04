@@ -17,11 +17,12 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      {/* Left Side */}
       <div className="login-content">
         <form onSubmit={handleSubmit} className="login-card">
           <div className="brand-section">
-            <div className="brand-logo">Tucasdesk</div>
+            <div className="brand-logo">
+              <img className="tucas-logo" src="/tucas-icon-nobg.png" alt="tucas-icon" />
+              Tucasdesk</div>
             <h1 className="page-title">Bem-vindo de volta!</h1>
             <p className="subtitle">
               Não tem uma conta?{" "}
