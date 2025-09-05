@@ -1,6 +1,8 @@
-import { useState } from "react";
+// src/pages/Chamados.tsx
 
-// Definição da interface para o objeto de chamado.
+import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Importe o useNavigate
+
 interface Chamado {
   id: number;
   titulo: string;
@@ -8,14 +10,8 @@ interface Chamado {
   prioridade: string;
 }
 
-// Interface para as propriedades do componente.
-interface ChamadosPageProps {
-  onSelectChamado: (id: number) => void;
-}
-
-// Componente para a página de chamados.
-export default function ChamadosPage({ onSelectChamado }: ChamadosPageProps) {
-  // Estado para armazenar a lista de chamados.
+export default function ChamadosPage() {
+  const navigate = useNavigate(); // Hook para navegação
   const [chamados] = useState<Chamado[]>([
     { id: 1, titulo: "Erro no sistema de login", status: "Aberto", prioridade: "Alta" },
     { id: 2, titulo: "Instalação de software", status: "Em Andamento", prioridade: "Média" },
@@ -24,13 +20,9 @@ export default function ChamadosPage({ onSelectChamado }: ChamadosPageProps) {
 
   return (
     <>
-      <div className="content-header">
-        <h2>Chamados</h2>
-      </div>
+      <div className="content-header"><h2>Chamados</h2></div>
       <div className="card">
-        <div className="card-header">
-          <h3>Lista de Chamados</h3>
-        </div>
+        <div className="card-header"><h3>Lista de Chamados</h3></div>
         <table className="table-list">
           <thead>
             <tr>
@@ -45,7 +37,8 @@ export default function ChamadosPage({ onSelectChamado }: ChamadosPageProps) {
               <tr key={c.id}>
                 <td>{c.id}</td>
                 <td>
-                  <a href="#" className="table-link" onClick={() => onSelectChamado(c.id)}>
+                  {/* Ao clicar, navega para a rota de detalhes do chamado */}
+                  <a href="#" className="table-link" onClick={() => navigate(`/chamados/${c.id}`)}>
                     {c.titulo}
                   </a>
                 </td>
