@@ -1,226 +1,87 @@
+# TucasDesk
 
-# 📌 Guia de Instalação - JDK, Angular, VS Code, Git, GitHub Desktop, Spring Boot, MySQL/MariaDB e React
+TucasDesk is a simple and efficient open-source helpdesk and ticketing system designed to streamline customer support management.
 
-## 🖥️ Distros GNOME | Arch Linux | Windows 10 & 11
+## About The Project
 
-Este guia fornece instruções detalhadas para instalar as ferramentas essenciais em distros Linux baseadas no GNOME, Arch Linux e Windows.
+This project provides a complete solution for managing support tickets, with features for users, technicians, and administrators. It includes functionalities for creating, viewing, and managing tickets, user authentication, and a dashboard for a quick overview of the support status.
 
----
+### Features
 
-## 🟢 1. Instalar JDK (Java Development Kit)
+*   **Ticket Management:** Create, view, update, and close support tickets.
+*   **User Authentication:** Secure login and registration for users and technicians.
+*   **Dashboard:** An overview of key metrics, such as the number of open and closed tickets.
+*   **User Management:** Manage users and their roles.
+*   **Ticket Categories:** Organize tickets into categories for better management.
+*   **Profile Management:** Users can view and update their profiles.
 
-### 🔹 Distros GNOME
+## Built With
 
-```sh
-sudo apt update && sudo apt upgrade -y && \
-sudo apt install -y openjdk-21-jdk && \
-java -version && javac -version
-```
+This project is built with a modern technology stack, ensuring scalability and maintainability.
 
-### 🔹 Arch Linux
+*   **Backend:**
+    *   [Java](https://www.java.com/)
+    *   [Spring Boot](https://spring.io/projects/spring-boot)
+    *   [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
+    *   [Maven](https://maven.apache.org/)
+*   **Frontend:**
+    *   [React](https://react.dev/)
+    *   [TypeScript](https://www.typescriptlang.org/)
+    *   [Vite](https://vitejs.dev/)
+    *   [Bootstrap](https://getbootstrap.com/)
+*   **Database:**
+    *   [MySQL](https://www.mysql.com/)
+*   **Containerization:**
+    *   [Docker](https://www.docker.com/)
 
-```sh
-sudo pacman -Syu --noconfirm && \
-sudo pacman -S --noconfirm jdk21-openjdk && \
-java -version && javac -version
-```
+## Getting Started
 
-### 🔹 Windows
+To get a local copy up and running, follow these simple steps.
 
-1. Baixe e instale o OpenJDK ou Oracle JDK:
+### Prerequisites
 
-   * [OpenJDK](https://jdk.java.net/)
-   * [Oracle JDK](https://www.oracle.com/java/technologies/javase-downloads.html)
-2. Configure a variável de ambiente `JAVA_HOME`.
-3. Verifique no Prompt de Comando:
+Make sure you have Docker and Docker Compose installed on your machine.
 
-```sh
-java -version
-javac -version
-```
+*   [Docker](https://docs.docker.com/get-docker/)
+*   [Docker Compose](https://docs.docker.com/compose/install/)
 
----
+### Installation
 
-## 🟠 2. Instalar Angular e React
+1.  Clone the repository:
+    ```sh
+    git clone https://github.com/your_username/tucasdesk.git
+    ```
+2.  Navigate to the project directory:
+    ```sh
+    cd tucasdesk
+    ```
+3.  Build and run the application using Docker Compose:
+    ```sh
+    docker compose up --build
+    ```
 
-### 🔹 Distros GNOME e Arch Linux
+The application will be available at the following URLs:
 
-```sh
-npm install -g @angular/cli create-react-app && \
-ng version && create-react-app --version
-```
+*   **Frontend:** [http://localhost:3000](http://localhost:3000)
+*   **Backend:** [http://localhost:8080](http://localhost:8080)
 
-### 🔹 Windows
+The database will be running on port `3307`.
 
-1. Baixe e instale o Node.js: [Node.js](https://nodejs.org/)
-2. Instale Angular e React:
+## Contributing
 
-```sh
-npm install -g @angular/cli create-react-app
-ng version
-create-react-app --version
-```
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
----
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 
-## 🟢 3. Instalar VS Code
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
 
-### 🔹 Distros GNOME
+## License
 
-```sh
-sudo apt update && sudo apt install -y wget gpg && \
-wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/packages.microsoft.gpg > /dev/null && \
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list && \
-sudo apt update && sudo apt install -y code
-```
-
-### 🔹 Arch Linux
-
-```sh
-sudo pacman -S --noconfirm code
-```
-
-Ou, se usar o AUR:
-
-```sh
-yay -S visual-studio-code-bin
-```
-
-### 🔹 Windows
-
-* Baixe o instalador do VS Code: [VS Code](https://code.visualstudio.com/)
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
-
-## 🟣 4. Instalar Git
-
-### 🔹 Distros GNOME e Arch Linux
-
-```sh
-sudo apt install -y git || sudo pacman -S --noconfirm git && \
-git --version && \
-git config --global user.name "Seu Nome" && \
-git config --global user.email "seuemail@example.com"
-```
-
-### 🔹 Windows
-
-* Baixe o instalador do Git: [Git para Windows](https://git-scm.com/download/win)
-* Configure no Prompt de Comando ou Git Bash:
-
-```sh
-git --version
-git config --global user.name "Seu Nome"
-git config --global user.email "seuemail@example.com"
-```
-
----
-
-## 🔷 5. Instalar GitHub Desktop
-
-### 🔹 Windows
-
-* Baixe e instale: [GitHub Desktop](https://desktop.github.com/)
-
-### 🔹 Linux (Ubuntu / Arch via AUR)
-
-```sh
-# Ubuntu / GNOME
-sudo apt install -y github-desktop
-# Arch via AUR
-yay -S github-desktop-bin
-```
-
----
-
-## 🔵 6. Instalar MySQL ou MariaDB
-
-### 🔹 MySQL (Community Server)
-
-#### GNOME / Ubuntu
-
-```sh
-sudo apt update && sudo apt install -y wget && \
-wget https://dev.mysql.com/get/mysql-apt-config_0.8.33-1_all.deb && \
-sudo dpkg -i mysql-apt-config_0.8.33-1_all.deb && \
-sudo apt update && sudo apt install -y mysql-server && \
-sudo systemctl enable mysql && sudo systemctl start mysql
-```
-
-#### Arch Linux
-
-```sh
-sudo pacman -S --noconfirm mysql && \
-sudo systemctl enable mysqld && sudo systemctl start mysqld
-```
-
-#### Windows
-
-* Baixe e instale: [MySQL Community Server](https://dev.mysql.com/downloads/mysql/)
-* Use o **MySQL Installer** para configurar o servidor e o Workbench.
-
----
-
-### 🔹 MariaDB
-
-#### GNOME / Ubuntu
-
-```sh
-sudo apt update && sudo apt install -y mariadb-server mariadb-client && \
-sudo systemctl enable mariadb && sudo systemctl start mariadb
-```
-
-#### Arch Linux
-
-```sh
-sudo pacman -S --noconfirm mariadb && \
-sudo systemctl enable mariadb && sudo systemctl start mariadb
-```
-
-#### Windows
-
-* Baixe e instale: [MariaDB](https://mariadb.org/download/)
-
----
-
-## 🔷 7. Instalar Spring Boot
-
-### 🔹 Distros GNOME e Arch Linux
-
-```sh
-curl -s "https://get.sdkman.io" | bash && \
-source "$HOME/.sdkman/bin/sdkman-init.sh" && \
-sdk install springboot && \
-spring --version
-```
-
-### 🔹 Windows
-
-* Use o [Spring Initializr](https://start.spring.io/) para gerar projetos.
-
----
-
-## 🛠️ 8. Comandos Únicos para Instalação Completa
-
-### 🔹 GNOME
-
-```sh
-sudo apt update && sudo apt upgrade -y && \
-sudo apt install -y openjdk-21-jdk nodejs npm wget gpg code git mariadb-server mariadb-client && \
-curl -s "https://get.sdkman.io" | bash && source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk install springboot && \
-npm install -g @angular/cli create-react-app && \
-sudo systemctl enable mariadb && sudo systemctl start mariadb && \
-git config --global user.name "Seu Nome" && git config --global user.email "seuemail@example.com"
-```
-
-### 🔹 Arch Linux
-
-```sh
-sudo pacman -Syu --noconfirm && \
-sudo pacman -S --noconfirm jdk21-openjdk nodejs npm code git mariadb && \
-sudo systemctl enable mariadb && sudo systemctl start mariadb && \
-curl -s "https://get.sdkman.io" | bash && source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk install springboot && \
-npm install -g @angular/cli create-react-app && \
-git config --global user.name "Seu Nome" && git config --global user.email "seuemail@example.com"
-```
-
+_This README was improved by Jules, an AI software engineer._
