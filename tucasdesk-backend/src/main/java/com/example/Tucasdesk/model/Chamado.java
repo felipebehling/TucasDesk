@@ -3,40 +3,74 @@ package com.example.Tucasdesk.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * Represents a support ticket in the system.
+ * This entity is mapped to the "chamados" table in the database.
+ */
 @Entity
 @Table(name = "chamados")
 public class Chamado {
+    /**
+     * The unique identifier for the ticket.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idChamado;
 
+    /**
+     * The title of the ticket.
+     */
     private String titulo;
 
+    /**
+     * A detailed description of the issue or request.
+     */
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
+    /**
+     * The category of the ticket (e.g., Hardware, Software).
+     */
     @ManyToOne
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
 
+    /**
+     * The current status of the ticket (e.g., Open, In Progress, Closed).
+     */
     @ManyToOne
     @JoinColumn(name = "status_id")
     private Status status;
 
+    /**
+     * The priority level of the ticket (e.g., Low, Medium, High).
+     */
     @ManyToOne
     @JoinColumn(name = "prioridade")
     private Prioridade prioridade;
 
+    /**
+     * The user who created the ticket.
+     */
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
+    /**
+     * The technician assigned to the ticket.
+     */
     @ManyToOne
     @JoinColumn(name = "tecnico_id")
     private Usuario tecnico;
 
+    /**
+     * The timestamp when the ticket was opened.
+     */
     private LocalDateTime dataAbertura;
 
+    /**
+     * The timestamp when the ticket was closed. Can be null if the ticket is not yet closed.
+     */
     private LocalDateTime dataFechamento;
 
     //getters e setters

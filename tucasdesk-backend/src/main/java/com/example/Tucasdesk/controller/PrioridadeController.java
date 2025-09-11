@@ -8,6 +8,9 @@ import com.example.Tucasdesk.repository.PrioridadeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
+/**
+ * Controller for handling priority-related requests.
+ */
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/prioridades")
@@ -16,11 +19,22 @@ public class PrioridadeController {
     @Autowired
     private PrioridadeRepository PrioridadeRepository;
 
+    /**
+     * Retrieves a list of all priorities.
+     *
+     * @return A list of all {@link Prioridade} objects.
+     */
     @GetMapping
     public List<Prioridade> listarTodos() {
         return PrioridadeRepository.findAll();
     }
 
+    /**
+     * Creates a new priority.
+     *
+     * @param Prioridade The {@link Prioridade} object to create, based on the request body.
+     * @return The created {@link Prioridade} object.
+     */
     @PostMapping
     public Prioridade criar(@RequestBody Prioridade Prioridade) {
         return PrioridadeRepository.save(Prioridade);

@@ -2,28 +2,49 @@
 
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom"; // Importe o useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import "./style/login.css";
 
+/**
+ * Props for the Login component.
+ */
 interface LoginProps {
+  /**
+   * Callback function to be executed upon successful login.
+   */
   onLoginSuccess: () => void;
 }
 
+/**
+ * Renders the login page, including the login form and links for registration
+ * and password recovery.
+ *
+ * @param {LoginProps} props - The component props.
+ * @returns {JSX.Element} The login page component.
+ */
 export default function Login({ onLoginSuccess }: LoginProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // Hook para navegação
+  const navigate = useNavigate();
 
+  /**
+   * Toggles the visibility of the password in the password input field.
+   */
   const togglePassword = () => setShowPassword(!showPassword);
 
+  /**
+   * Handles the form submission for the login attempt.
+   *
+   * @param {React.FormEvent} e - The form submission event.
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Email:", email);
     console.log("Password:", password);
-    // Lógica de login real iria aqui...
-    onLoginSuccess(); // Avisa o App.tsx que o login foi bem sucedido
-    navigate("/"); // Redireciona para a página principal
+    // TODO: Implement actual login logic using the AuthContext.
+    onLoginSuccess(); // Notify App.tsx that login was successful.
+    navigate("/"); // Redirect to the main page.
   };
 
   return (

@@ -1,13 +1,20 @@
 import axios from "axios";
 
+/**
+ * An Axios instance configured for making requests to the TucasDesk backend API.
+ * The base URL is set to `http://localhost:8080/api`.
+ */
 const api = axios.create({
-  baseURL: "http://localhost:8080/api", // URL do backend
+  baseURL: "http://localhost:8080/api", // Base URL for the backend
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Adiciona token JWT automaticamente
+/**
+ * Axios request interceptor to automatically add the JWT to the Authorization header.
+ * It retrieves the token from local storage and adds it as a Bearer token.
+ */
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {

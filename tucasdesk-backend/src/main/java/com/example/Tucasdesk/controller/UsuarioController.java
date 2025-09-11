@@ -10,6 +10,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
+/**
+ * Controller for handling user-related requests.
+ */
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/usuarios")
@@ -21,11 +24,23 @@ public class UsuarioController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Retrieves a list of all users.
+     *
+     * @return A list of all {@link Usuario} objects.
+     */
     @GetMapping
     public List<Usuario> listarTodos() {
         return usuarioRepository.findAll();
     }
 
+    /**
+     * Creates a new user.
+     * The user's password will be encoded before being saved.
+     *
+     * @param usuario The {@link Usuario} object to create, based on the request body.
+     * @return The created {@link Usuario} object.
+     */
     @PostMapping
     public Usuario criar(@RequestBody Usuario usuario) {
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));

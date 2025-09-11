@@ -18,12 +18,22 @@ import CategoriasPage from "./pages/Categorias";
 // Componentes de Layout e Rota Protegida
 // =================================================================================
 
-// Layout para as páginas de autenticação (centralizado)
+/**
+ * A simple layout component that renders the nested route.
+ * Used for authentication pages like Login and Register.
+ * @returns {JSX.Element} An outlet that renders the matched child route.
+ */
 function AuthLayout() {
-  return <Outlet />; // Renderiza Login ou Registro
+  return <Outlet />;
 }
 
-// Layout principal da aplicação com a sidebar
+/**
+ * The main layout for the authenticated part of the application.
+ * It includes the sidebar for navigation and a main content area.
+ * @param {object} props - The component props.
+ * @param {() => void} props.handleLogout - Function to handle user logout.
+ * @returns {JSX.Element} The main application layout.
+ */
 function AppLayout({ handleLogout }: { handleLogout: () => void }) {
   return (
     <div className="app-container">
@@ -44,26 +54,37 @@ function AppLayout({ handleLogout }: { handleLogout: () => void }) {
         </a>
       </div>
       <main className="main-content">
-        <Outlet /> {/* Renderiza a página correspondente à rota atual */}
+        <Outlet /> {/* Renders the page corresponding to the current route */}
       </main>
     </div>
   );
 }
 
-// Componente para proteger rotas. Se não estiver autenticado, redireciona para o login.
+/**
+ * A component to protect routes that require authentication.
+ * If the user is not authenticated, it redirects them to the login page.
+ * @param {object} props - The component props.
+ * @param {boolean} props.isAuthenticated - Flag indicating if the user is authenticated.
+ * @returns {JSX.Element} The nested route (Outlet) if authenticated, or a redirect.
+ */
 function ProtectedRoute({ isAuthenticated }: { isAuthenticated: boolean }) {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  return <Outlet />; // Se autenticado, renderiza o layout principal aninhado
+  return <Outlet />; // If authenticated, render the nested main layout.
 }
 
 
 // =================================================================================
 // Componente Principal da Aplicação
 // =================================================================================
+/**
+ * The root component of the application.
+ * It sets up the router, manages the global authentication state, and defines all routes.
+ * @returns {JSX.Element} The main application component.
+ */
 export default function App() {
-  // Estado central que define se o usuário está logado ou não
+  // TODO: Replace this local state with the `AuthContext` for a more robust solution.
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const handleLogin = () => setIsAuthenticated(true);

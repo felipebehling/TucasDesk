@@ -1,12 +1,18 @@
 // src/pages/Registro.tsx
 
 import React, { useState } from "react";
-import { Link } from "react-router-dom"; // Importe o Link
+import { Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import "./style/login.css";
 
+/**
+ * Renders the registration page, allowing new users to create an account.
+ * It includes a form for username, email, and password, along with a
+ * confirmation field and terms of service agreement.
+ *
+ * @returns {JSX.Element} The registration page component.
+ */
 export default function Register() {
-  // ... (seus hooks useState permanecem os mesmos)
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [username, setUsername] = useState("");
@@ -15,12 +21,24 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
 
+  /**
+   * Toggles the visibility of the password in the password input field.
+   */
   const togglePassword = () => setShowPassword(!showPassword);
+
+  /**
+   * Toggles the visibility of the password in the confirm password input field.
+   */
   const toggleConfirmPassword = () => setShowConfirmPassword(!showConfirmPassword);
 
+  /**
+   * Handles the form submission for the registration attempt.
+   *
+   * @param {React.FormEvent} e - The form submission event.
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // ... (sua lógica de validação permanece a mesma)
+    // TODO: Implement registration logic, including validation and API call.
   };
 
   return (

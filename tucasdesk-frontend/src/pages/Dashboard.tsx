@@ -1,14 +1,27 @@
 import { useState } from "react";
 
-// Definição da interface para o objeto de chamado.
+/**
+ * Defines the shape of a support ticket object.
+ */
 interface Chamado {
+  /** The unique identifier for the ticket. */
   id: number;
+  /** The title of the ticket. */
   titulo: string;
+  /** The current status of the ticket (e.g., "Aberto", "Em Andamento"). */
   status: string;
+  /** The priority level of the ticket (e.g., "Alta", "Média"). */
   prioridade: string;
 }
 
+/**
+ * Renders the main dashboard page.
+ * This page displays a summary of recent tickets and quick statistics.
+ *
+ * @returns {JSX.Element} The dashboard page component.
+ */
 export default function DashboardPage() {
+  // TODO: Replace with actual data fetching from the API.
   const [chamados] = useState<Chamado[]>([
     { id: 1, titulo: "Erro no sistema de login", status: "Aberto", prioridade: "Alta" },
     { id: 2, titulo: "Instalação de software", status: "Em Andamento", prioridade: "Média" },

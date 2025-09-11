@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller for handling authentication requests, such as user login.
+ */
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = "http://localhost:5173")
@@ -20,12 +23,20 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Authenticates a user based on the provided credentials.
+     *
+     * @param loginDTO A {@link LoginDTO} containing the user's email and password.
+     * @return A {@link ResponseEntity} with a {@link LoginResponseDTO}.
+     *         On success, it returns a JWT and a success message.
+     *         On failure, it returns an appropriate error message and a 401 status code.
+     */
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO loginDTO) {
         return usuarioRepository.findByEmail(loginDTO.getEmail())
                 .map(usuario -> {
                     if(passwordEncoder.matches(loginDTO.getSenha(), usuario.getSenha())) {
-                        // Aqui você pode gerar JWT depois
+                        // TODO: Implement actual JWT generation
                         return ResponseEntity.ok(new LoginResponseDTO("fake-jwt-token", usuario.getNome(), "Login bem-sucedido"));
                     } else {
                         return ResponseEntity.status(401)

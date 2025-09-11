@@ -1,16 +1,50 @@
 // src/pages/ChamadoDetalhe.tsx
 
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // Importe os hooks
+import { useParams, useNavigate } from "react-router-dom";
 
-interface Interacao { id: number; usuario: string; mensagem: string; }
-interface Chamado { id: number; titulo: string; descricao: string; status: string; prioridade: string; interacoes: Interacao[]; }
+/**
+ * Defines the shape of an interaction object on a ticket.
+ */
+interface Interacao {
+  /** The unique identifier for the interaction. */
+  id: number;
+  /** The name of the user who made the interaction. */
+  usuario: string;
+  /** The content of the interaction message. */
+  mensagem: string;
+}
 
+/**
+ * Defines the shape of a detailed support ticket object.
+ */
+interface Chamado {
+  /** The unique identifier for the ticket. */
+  id: number;
+  /** The title of the ticket. */
+  titulo: string;
+  /** A detailed description of the issue. */
+  descricao: string;
+  /** The current status of the ticket. */
+  status: string;
+  /** The priority level of the ticket. */
+  prioridade: string;
+  /** A list of interactions associated with the ticket. */
+  interacoes: Interacao[];
+}
+
+/**
+ * Renders the detail page for a single support ticket.
+ * It fetches the ticket ID from the URL and displays its details and interactions.
+ *
+ * @returns {JSX.Element} The ticket detail page component.
+ */
 export default function ChamadoDetalhePage() {
-  const { id } = useParams(); // Pega o ID da URL, ex: /chamados/1 -> id = "1"
-  const navigate = useNavigate(); // Hook para navegação
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const [chamado] = useState<Chamado>({ /* Seus dados mockados */
+  // TODO: Replace with actual data fetching from the API using the `id` from `useParams`.
+  const [chamado] = useState<Chamado>({
     id: 1,
     titulo: "Erro no sistema de login",
     descricao: "Não consigo acessar minha conta, aparece erro 500.",
