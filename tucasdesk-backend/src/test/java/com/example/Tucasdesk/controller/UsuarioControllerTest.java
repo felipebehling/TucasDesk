@@ -20,6 +20,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.hamcrest.Matchers.hasSize;
+
+import java.util.Collections;
+
 
 @WebMvcTest(UsuarioController.class)
 @Import(SecurityConfig.class)
@@ -57,5 +62,25 @@ public class UsuarioControllerTest {
                 .content(objectMapper.writeValueAsString(usuario)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.senha").value("hashedPassword"));
+    }
+
+    @Test
+    @WithMockUser
+    public void testListarTodosSemSenha() throws Exception {
+        Usuario usuario = new Usuario();
+        usuario.setIdUsuario(1);
+        usuario.setNome("Test User");
+        usuario.setEmail("test@example.com");
+        usuario.setSenha("hashedPassword");
+
+        when(usuarioRepository.findAll()).thenReturn(Collections.singletonList(usuario));
+
+        mockMvc.perform(get("/api/usuarios"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].idUsuario").value(1))
+                .andExpect(jsonPath("$[0].nome").value("Test User"))
+                .andExpect(jsonPath("$[0].email").value("test@example.com"))
+                .andExpect(jsonPath("$[0].senha").doesNotExist());
     }
 }
