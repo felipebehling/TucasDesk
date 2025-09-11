@@ -71,7 +71,7 @@ Make sure you have Docker and Docker Compose installed on your machine.
 
 1.  Clone the repository:
     ```sh
-    git clone https://github.com/your_username/tucasdesk.git
+    git clone https://github.com/felipebehling/tucasdesk.git
     ```
 2.  Navigate to the project directory:
     ```sh
