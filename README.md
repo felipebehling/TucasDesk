@@ -35,6 +35,27 @@ This project is built with a modern technology stack, ensuring scalability and m
 *   **Containerization:**
     *   [Docker](https://www.docker.com/)
 
+## Project Structure
+
+The repository is organized into two main parts: a backend service and a frontend application.
+
+*   `tucasdesk-backend/`: A Java-based Spring Boot application that provides the REST API.
+    *   `src/main/java/com/example/Tucasdesk/`: Contains the main Java source code.
+        *   `controller/`: REST controllers for handling HTTP requests.
+        *   `model/`: JPA entity classes representing the database schema.
+        *   `repository/`: Spring Data JPA repositories for database access.
+        *   `dtos/`: Data Transfer Objects for API requests and responses.
+        *   `config/`: Security and application configuration.
+    *   `pom.xml`: The Maven project configuration file.
+*   `tucasdesk-frontend/`: A TypeScript-based React application built with Vite.
+    *   `src/`: Contains the main TypeScript and React source code.
+        *   `pages/`: React components for each page of the application.
+        *   `api/`: Axios configuration for communicating with the backend.
+        *   `interfaces/`: TypeScript interfaces for data structures.
+        *   `context/`: React context for global state management.
+*   `compose.yaml`: The Docker Compose file for running the entire application stack.
+*   `Dockerfile`: The Dockerfile for the main application service.
+
 ## Getting Started
 
 To get a local copy up and running, follow these simple steps.
@@ -63,22 +84,20 @@ Make sure you have Docker and Docker Compose installed on your machine.
 
 The application will be available at the following URLs:
 
-*   **Frontend:** [http://localhost:3000](http://localhost:3000)
+*   **Frontend:** [http://localhost:5173](http://localhost:5173)
 *   **Backend:** [http://localhost:8080](http://localhost:8080)
 
 The database will be running on port `3307`.
 
+## Usage
 
-## 📝 Next Steps
+Once the application is running, you can start using it by following these steps:
 
-Here are some potential improvements for the project:
-
--   **Implement JWT Authentication:** The current authentication is basic. Implementing JSON Web Tokens (JWT) would provide a more robust and stateless authentication mechanism.
--   **Expand Test Coverage:** Add more unit and integration tests to both the frontend and backend to ensure code quality and prevent regressions.
--   **Vulnerability Scanning:** Regularly scan project dependencies for known vulnerabilities.
--   **CI/CD Pipeline:** Set up a Continuous Integration/Continuous Deployment (CI/CD) pipeline to automate the build, test, and deployment processes.
--   **Improve User Interface:** Enhance the user interface and user experience of the frontend application.
--   **Add More Features:** Implement new features, such as email notifications, ticket assignments, and more detailed reporting.
+1.  **Register a new user:** Navigate to `http://localhost:5173/registro` to create a new account.
+2.  **Log in:** Go to `http://localhost:5173/login` and use the credentials of the user you just created.
+3.  **Explore the Dashboard:** After logging in, you will be redirected to the main dashboard, where you can see an overview of your recent tickets.
+4.  **Manage Tickets:** Use the "Chamados" link in the sidebar to view all tickets or create a new one.
+5.  **Manage Users:** The "Usuários" page allows you to see a list of all users in the system (admin view).
 
 ## License
 

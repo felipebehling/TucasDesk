@@ -1,5 +1,11 @@
-//import React from "react";
+/**
+ * Renders the user's profile page.
+ * This page displays the current user's information and provides an option to update it.
+ *
+ * @returns {JSX.Element} The user profile page component.
+ */
 export default function PerfilPage() {
+  // TODO: Fetch and display the actual data for the logged-in user.
   return (
     <>
       <div className="content-header">

@@ -7,7 +7,17 @@ import org.springframework.stereotype.Repository;
 
 import com.example.Tucasdesk.model.Perfil;
 
+/**
+ * Repository interface for {@link Perfil} entities.
+ * Provides standard CRUD operations and custom query methods for accessing profile data.
+ */
 @Repository
 public interface PerfilRepository extends JpaRepository<Perfil, Integer> {
+    /**
+     * Finds a profile by its name.
+     *
+     * @param nome The name of the profile to find.
+     * @return An {@link Optional} containing the profile if found, or empty otherwise.
+     */
     Optional<Perfil> findByNome(String nome);
 }
