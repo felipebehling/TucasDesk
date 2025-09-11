@@ -6,6 +6,7 @@ import com.example.Tucasdesk.repository.UsuarioRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,11 +17,14 @@ public class AuthController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO loginDTO) {
-        return usuarioRepository.findByNome(loginDTO.getEmail())
+        return usuarioRepository.findByEmail(loginDTO.getEmail())
                 .map(usuario -> {
-                    if(usuario.getSenha().equals(loginDTO.getSenha())) {
+                    if(passwordEncoder.matches(loginDTO.getSenha(), usuario.getSenha())) {
                         // Aqui você pode gerar JWT depois
                         return ResponseEntity.ok(new LoginResponseDTO("fake-jwt-token", usuario.getNome(), "Login bem-sucedido"));
                     } else {
