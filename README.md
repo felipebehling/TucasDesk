@@ -1,226 +1,52 @@
+# TucasDesk - Helpdesk System
 
-# 📌 Guia de Instalação - JDK, Angular, VS Code, Git, GitHub Desktop, Spring Boot, MySQL/MariaDB e React
+TucasDesk is a full-stack helpdesk application designed to manage and track customer support tickets.
 
-## 🖥️ Distros GNOME | Arch Linux | Windows 10 & 11
+## 🚀 Architecture
 
-Este guia fornece instruções detalhadas para instalar as ferramentas essenciais em distros Linux baseadas no GNOME, Arch Linux e Windows.
+The project follows a classic client-server architecture:
 
----
+-   **Frontend:** A single-page application (SPA) built with **React** and **TypeScript**, using **Vite** as a build tool. It communicates with the backend via a REST API.
+-   **Backend:** A RESTful API built with **Java** and the **Spring Boot** framework. It handles all business logic and data persistence.
+-   **Database:** A **MySQL** database is used to store all application data, including users, tickets, and more.
 
-## 🟢 1. Instalar JDK (Java Development Kit)
+The entire application is containerized using **Docker** and can be orchestrated with **Docker Compose**, simplifying the development and deployment process.
 
-### 🔹 Distros GNOME
+## 💻 Getting Started
 
-```sh
-sudo apt update && sudo apt upgrade -y && \
-sudo apt install -y openjdk-21-jdk && \
-java -version && javac -version
+To run TucasDesk locally, you'll need to have **Docker** and **Docker Compose** installed on your machine.
+
+### 1. Configure Environment Variables
+
+Before you start, you need to set up your environment variables. I have already created a `.env` file for you. You can inspect it to see the default values, which are suitable for a local development environment.
+
+### 2. Build and Run the Application
+
+Once your `.env` file is configured, you can start the application using Docker Compose:
+
+```bash
+docker compose up --build
 ```
 
-### 🔹 Arch Linux
+This command will build the Docker images for the frontend and backend services and start the containers.
 
-```sh
-sudo pacman -Syu --noconfirm && \
-sudo pacman -S --noconfirm jdk21-openjdk && \
-java -version && javac -version
-```
+The application will be available at the following URLs:
 
-### 🔹 Windows
+-   **Frontend:** [http://localhost:3000](http://localhost:3000)
+-   **Backend API:** [http://localhost:8080](http://localhost:8080)
 
-1. Baixe e instale o OpenJDK ou Oracle JDK:
+## 🔒 Security
 
-   * [OpenJDK](https://jdk.java.net/)
-   * [Oracle JDK](https://www.oracle.com/java/technologies/javase-downloads.html)
-2. Configure a variável de ambiente `JAVA_HOME`.
-3. Verifique no Prompt de Comando:
+-   **Password Hashing:** User passwords are securely hashed using **BCrypt** before being stored in the database.
+-   **Credentials Management:** All sensitive credentials (like database passwords) are managed through a `.env` file and are not hardcoded in the source code. Make sure to keep your `.env` file private and do not commit it to version control.
 
-```sh
-java -version
-javac -version
-```
+## 📝 Next Steps
 
----
+Here are some potential improvements for the project:
 
-## 🟠 2. Instalar Angular e React
-
-### 🔹 Distros GNOME e Arch Linux
-
-```sh
-npm install -g @angular/cli create-react-app && \
-ng version && create-react-app --version
-```
-
-### 🔹 Windows
-
-1. Baixe e instale o Node.js: [Node.js](https://nodejs.org/)
-2. Instale Angular e React:
-
-```sh
-npm install -g @angular/cli create-react-app
-ng version
-create-react-app --version
-```
-
----
-
-## 🟢 3. Instalar VS Code
-
-### 🔹 Distros GNOME
-
-```sh
-sudo apt update && sudo apt install -y wget gpg && \
-wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/packages.microsoft.gpg > /dev/null && \
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list && \
-sudo apt update && sudo apt install -y code
-```
-
-### 🔹 Arch Linux
-
-```sh
-sudo pacman -S --noconfirm code
-```
-
-Ou, se usar o AUR:
-
-```sh
-yay -S visual-studio-code-bin
-```
-
-### 🔹 Windows
-
-* Baixe o instalador do VS Code: [VS Code](https://code.visualstudio.com/)
-
----
-
-## 🟣 4. Instalar Git
-
-### 🔹 Distros GNOME e Arch Linux
-
-```sh
-sudo apt install -y git || sudo pacman -S --noconfirm git && \
-git --version && \
-git config --global user.name "Seu Nome" && \
-git config --global user.email "seuemail@example.com"
-```
-
-### 🔹 Windows
-
-* Baixe o instalador do Git: [Git para Windows](https://git-scm.com/download/win)
-* Configure no Prompt de Comando ou Git Bash:
-
-```sh
-git --version
-git config --global user.name "Seu Nome"
-git config --global user.email "seuemail@example.com"
-```
-
----
-
-## 🔷 5. Instalar GitHub Desktop
-
-### 🔹 Windows
-
-* Baixe e instale: [GitHub Desktop](https://desktop.github.com/)
-
-### 🔹 Linux (Ubuntu / Arch via AUR)
-
-```sh
-# Ubuntu / GNOME
-sudo apt install -y github-desktop
-# Arch via AUR
-yay -S github-desktop-bin
-```
-
----
-
-## 🔵 6. Instalar MySQL ou MariaDB
-
-### 🔹 MySQL (Community Server)
-
-#### GNOME / Ubuntu
-
-```sh
-sudo apt update && sudo apt install -y wget && \
-wget https://dev.mysql.com/get/mysql-apt-config_0.8.33-1_all.deb && \
-sudo dpkg -i mysql-apt-config_0.8.33-1_all.deb && \
-sudo apt update && sudo apt install -y mysql-server && \
-sudo systemctl enable mysql && sudo systemctl start mysql
-```
-
-#### Arch Linux
-
-```sh
-sudo pacman -S --noconfirm mysql && \
-sudo systemctl enable mysqld && sudo systemctl start mysqld
-```
-
-#### Windows
-
-* Baixe e instale: [MySQL Community Server](https://dev.mysql.com/downloads/mysql/)
-* Use o **MySQL Installer** para configurar o servidor e o Workbench.
-
----
-
-### 🔹 MariaDB
-
-#### GNOME / Ubuntu
-
-```sh
-sudo apt update && sudo apt install -y mariadb-server mariadb-client && \
-sudo systemctl enable mariadb && sudo systemctl start mariadb
-```
-
-#### Arch Linux
-
-```sh
-sudo pacman -S --noconfirm mariadb && \
-sudo systemctl enable mariadb && sudo systemctl start mariadb
-```
-
-#### Windows
-
-* Baixe e instale: [MariaDB](https://mariadb.org/download/)
-
----
-
-## 🔷 7. Instalar Spring Boot
-
-### 🔹 Distros GNOME e Arch Linux
-
-```sh
-curl -s "https://get.sdkman.io" | bash && \
-source "$HOME/.sdkman/bin/sdkman-init.sh" && \
-sdk install springboot && \
-spring --version
-```
-
-### 🔹 Windows
-
-* Use o [Spring Initializr](https://start.spring.io/) para gerar projetos.
-
----
-
-## 🛠️ 8. Comandos Únicos para Instalação Completa
-
-### 🔹 GNOME
-
-```sh
-sudo apt update && sudo apt upgrade -y && \
-sudo apt install -y openjdk-21-jdk nodejs npm wget gpg code git mariadb-server mariadb-client && \
-curl -s "https://get.sdkman.io" | bash && source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk install springboot && \
-npm install -g @angular/cli create-react-app && \
-sudo systemctl enable mariadb && sudo systemctl start mariadb && \
-git config --global user.name "Seu Nome" && git config --global user.email "seuemail@example.com"
-```
-
-### 🔹 Arch Linux
-
-```sh
-sudo pacman -Syu --noconfirm && \
-sudo pacman -S --noconfirm jdk21-openjdk nodejs npm code git mariadb && \
-sudo systemctl enable mariadb && sudo systemctl start mariadb && \
-curl -s "https://get.sdkman.io" | bash && source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk install springboot && \
-npm install -g @angular/cli create-react-app && \
-git config --global user.name "Seu Nome" && git config --global user.email "seuemail@example.com"
-```
-
+-   **Implement JWT Authentication:** The current authentication is basic. Implementing JSON Web Tokens (JWT) would provide a more robust and stateless authentication mechanism.
+-   **Expand Test Coverage:** Add more unit and integration tests to both the frontend and backend to ensure code quality and prevent regressions.
+-   **Vulnerability Scanning:** Regularly scan project dependencies for known vulnerabilities.
+-   **CI/CD Pipeline:** Set up a Continuous Integration/Continuous Deployment (CI/CD) pipeline to automate the build, test, and deployment processes.
+-   **Improve User Interface:** Enhance the user interface and user experience of the frontend application.
+-   **Add More Features:** Implement new features, such as email notifications, ticket assignments, and more detailed reporting.

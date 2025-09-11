@@ -117,14 +117,15 @@ INSERT INTO perfis (nome) VALUES
 -- =====================================
 -- 3. Inserir usuários
 -- (Senha fictícia: será "123456" - depois aplicaremos BCrypt no sistema)
+-- (Senha fictícia: "123456" - As senhas são hasheadas com BCrypt)
 -- =====================================
 INSERT INTO usuarios (nome, email, senha, perfil_id, ativo)
 VALUES
-('Felipe Behling', 'felipe@tucasdesk.com', '123456', 1, TRUE), -- Admin
-('Ana Souza', 'ana@tucasdesk.com', '123456', 2, TRUE),        -- Técnica
-('João Silva', 'joao@tucasdesk.com', '123456', 2, TRUE),      -- Técnico
-('Maria Oliveira', 'maria@tucasdesk.com', '123456', 3, TRUE), -- Usuária
-('Pedro Santos', 'pedro@tucasdesk.com', '123456', 3, TRUE);   -- Usuário
+('Felipe Behling', 'felipe@tucasdesk.com', '$2a$10$FviiXMUYGzrl.Lt0c0uXPe8nsvcmfCHrfi88JyxVlNzzURmqDRgVG', 1, TRUE), -- Admin
+('Ana Souza', 'ana@tucasdesk.com', '$2a$10$FviiXMUYGzrl.Lt0c0uXPe8nsvcmfCHrfi88JyxVlNzzURmqDRgVG', 2, TRUE),        -- Técnica
+('João Silva', 'joao@tucasdesk.com', '$2a$10$FviiXMUYGzrl.Lt0c0uXPe8nsvcmfCHrfi88JyxVlNzzURmqDRgVG', 2, TRUE),      -- Técnico
+('Maria Oliveira', 'maria@tucasdesk.com', '$2a$10$FviiXMUYGzrl.Lt0c0uXPe8nsvcmfCHrfi88JyxVlNzzURmqDRgVG', 3, TRUE), -- Usuária
+('Pedro Santos', 'pedro@tucasdesk.com', '$2a$10$FviiXMUYGzrl.Lt0c0uXPe8nsvcmfCHrfi88JyxVlNzzURmqDRgVG', 3, TRUE);   -- Usuário
 
 -- =====================================
 -- 4. Inserir categorias de chamados
