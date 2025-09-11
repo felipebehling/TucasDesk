@@ -1,31 +1,23 @@
 // src/pages/Login.tsx
 
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import "./style/login.css";
-
-/**
- * Props for the Login component.
- */
-interface LoginProps {
-  /**
-   * Callback function to be executed upon successful login.
-   */
-  onLoginSuccess: () => void;
-}
 
 /**
  * Renders the login page, including the login form and links for registration
  * and password recovery.
  *
- * @param {LoginProps} props - The component props.
  * @returns {JSX.Element} The login page component.
  */
-export default function Login({ onLoginSuccess }: LoginProps) {
+export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   /**
@@ -38,13 +30,16 @@ export default function Login({ onLoginSuccess }: LoginProps) {
    *
    * @param {React.FormEvent} e - The form submission event.
    */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Email:", email);
-    console.log("Password:", password);
-    // TODO: Implement actual login logic using the AuthContext.
-    onLoginSuccess(); // Notify App.tsx that login was successful.
-    navigate("/"); // Redirect to the main page.
+    setError(null); // Reset error state
+    try {
+      await login({ email, senha: password });
+      navigate("/"); // Redirect to the main page on success.
+    } catch (err) {
+      console.error("Login failed:", err);
+      setError("Falha no login. Verifique suas credenciais.");
+    }
   };
 
   return (
@@ -64,6 +59,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
               </Link>
             </p>
           </div>
+          {error && <p className="error-message">{error}</p>}
           <div>
             <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="form-input" required />
           </div>
