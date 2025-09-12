@@ -1,9 +1,25 @@
-
 # TucasDesk
 
-TucasDesk is a simple and efficient open-source helpdesk and ticketing system designed to streamline customer support management.
+<p align="center">
+  <img src="tucasdesk-frontend/public/tucas-icon-nobg.png" alt="TucasDesk Logo" width="120">
+</p>
+
+<h1 align="center">TucasDesk</h1>
+
+<p align="center">
+  A simple and efficient open-source helpdesk and ticketing system designed to streamline customer support management.
+  <br>
+  <a href="https://github.com/felipebehling/tucasdesk"><strong>Explore the docs »</strong></a>
+  <br>
+  <br>
+  <a href="https://github.com/felipebehling/tucasdesk/issues">Report Bug</a>
+  ·
+  <a href="https://github.com/felipebehling/tucasdesk/issues">Request Feature</a>
+</p>
 
 ## About The Project
+
+TucasDesk is a ticket management tool developed by four friends to meet the technical support needs of companies. The application enables tickets to be registered, tracked and organised efficiently.
 
 This project provides a complete solution for managing support tickets, with features for users, technicians, and administrators. It includes functionalities for creating, viewing, and managing tickets, user authentication, and a dashboard for a quick overview of the support status.
 
@@ -21,19 +37,23 @@ This project provides a complete solution for managing support tickets, with fea
 This project is built with a modern technology stack, ensuring scalability and maintainability.
 
 *   **Backend:**
-    *   [Java](https://www.java.com/)
-    *   [Spring Boot](https://spring.io/projects/spring-boot)
-    *   [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
-    *   [Maven](https://maven.apache.org/)
+    *   **Java 21:** The core programming language for the backend.
+    *   **Spring Boot 3:** A framework for creating stand-alone, production-grade Spring-based applications.
+    *   **Spring Data JPA:** A part of the Spring Data family that makes it easy to implement JPA-based repositories.
+    *   **Spring Security:** Provides authentication and authorization for the application.
+    *   **JWT (JSON Web Tokens):** Used for creating access tokens for authentication.
+    *   **Maven:** A build automation tool used for managing the project's build, reporting, and documentation.
 *   **Frontend:**
-    *   [React](https://react.dev/)
-    *   [TypeScript](https://www.typescriptlang.org/)
-    *   [Vite](https://vitejs.dev/)
-    *   [Bootstrap](https://getbootstrap.com/)
+    *   **React 19:** A JavaScript library for building user interfaces.
+    *   **TypeScript:** A typed superset of JavaScript that compiles to plain JavaScript.
+    *   **Vite:** A build tool that aims to provide a faster and leaner development experience for modern web projects.
+    *   **Axios:** A promise-based HTTP client for the browser and Node.js.
+    *   **React Router:** A standard library for routing in React.
+    *   **Bootstrap:** A popular CSS framework for designing responsive and mobile-first websites.
 *   **Database:**
-    *   [MySQL](https://www.mysql.com/)
+    *   **MySQL:** An open-source relational database management system.
 *   **Containerization:**
-    *   [Docker](https://www.docker.com/)
+    *   **Docker & Docker Compose:** Used to containerize the application and manage multi-container Docker applications.
 
 ## Project Structure
 
@@ -41,20 +61,23 @@ The repository is organized into two main parts: a backend service and a fronten
 
 *   `tucasdesk-backend/`: A Java-based Spring Boot application that provides the REST API.
     *   `src/main/java/com/example/Tucasdesk/`: Contains the main Java source code.
+        *   `config/`: Security and application configuration.
         *   `controller/`: REST controllers for handling HTTP requests.
+        *   `dtos/`: Data Transfer Objects for API requests and responses.
         *   `model/`: JPA entity classes representing the database schema.
         *   `repository/`: Spring Data JPA repositories for database access.
-        *   `dtos/`: Data Transfer Objects for API requests and responses.
-        *   `config/`: Security and application configuration.
+        *   `security/`: Classes related to JWT authentication and security filters.
     *   `pom.xml`: The Maven project configuration file.
 *   `tucasdesk-frontend/`: A TypeScript-based React application built with Vite.
     *   `src/`: Contains the main TypeScript and React source code.
-        *   `pages/`: React components for each page of the application.
         *   `api/`: Axios configuration for communicating with the backend.
+        *   `components/`: Reusable React components.
+        *   `context/`: React context for global state management (e.g., authentication).
         *   `interfaces/`: TypeScript interfaces for data structures.
-        *   `context/`: React context for global state management.
+        *   `pages/`: React components for each page of the application.
 *   `compose.yaml`: The Docker Compose file for running the entire application stack.
 *   `Dockerfile`: The Dockerfile for the main application service.
+*   `docker/`: Contains Docker-related files, such as the database initialization script.
 
 ## Getting Started
 

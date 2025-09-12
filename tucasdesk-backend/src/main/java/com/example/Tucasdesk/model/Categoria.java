@@ -21,19 +21,34 @@ public class Categoria {
      */
     private String nome;
     
-    // getters e setters
+    /**
+     * Gets the unique identifier for the category.
+     * @return The unique identifier for the category.
+     */
     public Integer getIdCategoria() {
         return idCategoria;
     }
 
+    /**
+     * Sets the unique identifier for the category.
+     * @param idCategoria The unique identifier for the category.
+     */
     public void setIdCategoria(Integer idCategoria) {
         this.idCategoria = idCategoria;
     }
 
+    /**
+     * Gets the name of the category.
+     * @return The name of the category.
+     */
     public String getNome() {
         return nome;
     }
 
+    /**
+     * Sets the name of the category.
+     * @param nome The name of the category.
+     */
     public void setNome(String nome) {
         this.nome = nome;
     }
