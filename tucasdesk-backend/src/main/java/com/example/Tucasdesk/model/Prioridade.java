@@ -21,19 +21,34 @@ public class Prioridade {
      */
     private String nome;
     
-    // getters e setters
+    /**
+     * Gets the unique identifier for the priority level.
+     * @return The unique identifier for the priority level.
+     */
     public Integer getIdPrioridade() {
         return idPrioridade;
     }
 
+    /**
+     * Sets the unique identifier for the priority level.
+     * @param idPrioridade The unique identifier for the priority level.
+     */
     public void setIdPrioridade(Integer idPrioridade) {
         this.idPrioridade = idPrioridade;
     }
 
+    /**
+     * Gets the name of the priority level.
+     * @return The name of the priority level.
+     */
     public String getNome() {
         return nome;
     }
 
+    /**
+     * Sets the name of the priority level.
+     * @param nome The name of the priority level.
+     */
     public void setNome(String nome) {
         this.nome = nome;
     }

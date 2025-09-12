@@ -21,19 +21,34 @@ public class Status {
      */
     private String nome;
 
-    // getters e setters
+    /**
+     * Gets the unique identifier for the status.
+     * @return The unique identifier for the status.
+     */
     public Integer getIdStatus() {
         return idStatus;
     }
 
+    /**
+     * Sets the unique identifier for the status.
+     * @param idStatus The unique identifier for the status.
+     */
     public void setIdStatus(Integer idStatus) {
         this.idStatus = idStatus;
     }
 
+    /**
+     * Gets the name of the status.
+     * @return The name of the status.
+     */
     public String getNome() {
         return nome;
     }
 
+    /**
+     * Sets the name of the status.
+     * @param nome The name of the status.
+     */
     public void setNome(String nome) {
         this.nome = nome;
     }

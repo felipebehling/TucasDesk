@@ -14,17 +14,38 @@ public class LoginDTO {
      */
     private String senha;
 
-    // getters e setters
+    /**
+     * Gets the user's email address.
+     *
+     * @return The user's email address.
+     */
     public String getEmail() {
         return email;
     }
+
+    /**
+     * Sets the user's email address.
+     *
+     * @param email The user's email address.
+     */
     public void setEmail(String email) {
         this.email = email;
     }
 
+    /**
+     * Gets the user's password.
+     *
+     * @return The user's password.
+     */
     public String getSenha() {
         return senha;
     }
+
+    /**
+     * Sets the user's password.
+     *
+     * @param senha The user's password.
+     */
     public void setSenha(String senha) {
         this.senha = senha;
     }
