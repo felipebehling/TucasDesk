@@ -100,14 +100,20 @@ Make sure you have Docker and Docker Compose installed on your machine.
     ```sh
     cd tucasdesk
     ```
-3.  Build and run the application using Docker Compose:
+3.  Create a `.env` file by copying the example file:
+    ```sh
+    cp .env.example .env
+    ```
+    This file contains the environment variables required by the application. You can customize the values in this file if you need to.
+
+4.  Build and run the application using Docker Compose:
     ```sh
     docker compose up --build
     ```
 
 The application will be available at the following URLs:
 
-*   **Frontend:** [http://localhost:5173](http://localhost:5173)
+*   **Frontend:** [http://localhost:3000](http://localhost:3000)
 *   **Backend:** [http://localhost:8080](http://localhost:8080)
 
 The database will be running on port `3307`.
@@ -116,8 +122,8 @@ The database will be running on port `3307`.
 
 Once the application is running, you can start using it by following these steps:
 
-1.  **Register a new user:** Navigate to `http://localhost:5173/registro` to create a new account.
-2.  **Log in:** Go to `http://localhost:5173/login` and use the credentials of the user you just created.
+1.  **Register a new user:** Navigate to `http://localhost:3000/registro` to create a new account.
+2.  **Log in:** Go to `http://localhost:3000/login` and use the credentials of the user you just created.
 3.  **Explore the Dashboard:** After logging in, you will be redirected to the main dashboard, where you can see an overview of your recent tickets.
 4.  **Manage Tickets:** Use the "Chamados" link in the sidebar to view all tickets or create a new one.
 5.  **Manage Users:** The "Usuários" page allows you to see a list of all users in the system (admin view).
