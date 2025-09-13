@@ -1,12 +1,14 @@
 package com.example.Tucasdesk.controller;
 
 import com.example.Tucasdesk.config.SecurityConfig;
+import com.example.Tucasdesk.model.Perfil;
 import com.example.Tucasdesk.model.Usuario;
 import com.example.Tucasdesk.repository.UsuarioRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import com.example.Tucasdesk.security.TokenService;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -39,16 +41,24 @@ public class UsuarioControllerTest {
     @MockBean
     private PasswordEncoder passwordEncoder;
 
+    @MockBean
+    private TokenService tokenService;
+
     @Autowired
     private ObjectMapper objectMapper;
 
     @Test
     @WithMockUser
     public void testCriarUsuario() throws Exception {
+        Perfil perfil = new Perfil();
+        perfil.setNome("USER");
+
         Usuario usuario = new Usuario();
         usuario.setNome("Test User");
         usuario.setEmail("test@example.com");
         usuario.setSenha("password");
+        usuario.setAtivo(true);
+        usuario.setPerfil(perfil);
 
         when(passwordEncoder.encode("password")).thenReturn("hashedPassword");
         when(usuarioRepository.save(any(Usuario.class))).thenAnswer(invocation -> {
@@ -67,11 +77,16 @@ public class UsuarioControllerTest {
     @Test
     @WithMockUser
     public void testListarTodosSemSenha() throws Exception {
+        Perfil perfil = new Perfil();
+        perfil.setNome("USER");
+
         Usuario usuario = new Usuario();
         usuario.setIdUsuario(1);
         usuario.setNome("Test User");
         usuario.setEmail("test@example.com");
         usuario.setSenha("hashedPassword");
+        usuario.setAtivo(true);
+        usuario.setPerfil(perfil);
 
         when(usuarioRepository.findAll()).thenReturn(Collections.singletonList(usuario));
 
