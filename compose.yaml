@@ -23,6 +23,7 @@ services:
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
       JWT_SECRET: a-super-secret-key-that-is-long-and-random-enough
+      JWT_EXPIRATION: 86400000
     depends_on:
       - db
 
