@@ -2,29 +2,27 @@ services:
   db:
     image: mysql:8.0
     container_name: tucasdesk-db
-    env_file:
-      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tucasdesk
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
     ports:
       - "3307:3306"
     volumes:
-      - mysql-data:/var/lib/mysql     # persiste os dados
-      - ./docker/mysql-init:/docker-entrypoint-initdb.d 
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d
 
   backend:
     build: ./tucasdesk-backend
     container_name: tucasdesk-backend
-    env_file:
-      - .env
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/tucasdesk?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      JWT_SECRET: a-super-secret-key-that-is-long-and-random-enough
     depends_on:
       - db
 

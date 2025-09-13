@@ -100,13 +100,7 @@ Make sure you have Docker and Docker Compose installed on your machine.
     ```sh
     cd tucasdesk
     ```
-3.  Create a `.env` file by copying the example file:
-    ```sh
-    cp .env.example .env
-    ```
-    This file contains the environment variables required by the application. You can customize the values in this file if you need to.
-
-4.  Build and run the application using Docker Compose:
+3.  Build and run the application using Docker Compose:
     ```sh
     docker compose up --build
     ```
