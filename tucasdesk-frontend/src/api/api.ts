@@ -2,10 +2,10 @@ import axios from "axios";
 
 /**
  * An Axios instance configured for making requests to the TucasDesk backend API.
- * The base URL is set to `http://localhost:8080/api`.
+ * The base URL is set to `http://localhost:8080`.
  */
 const api = axios.create({
-  baseURL: "http://localhost:8080/api", // Base URL for the backend
+  baseURL: "http://localhost:8080", // Base URL for the backend
   headers: {
     "Content-Type": "application/json",
   },

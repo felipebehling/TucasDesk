@@ -43,14 +43,14 @@ public class AuthController {
                 .map(usuario -> {
                     if(passwordEncoder.matches(loginDTO.getSenha(), usuario.getSenha())) {
                         String token = tokenService.generateToken(usuario);
-                        return ResponseEntity.ok(new LoginResponseDTO(token, usuario.getNome(), "Login bem-sucedido"));
+                        return ResponseEntity.ok(new LoginResponseDTO(token, usuario, "Login bem-sucedido"));
                     } else {
                         return ResponseEntity.status(401)
-                                .body(new LoginResponseDTO(null, loginDTO.getEmail(), "Senha incorreta"));
+                                .body(new LoginResponseDTO(null, null, "Senha incorreta"));
                     }
                 })
                 .orElse(ResponseEntity.status(401)
-                        .body(new LoginResponseDTO(null, loginDTO.getEmail(), "Usuário não encontrado")));
+                        .body(new LoginResponseDTO(null, null, "Usuário não encontrado")));
     }
 
     /**
