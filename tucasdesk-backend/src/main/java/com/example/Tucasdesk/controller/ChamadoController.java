@@ -1,11 +1,10 @@
 package com.example.Tucasdesk.controller;
 
+import com.example.Tucasdesk.dtos.*;
+import com.example.Tucasdesk.service.ChamadoService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.Tucasdesk.model.Chamado;
-import com.example.Tucasdesk.repository.ChamadoRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 /**
@@ -16,27 +15,82 @@ import java.util.List;
 @RequestMapping("/api/chamados")
 public class ChamadoController {
 
-    @Autowired
-    private ChamadoRepository chamadoRepository;
+    private final ChamadoService chamadoService;
+
+    public ChamadoController(ChamadoService chamadoService) {
+        this.chamadoService = chamadoService;
+    }
 
     /**
      * Retrieves a list of all tickets.
      *
-     * @return A list of all {@link Chamado} objects.
+     * @return a list of {@link ChamadoResponseDTO} objects.
      */
     @GetMapping
-    public List<Chamado> listarTodos() {
-        return chamadoRepository.findAll();
+    public List<ChamadoResponseDTO> listarTodos() {
+        return chamadoService.listarTodos();
+    }
+
+    /**
+     * Retrieves the details of a ticket by its identifier.
+     *
+     * @param id the ticket identifier.
+     * @return the ticket details.
+     */
+    @GetMapping("/{id}")
+    public ChamadoResponseDTO buscarPorId(@PathVariable Integer id) {
+        return chamadoService.buscarPorId(id);
     }
 
     /**
      * Creates a new ticket.
      *
-     * @param chamado The {@link Chamado} object to create, based on the request body.
-     * @return The created {@link Chamado} object.
+     * @param request The request payload used to create the ticket.
+     * @return The created ticket.
      */
     @PostMapping
-    public Chamado criar(@RequestBody Chamado chamado) {
-        return chamadoRepository.save(chamado);
+    @ResponseStatus(HttpStatus.CREATED)
+    public ChamadoResponseDTO criar(@RequestBody ChamadoRequest request) {
+        return chamadoService.criar(request);
+    }
+
+    /**
+     * Updates an existing ticket replacing mutable information.
+     *
+     * @param id      the ticket identifier.
+     * @param request the payload with the modifications.
+     * @return the updated ticket.
+     */
+    @PutMapping("/{id}")
+    public ChamadoResponseDTO atualizar(@PathVariable Integer id, @RequestBody ChamadoUpdateRequest request) {
+        return chamadoService.atualizar(id, request);
+    }
+
+    /**
+     * Partially updates a ticket status.
+     *
+     * @param id      the ticket identifier.
+     * @param request the payload containing the new status.
+     * @return the updated ticket.
+     */
+    @PatchMapping("/{id}/status")
+    public ChamadoResponseDTO atualizarStatus(@PathVariable Integer id, @RequestBody ChamadoUpdateRequest request) {
+        if (request.getStatusId() == null) {
+            throw new IllegalArgumentException("O status é obrigatório para atualização parcial.");
+        }
+        return chamadoService.atualizarStatus(id, request.getStatusId());
+    }
+
+    /**
+     * Adds a new interaction to a ticket.
+     *
+     * @param id      the ticket identifier.
+     * @param request the interaction payload.
+     * @return the created interaction.
+     */
+    @PostMapping("/{id}/interacoes")
+    @ResponseStatus(HttpStatus.CREATED)
+    public InteracaoResponseDTO adicionarInteracao(@PathVariable Integer id, @RequestBody InteracaoRequest request) {
+        return chamadoService.adicionarInteracao(id, request);
     }
 }
