@@ -2,12 +2,14 @@ package com.example.Tucasdesk.service;
 
 import com.example.Tucasdesk.dtos.RegisterRequest;
 import com.example.Tucasdesk.dtos.UsuarioResponseDTO;
+import com.example.Tucasdesk.mappers.UsuarioMapper;
 import com.example.Tucasdesk.model.Usuario;
 import com.example.Tucasdesk.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Service responsible for operations related to the {@link Usuario} entity.
@@ -52,13 +54,15 @@ public class UsuarioService {
             usuario.setAtivo(true);
         }
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
-        return new UsuarioResponseDTO(
-                usuarioSalvo.getIdUsuario(),
-                usuarioSalvo.getNome(),
-                usuarioSalvo.getEmail(),
-                usuarioSalvo.getPerfil(),
-                usuarioSalvo.getDataCriacao(),
-                usuarioSalvo.getAtivo()
-        );
+        return UsuarioMapper.toUsuarioResponseDTO(usuarioSalvo);
+    }
+
+    /**
+     * Retrieves all persisted {@link Usuario} entities and converts them into DTOs.
+     *
+     * @return a list containing non-sensitive data for each user.
+     */
+    public List<UsuarioResponseDTO> listarUsuarios() {
+        return UsuarioMapper.toUsuarioResponseDTOList(usuarioRepository.findAll());
     }
 }
