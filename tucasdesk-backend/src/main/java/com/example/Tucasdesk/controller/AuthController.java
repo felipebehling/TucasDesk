@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  */
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "${app.cors.allowed-origins}")
 public class AuthController {
 
     @Autowired

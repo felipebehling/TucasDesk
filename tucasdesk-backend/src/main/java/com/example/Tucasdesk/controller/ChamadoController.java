@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Controller for handling ticket-related requests.
  */
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "${app.cors.allowed-origins}")
 @RestController
 @RequestMapping("/api/chamados")
 public class ChamadoController {
