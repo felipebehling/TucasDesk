@@ -13,6 +13,28 @@ export interface LoginRequest {
 }
 
 /**
+ * Represents the data describing an authenticated user.
+ */
+export interface AuthenticatedUser {
+  /**
+   * The unique identifier of the user.
+   */
+  id: number;
+  /**
+   * The name of the user.
+   */
+  nome: string;
+  /**
+   * The email address of the user.
+   */
+  email: string;
+  /**
+   * The role of the user (e.g., 'Admin', 'User').
+   */
+  role: string;
+}
+
+/**
  * Defines the shape of the response from a successful login attempt.
  */
 export interface LoginResponse {
@@ -21,24 +43,11 @@ export interface LoginResponse {
    */
   token: string;
   /**
+   * Optional refresh token for renewing the session.
+   */
+  refreshToken?: string | null;
+  /**
    * Information about the authenticated user.
    */
-  usuario: {
-    /**
-     * The unique identifier of the user.
-     */
-    id: number;
-    /**
-     * The name of the user.
-     */
-    nome: string;
-    /**
-     * The email address of the user.
-     */
-    email: string;
-    /**
-     * The role of the user (e.g., 'Admin', 'User').
-     */
-    role: string;
-  };
+  usuario: AuthenticatedUser;
 }

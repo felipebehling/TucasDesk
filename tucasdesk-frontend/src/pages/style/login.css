@@ -10,6 +10,7 @@
   --color-primary-dark: #cc6c00; /* Laranja mais escuro para hover */
   --bg-accent: #1e2124; /* Fundo do card */
   --inter-font: "Inter", monospace, sans-serif;
+  --color-error: #ff6b6b;
 }
 
 /* Remove a imagem de fundo para um visual mais limpo */
@@ -61,6 +62,11 @@ body {
   gap: 20px;
 }
 
+.brand-section {
+  display: grid;
+  gap: 12px;
+}
+
 /* Seções de texto */
 .brand-logo {
   font-family: var(--inter-font);
@@ -71,7 +77,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 12px;
 }
+
 .brand-logo img {
   width: 80px;
 }
@@ -89,6 +97,26 @@ body {
   text-align: center;
   margin-top: 0;
   color: var(--text-muted);
+}
+
+.status-messages {
+  min-height: 24px;
+  display: grid;
+  gap: 8px;
+}
+
+.error-message {
+  color: var(--color-error);
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.4);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.loading-message {
+  color: var(--text-muted);
+  font-size: 14px;
 }
 
 /* Links */
@@ -125,6 +153,11 @@ body {
   box-shadow: 0 0 0 3px rgba(246, 133, 27, 0.4); /* Sombra laranja */
 }
 
+.form-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Botões */
 .btn-primary {
   width: 100%;
@@ -143,6 +176,11 @@ body {
   background: var(--color-primary-dark);
 }
 
+.btn-primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .input-container {
   position: relative;
 }
@@ -157,10 +195,16 @@ body {
   cursor: pointer;
   color: var(--text-muted);
   padding: 2px 2px 0 2px;
+  transition: opacity 0.2s;
 }
 
 .input-icon-button:hover {
   opacity: 0.85;
+}
+
+.input-icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 /* Utilitários */
@@ -213,4 +257,9 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.checkbox-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
