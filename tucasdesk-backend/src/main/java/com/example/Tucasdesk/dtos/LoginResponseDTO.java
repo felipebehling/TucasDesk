@@ -1,45 +1,34 @@
 package com.example.Tucasdesk.dtos;
 
-/**
- * Data Transfer Object (DTO) for sending responses after a login attempt.
- * It includes a JWT, the username, and a status message.
- */
-public class LoginResponseDTO {
-    /**
-     * The JWT generated upon successful authentication.
-     */
-    private String token;
-    /**
-     * The name of the authenticated user.
-     */
-    private String username;
-    /**
-     * A message indicating the result of the login attempt (e.g., "Login successful").
-     */
-    private String message;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-    /**
-     * Constructs a new LoginResponseDTO.
-     *
-     * @param token    The authentication token.
-     * @param username The name of the user.
-     * @param message  A response message.
-     */
-    public LoginResponseDTO(String token, String username, String message) {
+/**
+ * Data Transfer Object (DTO) for sending responses after a successful login attempt.
+ * It contains the authentication token information and the authenticated user details
+ * required by the frontend to build the session state.
+ */
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class LoginResponseDTO {
+
+    private final String token;
+    private final String refreshToken;
+    private final AuthenticatedUserDTO usuario;
+
+    public LoginResponseDTO(String token, String refreshToken, AuthenticatedUserDTO usuario) {
         this.token = token;
-        this.username = username;
-        this.message = message;
+        this.refreshToken = refreshToken;
+        this.usuario = usuario;
     }
 
     public String getToken() {
         return token;
     }
 
-    public String getUsername() {
-        return username;
+    public String getRefreshToken() {
+        return refreshToken;
     }
 
-    public String getMessage() {
-        return message;
+    public AuthenticatedUserDTO getUsuario() {
+        return usuario;
     }
 }
