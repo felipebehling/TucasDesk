@@ -29,8 +29,8 @@ import ProtectedRoute from "./components/layout/ProtectedRoute";
  * @returns {JSX.Element} The main application component.
  */
 export default function App() {
-  const { autenticado, logout } = useContext(AuthContext);
-  
+  const { autenticado, logout, carregando } = useContext(AuthContext);
+
   return (
     <BrowserRouter>
       <Suspense fallback={<div className="loading-fallback">Carregando...</div>}>
@@ -42,8 +42,8 @@ export default function App() {
           </Route>
 
           {/* Rotas Protegidas (Aplicação Principal) */}
-          <Route element={<ProtectedRoute isAuthenticated={autenticado} />}>
-            <Route element={<AppLayout handleLogout={logout} />}>
+          <Route element={<ProtectedRoute isAuthenticated={autenticado} isLoading={carregando} />}>
+            <Route element={<AppLayout handleLogout={logout} /> }>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/chamados" element={<ChamadosPage />} />
               <Route path="/chamados/:id" element={<ChamadoDetalhePage />} />
