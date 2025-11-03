@@ -4,13 +4,11 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.Tucasdesk.dtos.UsuarioResponseDTO;
 import com.example.Tucasdesk.model.Usuario;
-import com.example.Tucasdesk.repository.UsuarioRepository;
+import com.example.Tucasdesk.service.UsuarioService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Controller for handling user-related requests.
@@ -21,39 +19,26 @@ import java.util.stream.Collectors;
 public class UsuarioController {
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private UsuarioService usuarioService;
 
     /**
      * Retrieves a list of all users.
      *
-     * @return A list of all {@link Usuario} objects.
+     * @return A list of {@link UsuarioResponseDTO} objects containing non-sensitive user data.
      */
     @GetMapping
     public List<UsuarioResponseDTO> listarTodos() {
-        return usuarioRepository.findAll().stream()
-                .map(usuario -> new UsuarioResponseDTO(
-                        usuario.getIdUsuario(),
-                        usuario.getNome(),
-                        usuario.getEmail(),
-                        usuario.getPerfil(),
-                        usuario.getDataCriacao(),
-                        usuario.getAtivo()))
-                .collect(Collectors.toList());
+        return usuarioService.listarUsuarios();
     }
 
     /**
-     * Creates a new user.
-     * The user's password will be encoded before being saved.
+     * Creates a new user. The user's password will be encoded before being saved.
      *
      * @param usuario The {@link Usuario} object to create, based on the request body.
-     * @return The created {@link Usuario} object.
+     * @return The created user represented as a {@link UsuarioResponseDTO}.
      */
     @PostMapping
-    public Usuario criar(@RequestBody Usuario usuario) {
-        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
-        return usuarioRepository.save(usuario);
+    public UsuarioResponseDTO criar(@RequestBody Usuario usuario) {
+        return usuarioService.criarUsuario(usuario);
     }
 }
