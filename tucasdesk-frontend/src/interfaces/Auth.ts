@@ -13,6 +13,28 @@ export interface LoginRequest {
 }
 
 /**
+ * Defines the shape of the request body for a registration attempt.
+ */
+export interface RegisterRequest {
+  /**
+   * The user's full name.
+   */
+  nome: string;
+  /**
+   * The user's email address.
+   */
+  email: string;
+  /**
+   * The chosen password.
+   */
+  senha: string;
+  /**
+   * The confirmation of the chosen password.
+   */
+  confirmacaoSenha: string;
+}
+
+/**
  * Represents the data describing an authenticated user.
  */
 export interface AuthenticatedUser {
