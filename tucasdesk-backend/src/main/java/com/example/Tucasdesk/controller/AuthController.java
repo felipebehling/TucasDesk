@@ -4,10 +4,13 @@ import com.example.Tucasdesk.dtos.AuthenticatedUserDTO;
 import com.example.Tucasdesk.dtos.ErrorResponseDTO;
 import com.example.Tucasdesk.dtos.LoginDTO;
 import com.example.Tucasdesk.dtos.LoginResponseDTO;
+import com.example.Tucasdesk.dtos.RegisterRequest;
+import com.example.Tucasdesk.dtos.UsuarioResponseDTO;
 import com.example.Tucasdesk.mappers.UsuarioMapper;
 import com.example.Tucasdesk.model.Usuario;
 import com.example.Tucasdesk.repository.UsuarioRepository;
 import com.example.Tucasdesk.security.TokenService;
+import com.example.Tucasdesk.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +19,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.validation.BindingResult;
+
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * Controller for handling authentication requests, such as user login.
@@ -34,6 +42,44 @@ public class AuthController {
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private UsuarioService usuarioService;
+
+    private static final Pattern STRONG_PASSWORD_PATTERN = Pattern.compile(
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\"\\-=`~{}\\[\\]:;'<>?,./]).{8,}$"
+    );
+
+    /**
+     * Registers a new user after validating the provided payload.
+     *
+     * @param registerRequest The payload containing the new user's information.
+     * @param bindingResult   Validation result for the request body.
+     * @return A {@link UsuarioResponseDTO} on success or an error payload describing the issue.
+     */
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            String errorMessage = bindingResult.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .findFirst()
+                    .orElse("Dados inválidos para registro.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseDTO(errorMessage));
+        }
+
+        if (!isStrongPassword(registerRequest.getSenha())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponseDTO("A senha deve conter letras maiúsculas, minúsculas, números e caracteres especiais."));
+        }
+
+        if (usuarioRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponseDTO("Já existe um usuário cadastrado com este e-mail."));
+        }
+
+        UsuarioResponseDTO usuarioResponseDTO = usuarioService.criarUsuario(registerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioResponseDTO);
+    }
 
     /**
      * Authenticates a user based on the provided credentials.
@@ -99,5 +145,9 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponseDTO("Usuário não autenticado."));
+    }
+
+    private boolean isStrongPassword(String senha) {
+        return senha != null && STRONG_PASSWORD_PATTERN.matcher(senha).matches();
     }
 }
