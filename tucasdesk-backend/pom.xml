@@ -69,8 +69,38 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+
+		<!-- SQS + SNS Dependencies -->
+		<dependency>
+    		<groupId>io.awspring.cloud</groupId>
+    		<artifactId>spring-cloud-aws-starter-sns</artifactId>
+		</dependency>
+		
+		<dependency>
+    		<groupId>io.awspring.cloud</groupId>
+    		<artifactId>spring-cloud-aws-starter-sqs</artifactId>
+		</dependency>
+		
     </dependencies>
 
+
+	
+	<!-- AWS SQS + SNS for Spring Boot -->
+	<dependencyManagement>
+    	<dependencies>
+        	<dependency>
+            	<groupId>io.awspring.cloud</groupId>
+            	<artifactId>spring-cloud-aws-dependencies</artifactId>
+            	<version>3.4.0</version>
+            	<type>pom</type>
+            	<scope>import</scope>
+        	</dependency>
+    	</dependencies>
+	</dependencyManagement>
+
+	
+	
     <build>
         <plugins>
             <plugin>
