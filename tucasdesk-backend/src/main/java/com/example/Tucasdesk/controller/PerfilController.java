@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Controller for handling profile-related requests.
  */
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "${app.cors.allowed-origins}")
 @RestController
 @RequestMapping("/api/perfis")
 public class PerfilController {
