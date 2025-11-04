@@ -4,6 +4,8 @@ import com.example.Tucasdesk.dtos.*;
 import com.example.Tucasdesk.mappers.ChamadoMapper;
 import com.example.Tucasdesk.model.*;
 import com.example.Tucasdesk.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,6 +20,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ChamadoService {
+
+    private static final Logger log = LoggerFactory.getLogger(ChamadoService.class);
 
     private final ChamadoRepository chamadoRepository;
     private final CategoriaRepository categoriaRepository;
@@ -80,6 +84,12 @@ public class ChamadoService {
         chamado.setDataAbertura(LocalDateTime.now());
         ajustarDataFechamento(chamado);
         Chamado salvo = chamadoRepository.save(chamado);
+        log.info("event=chamado_create status=success chamadoId={} usuarioId={} categoriaId={} prioridadeId={} statusId={}",
+                salvo.getIdChamado(),
+                salvo.getUsuario() != null ? salvo.getUsuario().getIdUsuario() : null,
+                salvo.getCategoria() != null ? salvo.getCategoria().getIdCategoria() : null,
+                salvo.getPrioridade() != null ? salvo.getPrioridade().getIdPrioridade() : null,
+                salvo.getStatus() != null ? salvo.getStatus().getIdStatus() : null);
         return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo));
     }
 
