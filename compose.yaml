@@ -28,7 +28,10 @@ services:
       - db
 
   frontend:
-    build: ./tucasdesk-frontend
+    build:
+      context: ./tucasdesk-frontend
+      args:
+        VITE_API_URL: http://localhost:8080
     container_name: tucasdesk-frontend
     ports:
       - "3000:80"

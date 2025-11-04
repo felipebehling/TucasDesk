@@ -37,10 +37,11 @@ function processQueue(error: unknown | null, token: string | null) {
 
 /**
  * An Axios instance configured for making requests to the TucasDesk backend API.
- * The base URL is aligned with the backend service running on http://localhost:8080.
+ * The base URL is read from the Vite environment variable to keep it aligned
+ * with the configured backend service (defaults to http://localhost:8080).
  */
 const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:8080",
   headers: {
     "Content-Type": "application/json",
   },
