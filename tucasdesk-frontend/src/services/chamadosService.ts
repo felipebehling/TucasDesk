@@ -2,6 +2,8 @@ import api from "../api/api";
 import type {
   ChamadoResponse,
   CreateChamadoPayload,
+  CreateInteracaoPayload,
+  InteracaoResponse,
   UpdateChamadoPayload,
 } from "../types/chamados";
 
@@ -27,11 +29,36 @@ async function atualizar(id: number, payload: UpdateChamadoPayload): Promise<Cha
   return data;
 }
 
+async function atualizarStatus(id: number, statusId: number): Promise<ChamadoResponse> {
+  const { data } = await api.patch<ChamadoResponse>(`${resource}/${id}/status`, {
+    statusId,
+  });
+  return data;
+}
+
+async function atualizarPrioridade(id: number, prioridadeId: number): Promise<ChamadoResponse> {
+  const { data } = await api.patch<ChamadoResponse>(`${resource}/${id}/prioridade`, {
+    prioridadeId,
+  });
+  return data;
+}
+
+async function adicionarInteracao(
+  id: number,
+  payload: CreateInteracaoPayload,
+): Promise<InteracaoResponse> {
+  const { data } = await api.post<InteracaoResponse>(`${resource}/${id}/interacoes`, payload);
+  return data;
+}
+
 export const ChamadosService = {
   listar,
   buscarPorId,
   criar,
   atualizar,
+  atualizarStatus,
+  atualizarPrioridade,
+  adicionarInteracao,
 };
 
 export default ChamadosService;
