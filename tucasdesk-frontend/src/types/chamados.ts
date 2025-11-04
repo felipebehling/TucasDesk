@@ -17,6 +17,12 @@ export interface InteracaoResponse {
   usuario: UsuarioResumo | null;
 }
 
+export interface CreateInteracaoPayload {
+  usuarioId: number;
+  mensagem: string;
+  anexoUrl?: string | null;
+}
+
 export interface ChamadoResponse {
   id: number;
   titulo: string;

@@ -133,6 +133,21 @@ public class ChamadoService {
     }
 
     /**
+     * Updates the priority of the ticket.
+     *
+     * @param id            the ticket identifier.
+     * @param prioridadeId  the new priority identifier.
+     * @return the updated ticket mapped to a DTO.
+     */
+    public ChamadoResponseDTO atualizarPrioridade(Integer id, Integer prioridadeId) {
+        Chamado chamado = obterChamado(id);
+        Prioridade novaPrioridade = buscarPrioridade(prioridadeId);
+        chamado.setPrioridade(novaPrioridade);
+        Chamado salvo = chamadoRepository.save(chamado);
+        return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo));
+    }
+
+    /**
      * Adds a new interaction to a ticket.
      *
      * @param chamadoId the ticket identifier.

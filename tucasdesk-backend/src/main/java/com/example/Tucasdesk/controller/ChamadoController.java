@@ -82,6 +82,21 @@ public class ChamadoController {
     }
 
     /**
+     * Partially updates a ticket priority.
+     *
+     * @param id      the ticket identifier.
+     * @param request the payload containing the new priority.
+     * @return the updated ticket.
+     */
+    @PatchMapping("/{id}/prioridade")
+    public ChamadoResponseDTO atualizarPrioridade(@PathVariable Integer id, @RequestBody ChamadoUpdateRequest request) {
+        if (request.getPrioridadeId() == null) {
+            throw new IllegalArgumentException("A prioridade é obrigatória para atualização parcial.");
+        }
+        return chamadoService.atualizarPrioridade(id, request.getPrioridadeId());
+    }
+
+    /**
      * Adds a new interaction to a ticket.
      *
      * @param id      the ticket identifier.
