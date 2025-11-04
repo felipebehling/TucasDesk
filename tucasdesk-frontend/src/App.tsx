@@ -18,7 +18,7 @@ const CategoriasPage = lazy(() => import("./pages/Categorias"));
 import AppLayout from "./components/layout/AppLayout";
 import AuthLayout from "./components/layout/AuthLayout";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
-
+import LoadingOverlay from "./components/common/LoadingOverlay";
 
 // =================================================================================
 // Componente Principal da Aplicação
@@ -33,7 +33,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Suspense fallback={<div className="loading-fallback">Carregando...</div>}>
+      <Suspense fallback={<LoadingOverlay fullscreen message="Carregando páginas..." />}>
         <Routes>
           {/* Rotas Públicas (Login/Registro) */}
           <Route element={<AuthLayout />}>
@@ -43,7 +43,7 @@ export default function App() {
 
           {/* Rotas Protegidas (Aplicação Principal) */}
           <Route element={<ProtectedRoute isAuthenticated={autenticado} isLoading={carregando} />}>
-            <Route element={<AppLayout handleLogout={logout} /> }>
+            <Route element={<AppLayout handleLogout={logout} />}>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/chamados" element={<ChamadosPage />} />
               <Route path="/chamados/:id" element={<ChamadoDetalhePage />} />

@@ -12,6 +12,9 @@ import type { Categoria } from "../types/categorias";
 import type { Prioridade } from "../types/prioridades";
 import type { Status } from "../types/status";
 import { extractErrorMessage } from "../utils/error";
+import { Breadcrumbs } from "../components/navigation/Breadcrumbs";
+import { LoadingSpinner } from "../components/common/LoadingOverlay";
+import { useToast } from "../components/common/ToastProvider";
 
 interface NovoChamadoFormState {
   titulo: string;
@@ -58,8 +61,8 @@ export default function ChamadosPage() {
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [formState, setFormState] = useState<NovoChamadoFormState>(initialFormState);
   const [formError, setFormError] = useState<string | null>(null);
-  const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showToast } = useToast();
 
   const hasChamados = useMemo(() => chamados.length > 0, [chamados]);
   const isInitialLoading = isLoading && !hasChamados && !error;
@@ -90,7 +93,6 @@ export default function ChamadosPage() {
   const toggleForm = () => {
     setIsFormOpen((prev) => !prev);
     setFormError(null);
-    setFormSuccess(null);
   };
 
   const handleInputChange = (
@@ -119,7 +121,6 @@ export default function ChamadosPage() {
     }
 
     setFormError(null);
-    setFormSuccess(null);
     setIsSubmitting(true);
 
     try {
@@ -131,10 +132,18 @@ export default function ChamadosPage() {
         statusId: Number(formState.statusId),
         usuarioId: usuario.id,
       });
-      setFormSuccess("Chamado criado com sucesso!");
+      showToast({
+        tone: "success",
+        description: "Chamado criado com sucesso!",
+      });
       setFormState(initialFormState);
     } catch (createError) {
-      setFormError(extractErrorMessage(createError));
+      const message = extractErrorMessage(createError);
+      setFormError(message);
+      showToast({
+        tone: "error",
+        description: message,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -142,6 +151,7 @@ export default function ChamadosPage() {
 
   return (
     <>
+      <Breadcrumbs items={[{ label: "Chamados" }]} />
       <div className="content-header">
         <h2>Chamados</h2>
         <button type="button" className="btn-primary" onClick={toggleForm}>
@@ -159,7 +169,7 @@ export default function ChamadosPage() {
           </div>
           <div className="card-content">
             {isLookupLoading ? (
-              <p>Carregando informações necessárias...</p>
+              <LoadingSpinner message="Carregando informações necessárias..." />
             ) : lookupError ? (
               <div className="alert-error">
                 <p>Não foi possível carregar as listas auxiliares: {lookupError}</p>
@@ -257,7 +267,6 @@ export default function ChamadosPage() {
                   />
                 </div>
                 {formError && <p className="form-error">{formError}</p>}
-                {formSuccess && <p className="form-success">{formSuccess}</p>}
                 <div className="form-actions">
                   <button className="btn-primary" type="submit" disabled={isSubmitting}>
                     {isSubmitting ? "Enviando..." : "Criar chamado"}
@@ -270,10 +279,15 @@ export default function ChamadosPage() {
       )}
 
       <div className="card">
-        <div className="card-header"><h3>Lista de Chamados</h3></div>
+        <div className="card-header">
+          <h3>Lista de Chamados</h3>
+          <button className="btn-secondary btn-small" type="button" onClick={() => void refetch()} disabled={isLoading}>
+            Atualizar
+          </button>
+        </div>
         {isInitialLoading ? (
           <div className="card-content">
-            <p>Carregando chamados...</p>
+            <LoadingSpinner message="Carregando chamados..." />
           </div>
         ) : error ? (
           <div className="card-content">
@@ -301,9 +315,13 @@ export default function ChamadosPage() {
                   <tr key={c.id}>
                     <td>{c.id}</td>
                     <td>
-                      <a href="#" className="table-link" onClick={() => navigate(`/chamados/${c.id}`)}>
+                      <button
+                        type="button"
+                        className="table-link table-link--button"
+                        onClick={() => navigate(`/chamados/${c.id}`)}
+                      >
                         {c.titulo}
-                      </a>
+                      </button>
                     </td>
                     <td>{formatLookup(c.status?.nome)}</td>
                     <td>{formatLookup(c.prioridade?.nome)}</td>
