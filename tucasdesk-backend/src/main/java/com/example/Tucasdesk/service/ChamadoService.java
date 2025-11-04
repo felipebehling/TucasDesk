@@ -4,6 +4,7 @@ import com.example.Tucasdesk.dtos.*;
 import com.example.Tucasdesk.mappers.ChamadoMapper;
 import com.example.Tucasdesk.model.*;
 import com.example.Tucasdesk.repository.*;
+import com.example.Tucasdesk.messaging.ChamadoMessagingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -29,19 +30,22 @@ public class ChamadoService {
     private final StatusRepository statusRepository;
     private final UsuarioRepository usuarioRepository;
     private final InteracaoRepository interacaoRepository;
+    private final ChamadoMessagingService chamadoMessagingService;
 
     public ChamadoService(ChamadoRepository chamadoRepository,
                           CategoriaRepository categoriaRepository,
                           PrioridadeRepository prioridadeRepository,
                           StatusRepository statusRepository,
                           UsuarioRepository usuarioRepository,
-                          InteracaoRepository interacaoRepository) {
+                          InteracaoRepository interacaoRepository,
+                          ChamadoMessagingService chamadoMessagingService) {
         this.chamadoRepository = chamadoRepository;
         this.categoriaRepository = categoriaRepository;
         this.prioridadeRepository = prioridadeRepository;
         this.statusRepository = statusRepository;
         this.usuarioRepository = usuarioRepository;
         this.interacaoRepository = interacaoRepository;
+        this.chamadoMessagingService = chamadoMessagingService;
     }
 
     /**
@@ -90,6 +94,7 @@ public class ChamadoService {
                 salvo.getCategoria() != null ? salvo.getCategoria().getIdCategoria() : null,
                 salvo.getPrioridade() != null ? salvo.getPrioridade().getIdPrioridade() : null,
                 salvo.getStatus() != null ? salvo.getStatus().getIdStatus() : null);
+        chamadoMessagingService.publishChamadoCreatedEvent(salvo);
         return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo));
     }
 
@@ -122,6 +127,7 @@ public class ChamadoService {
         }
         ajustarDataFechamento(chamado);
         Chamado salvo = chamadoRepository.save(chamado);
+        chamadoMessagingService.publishChamadoUpdatedEvent(salvo);
         return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo));
     }
 
@@ -139,6 +145,7 @@ public class ChamadoService {
         chamado.setStatus(novoStatus);
         ajustarDataFechamento(chamado);
         Chamado salvo = chamadoRepository.save(chamado);
+        chamadoMessagingService.publishChamadoStatusChangedEvent(salvo);
         return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo));
     }
 
@@ -154,6 +161,7 @@ public class ChamadoService {
         Prioridade novaPrioridade = buscarPrioridade(prioridadeId);
         chamado.setPrioridade(novaPrioridade);
         Chamado salvo = chamadoRepository.save(chamado);
+        chamadoMessagingService.publishChamadoUpdatedEvent(salvo);
         return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo));
     }
 
@@ -182,6 +190,7 @@ public class ChamadoService {
         interacao.setDataInteracao(LocalDateTime.now());
 
         Interacao salvo = interacaoRepository.save(interacao);
+        chamadoMessagingService.publishChamadoInteracaoAddedEvent(chamado, salvo);
         return ChamadoMapper.toInteracaoResponseDTO(salvo);
     }
 
