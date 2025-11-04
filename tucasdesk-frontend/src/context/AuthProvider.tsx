@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import api from "../api/api";
 import type { AuthenticatedUser, LoginRequest, LoginResponse } from "../interfaces/Auth";
 import {
@@ -9,33 +9,7 @@ import {
   subscribeToAuthChanges,
   type StoredAuth,
 } from "../api/tokenStorage";
-
-interface LoginOptions {
-  remember?: boolean;
-}
-
-/**
- * Defines the shape of the authentication context, including user state and actions.
- */
-interface AuthContextType {
-  /** The currently authenticated user's data, or null if not authenticated. */
-  usuario: AuthenticatedUser | null;
-  /** Function to perform user login. */
-  login: (data: LoginRequest, options?: LoginOptions) => Promise<void>;
-  /** Function to perform user logout. */
-  logout: () => void;
-  /** A boolean flag indicating if the user is currently authenticated. */
-  autenticado: boolean;
-  /** Indicates whether the provider is checking/restoring the session. */
-  carregando: boolean;
-  /** Explicitly refreshes the authenticated user's data from the backend. */
-  refreshSession: () => Promise<void>;
-}
-
-/**
- * React context for managing authentication state throughout the application.
- */
-export const AuthContext = createContext<AuthContextType>({} as AuthContextType);
+import { AuthContext, type LoginOptions } from "./AuthContext";
 
 function selectUsuarioFromStorage(stored: StoredAuth) {
   return stored.usuario ?? null;

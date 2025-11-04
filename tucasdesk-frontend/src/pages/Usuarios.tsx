@@ -1,20 +1,4 @@
-import { useState } from "react";
-
-/**
- * Defines the shape of a user object.
- */
-interface Usuario {
-  /** The unique identifier for the user. */
-  id: number;
-  /** The name of the user. */
-  nome: string;
-  /** The email address of the user. */
-  email: string;
-  /** The profile or role of the user (e.g., "Administrador"). */
-  perfil: string;
-  /** A flag indicating if the user account is active. */
-  ativo: boolean;
-}
+import useUsuarios from "../hooks/useUsuarios";
 
 /**
  * Renders the page for managing users.
@@ -23,12 +7,7 @@ interface Usuario {
  * @returns {JSX.Element} The user management page component.
  */
 export default function UsuariosPage() {
-  // TODO: Replace with actual data fetching from the API.
-  const [usuarios] = useState<Usuario[]>([
-    { id: 1, nome: "Felipe Behling", email: "felipe@tucasdesk.com", perfil: "Administrador", ativo: true },
-    { id: 2, nome: "Ana Souza", email: "ana@tucasdesk.com", perfil: "Técnico", ativo: true },
-    { id: 3, nome: "Maria Oliveira", email: "maria@tucasdesk.com", perfil: "Usuário", ativo: false },
-  ]);
+  const { usuarios, isLoading, error, refetch } = useUsuarios();
 
   return (
     <>
@@ -39,28 +18,47 @@ export default function UsuariosPage() {
         <div className="card-header">
           <h3>Lista de Usuários</h3>
         </div>
-        <table className="table-list">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>Email</th>
-              <th>Perfil</th>
-              <th>Ativo</th>
-            </tr>
-          </thead>
-          <tbody>
-            {usuarios.map(u => (
-              <tr key={u.id}>
-                <td>{u.id}</td>
-                <td>{u.nome}</td>
-                <td>{u.email}</td>
-                <td>{u.perfil}</td>
-                <td>{u.ativo ? "Sim" : "Não"}</td>
+        {error ? (
+          <div className="card-content">
+            <p>Não foi possível carregar os usuários: {error}</p>
+            <button className="btn-primary" type="button" onClick={() => void refetch()}>
+              Tentar novamente
+            </button>
+          </div>
+        ) : (
+          <table className="table-list">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Perfil</th>
+                <th>Ativo</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {isLoading && usuarios.length === 0 ? (
+                <tr>
+                  <td colSpan={5}>Carregando usuários...</td>
+                </tr>
+              ) : usuarios.length > 0 ? (
+                usuarios.map(u => (
+                  <tr key={u.id}>
+                    <td>{u.id}</td>
+                    <td>{u.nome}</td>
+                    <td>{u.email}</td>
+                    <td>{u.perfil}</td>
+                    <td>{u.ativo ? "Sim" : "Não"}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5}>Nenhum usuário encontrado.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
     </>
   );
