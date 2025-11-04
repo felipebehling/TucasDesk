@@ -1,14 +1,5 @@
 import React, { useState } from "react";
-
-/**
- * Defines the shape of a category object.
- */
-interface Categoria {
-  /** The unique identifier for the category. */
-  id: number;
-  /** The name of the category. */
-  nome: string;
-}
+import useCategorias from "../hooks/useCategorias";
 
 /**
  * Renders the page for managing ticket categories.
@@ -17,25 +8,30 @@ interface Categoria {
  * @returns {JSX.Element} The category management page component.
  */
 export default function CategoriasPage() {
-  // TODO: Replace with actual data fetching from the API.
-  const [categorias] = useState<Categoria[]>([
-    { id: 1, nome: "Infraestrutura" },
-    { id: 2, nome: "Sistema" },
-    { id: 3, nome: "Rede" },
-  ]);
+  const { categorias, isLoading, error, createCategoria, refetch } = useCategorias();
   const [novaCategoria, setNovaCategoria] = useState<string>("");
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   /**
    * Handles the form submission for adding a new category.
    *
    * @param {React.FormEvent} e - The form submission event.
    */
-  const adicionarCategoria = (e: React.FormEvent) => {
+  const adicionarCategoria = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!novaCategoria) return;
-    // TODO: Implement the API call to add the new category.
-    console.log("Adicionar categoria:", novaCategoria);
-    setNovaCategoria("");
+    setFeedback(null);
+    if (!novaCategoria.trim()) {
+      setFeedback("Informe um nome para a categoria.");
+      return;
+    }
+
+    try {
+      await createCategoria(novaCategoria.trim());
+      setFeedback("Categoria criada com sucesso!");
+      setNovaCategoria("");
+    } catch {
+      // O estado de erro global do hook já exibirá a mensagem apropriada.
+    }
   };
 
   return (
@@ -56,28 +52,54 @@ export default function CategoriasPage() {
               value={novaCategoria}
               onChange={(e) => setNovaCategoria(e.target.value)}
               style={{ flex: 1 }}
+              disabled={isLoading}
             />
             <button className="btn-primary" type="submit">
-              Adicionar
+              {isLoading ? "Salvando..." : "Adicionar"}
             </button>
           </div>
         </form>
-        <table className="table-list">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categorias.map(cat => (
-              <tr key={cat.id}>
-                <td>{cat.id}</td>
-                <td>{cat.nome}</td>
+        {feedback && !error && (
+          <div className="card-content">
+            <p>{feedback}</p>
+          </div>
+        )}
+        {error && (
+          <div className="card-content">
+            <p>Não foi possível carregar as categorias: {error}</p>
+            <button className="btn-primary" type="button" onClick={() => void refetch()}>
+              Tentar novamente
+            </button>
+          </div>
+        )}
+        {!error && (
+          <table className="table-list">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {isLoading && categorias.length === 0 ? (
+                <tr>
+                  <td colSpan={2}>Carregando categorias...</td>
+                </tr>
+              ) : categorias.length > 0 ? (
+                categorias.map(cat => (
+                  <tr key={cat.id}>
+                    <td>{cat.id}</td>
+                    <td>{cat.nome}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={2}>Nenhuma categoria cadastrada.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
     </>
   );

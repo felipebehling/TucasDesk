@@ -1,12 +1,12 @@
 import "axios";
 
 declare module "axios" {
-  interface InternalAxiosRequestConfig<D = any> {
+  interface InternalAxiosRequestConfig {
     skipAuth?: boolean;
     _retry?: boolean;
   }
 
-  interface AxiosRequestConfig<D = any> {
+  interface AxiosRequestConfig {
     skipAuth?: boolean;
   }
 }

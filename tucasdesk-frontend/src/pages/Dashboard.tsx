@@ -1,17 +1,8 @@
-import { useState } from "react";
+import { useMemo } from "react";
+import useChamados from "../hooks/useChamados";
 
-/**
- * Defines the shape of a support ticket object.
- */
-interface Chamado {
-  /** The unique identifier for the ticket. */
-  id: number;
-  /** The title of the ticket. */
-  titulo: string;
-  /** The current status of the ticket (e.g., "Aberto", "Em Andamento"). */
-  status: string;
-  /** The priority level of the ticket (e.g., "Alta", "Média"). */
-  prioridade: string;
+function formatStatus(label: string | undefined | null): string {
+  return label ?? "—";
 }
 
 /**
@@ -21,11 +12,16 @@ interface Chamado {
  * @returns {JSX.Element} The dashboard page component.
  */
 export default function DashboardPage() {
-  // TODO: Replace with actual data fetching from the API.
-  const [chamados] = useState<Chamado[]>([
-    { id: 1, titulo: "Erro no sistema de login", status: "Aberto", prioridade: "Alta" },
-    { id: 2, titulo: "Instalação de software", status: "Em Andamento", prioridade: "Média" },
-  ]);
+  const { chamados, isLoading, error } = useChamados();
+  const chamadosRecentes = useMemo(() => chamados.slice(0, 5), [chamados]);
+  const totalAbertos = useMemo(
+    () => chamados.filter(c => c.status?.nome?.toLowerCase() === "aberto").length,
+    [chamados],
+  );
+  const totalEmAndamento = useMemo(
+    () => chamados.filter(c => c.status?.nome?.toLowerCase() === "em andamento").length,
+    [chamados],
+  );
 
   return (
     <>
@@ -37,23 +33,39 @@ export default function DashboardPage() {
           <div className="card-header">
             <h3>Meus Chamados Recentes</h3>
           </div>
-          <ul className="card-content">
-            {chamados.map(c => (
-              <li key={c.id}>
-                <a href="#" className="table-link" onClick={() => console.log(`Ir para Chamado ${c.id}`)}>
-                  {c.titulo} - {c.status}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <div className="card-content">
+            {isLoading ? (
+              <p>Carregando chamados recentes...</p>
+            ) : error ? (
+              <p>Não foi possível carregar os chamados: {error}</p>
+            ) : chamadosRecentes.length > 0 ? (
+              <ul>
+                {chamadosRecentes.map(c => (
+                  <li key={c.id}>
+                    <span>{c.titulo}</span> - <span>{formatStatus(c.status?.nome)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Nenhum chamado recente encontrado.</p>
+            )}
+          </div>
         </div>
         <div className="card">
           <div className="card-header">
             <h3>Estatísticas Rápidas</h3>
           </div>
           <div className="card-content">
-            <p>Total de chamados abertos: {chamados.filter(c => c.status === "Aberto").length}</p>
-            <p>Total de chamados em andamento: {chamados.filter(c => c.status === "Em Andamento").length}</p>
+            {isLoading ? (
+              <p>Carregando estatísticas...</p>
+            ) : error ? (
+              <p>Não foi possível carregar as estatísticas.</p>
+            ) : (
+              <>
+                <p>Total de chamados abertos: {totalAbertos}</p>
+                <p>Total de chamados em andamento: {totalEmAndamento}</p>
+              </>
+            )}
           </div>
         </div>
       </div>
