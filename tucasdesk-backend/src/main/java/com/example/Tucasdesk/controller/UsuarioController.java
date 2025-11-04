@@ -54,15 +54,20 @@ public class UsuarioController {
         Usuario usuarioAutenticado = extrairUsuarioAutenticado(authentication);
         if (usuarioAutenticado == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponseDTO("Usuário não autenticado."));
+                    .body(new ErrorResponseDTO("Usuário não autenticado.", HttpStatus.UNAUTHORIZED.name()));
         }
 
         try {
             AuthenticatedUserDTO dto = usuarioService.obterUsuarioAutenticado(usuarioAutenticado.getIdUsuario());
             return ResponseEntity.ok(dto);
         } catch (ResponseStatusException ex) {
+            HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
+            if (status == null) {
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
             return ResponseEntity.status(ex.getStatusCode())
-                    .body(new ErrorResponseDTO(mensagemErro(ex, "Não foi possível carregar os dados do usuário.")));
+                    .body(new ErrorResponseDTO(mensagemErro(ex, "Não foi possível carregar os dados do usuário."),
+                            status.name()));
         }
     }
 
@@ -85,13 +90,14 @@ public class UsuarioController {
                     .map(error -> error.getDefaultMessage())
                     .findFirst()
                     .orElse("Dados inválidos.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseDTO(errorMessage));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponseDTO(errorMessage, HttpStatus.BAD_REQUEST.name()));
         }
 
         Usuario usuarioAutenticado = extrairUsuarioAutenticado(authentication);
         if (usuarioAutenticado == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponseDTO("Usuário não autenticado."));
+                    .body(new ErrorResponseDTO("Usuário não autenticado.", HttpStatus.UNAUTHORIZED.name()));
         }
 
         try {
@@ -99,8 +105,13 @@ public class UsuarioController {
                     usuarioAutenticado.getIdUsuario(), updateRequest);
             return ResponseEntity.ok(dto);
         } catch (ResponseStatusException ex) {
+            HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
+            if (status == null) {
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
             return ResponseEntity.status(ex.getStatusCode())
-                    .body(new ErrorResponseDTO(mensagemErro(ex, "Não foi possível atualizar os dados do usuário.")));
+                    .body(new ErrorResponseDTO(mensagemErro(ex, "Não foi possível atualizar os dados do usuário."),
+                            status.name()));
         }
     }
 

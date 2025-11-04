@@ -11,6 +11,8 @@ import com.example.Tucasdesk.model.Usuario;
 import com.example.Tucasdesk.repository.UsuarioRepository;
 import com.example.Tucasdesk.security.TokenService;
 import com.example.Tucasdesk.service.UsuarioService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +35,8 @@ import java.util.regex.Pattern;
 @RequestMapping("/auth")
 @CrossOrigin(origins = "${app.cors.allowed-origins}")
 public class AuthController {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -64,20 +68,25 @@ public class AuthController {
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
                     .findFirst()
                     .orElse("Dados inválidos para registro.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseDTO(errorMessage));
+            log.warn("event=auth_register status=validation_error email={} message=\"{}\"", registerRequest.getEmail(), errorMessage);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponseDTO(errorMessage, HttpStatus.BAD_REQUEST.name()));
         }
 
         if (!isStrongPassword(registerRequest.getSenha())) {
+            log.warn("event=auth_register status=weak_password email={}", registerRequest.getEmail());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponseDTO("A senha deve conter letras maiúsculas, minúsculas, números e caracteres especiais."));
+                    .body(new ErrorResponseDTO("A senha deve conter letras maiúsculas, minúsculas, números e caracteres especiais.", HttpStatus.BAD_REQUEST.name()));
         }
 
         if (usuarioRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+            log.warn("event=auth_register status=conflict email={}", registerRequest.getEmail());
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ErrorResponseDTO("Já existe um usuário cadastrado com este e-mail."));
+                    .body(new ErrorResponseDTO("Já existe um usuário cadastrado com este e-mail.", HttpStatus.CONFLICT.name()));
         }
 
         UsuarioResponseDTO usuarioResponseDTO = usuarioService.criarUsuario(registerRequest);
+        log.info("event=auth_register status=success userId={} email={}", usuarioResponseDTO.getIdUsuario(), usuarioResponseDTO.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioResponseDTO);
     }
 
@@ -93,19 +102,22 @@ public class AuthController {
         Optional<Usuario> optionalUsuario = usuarioRepository.findByEmail(loginDTO.getEmail());
 
         if (optionalUsuario.isEmpty()) {
+            log.warn("event=auth_login status=user_not_found email={}", loginDTO.getEmail());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponseDTO("Usuário ou senha inválidos."));
+                    .body(new ErrorResponseDTO("Usuário ou senha inválidos.", HttpStatus.UNAUTHORIZED.name()));
         }
 
         Usuario usuario = optionalUsuario.get();
         if (!passwordEncoder.matches(loginDTO.getSenha(), usuario.getSenha())) {
+            log.warn("event=auth_login status=invalid_password userId={} email={}", usuario.getIdUsuario(), usuario.getEmail());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponseDTO("Usuário ou senha inválidos."));
+                    .body(new ErrorResponseDTO("Usuário ou senha inválidos.", HttpStatus.UNAUTHORIZED.name()));
         }
 
         String token = tokenService.generateToken(usuario);
         AuthenticatedUserDTO usuarioDTO = UsuarioMapper.toAuthenticatedUserDTO(usuario);
         LoginResponseDTO responseDTO = new LoginResponseDTO(token, null, usuarioDTO);
+        log.info("event=auth_login status=success userId={} email={}", usuario.getIdUsuario(), usuario.getEmail());
         return ResponseEntity.ok(responseDTO);
     }
 
@@ -118,8 +130,9 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<?> me(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
+            log.warn("event=auth_me status=unauthenticated");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponseDTO("Usuário não autenticado."));
+                    .body(new ErrorResponseDTO("Usuário não autenticado.", HttpStatus.UNAUTHORIZED.name()));
         }
 
         Object principal = authentication.getPrincipal();
@@ -140,11 +153,12 @@ public class AuthController {
                     .map(UsuarioMapper::toAuthenticatedUserDTO)
                     .<ResponseEntity<?>>map(ResponseEntity::ok)
                     .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                            .body(new ErrorResponseDTO("Usuário não encontrado.")));
+                            .body(new ErrorResponseDTO("Usuário não encontrado.", HttpStatus.UNAUTHORIZED.name())));
         }
 
+        log.warn("event=auth_me status=user_resolution_failed");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ErrorResponseDTO("Usuário não autenticado."));
+                .body(new ErrorResponseDTO("Usuário não autenticado.", HttpStatus.UNAUTHORIZED.name()));
     }
 
     private boolean isStrongPassword(String senha) {
