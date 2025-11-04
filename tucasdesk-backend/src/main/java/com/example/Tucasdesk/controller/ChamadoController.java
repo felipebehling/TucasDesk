@@ -12,7 +12,7 @@ import java.util.List;
  */
 @CrossOrigin(origins = "${app.cors.allowed-origins}")
 @RestController
-@RequestMapping("/api/chamados")
+@RequestMapping("/chamados")
 public class ChamadoController {
 
     private final ChamadoService chamadoService;

@@ -7,7 +7,7 @@ import type {
   UpdateChamadoPayload,
 } from "../types/chamados";
 
-const resource = "/api/chamados" as const;
+const resource = "/chamados" as const;
 
 async function listar(): Promise<ChamadoResponse[]> {
   const { data } = await api.get<ChamadoResponse[]>(resource);
