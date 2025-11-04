@@ -90,7 +90,7 @@ Make sure you have Docker and Docker Compose installed on your machine.
 *   [Docker](https://docs.docker.com/get-docker/)
 *   [Docker Compose](https://docs.docker.com/compose/install/)
 
-### Installation
+### Running with Docker Compose
 
 1.  Clone the repository:
     ```sh
@@ -105,12 +105,53 @@ Make sure you have Docker and Docker Compose installed on your machine.
     docker compose up --build
     ```
 
-The application will be available at the following URLs:
+Docker Compose will provision the three services required for the project:
 
-*   **Frontend:** [http://localhost:3000](http://localhost:3000)
-*   **Backend:** [http://localhost:8080](http://localhost:8080)
+*   **Frontend:** available at [http://localhost:3000](http://localhost:3000).
+*   **Backend API:** available at [http://localhost:8080](http://localhost:8080).
+*   **MySQL database:** exposed on port `3307` with the credentials defined in `compose.yaml`.
 
-The database will be running on port `3307`.
+Stop the stack with `docker compose down` when you are done.
+
+### Running the backend locally
+
+1.  Start the database (you can reuse Docker Compose for that):
+    ```sh
+    docker compose up -d db
+    ```
+2.  In another terminal, start the Spring Boot application:
+    ```sh
+    cd tucasdesk-backend
+    ./mvnw spring-boot:run
+    ```
+    The backend listens on [http://localhost:8080](http://localhost:8080) and expects the database on `localhost:3307` as configured in `src/main/resources/application.properties`.
+
+### Running the frontend locally
+
+1.  Install dependencies and create/update the environment file:
+    ```sh
+    cd tucasdesk-frontend
+    npm install
+    echo "VITE_API_URL=http://localhost:8080" > .env
+    ```
+2.  Start the Vite development server:
+    ```sh
+    npm run dev
+    ```
+    The frontend is served on [http://localhost:5173](http://localhost:5173) by default and proxies API requests to the backend URL defined in `.env`.
+
+### Running tests and quality checks
+
+*   **Backend:**
+    ```sh
+    cd tucasdesk-backend
+    ./mvnw test
+    ```
+*   **Frontend linting:**
+    ```sh
+    cd tucasdesk-frontend
+    npm run lint
+    ```
 
 ## Usage
 
