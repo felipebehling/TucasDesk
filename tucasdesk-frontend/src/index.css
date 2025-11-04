@@ -216,6 +216,16 @@ button:focus-visible {
   font-weight: 500;
 }
 
+.field-error {
+  color: var(--color-error);
+  font-size: 0.85rem;
+}
+
+.text-small {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
 .alert-error {
   display: flex;
   flex-direction: column;
