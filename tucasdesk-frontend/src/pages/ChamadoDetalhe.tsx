@@ -11,13 +11,10 @@ import type { ChamadoResponse, InteracaoResponse } from "../types/chamados";
 import type { Status } from "../types/status";
 import type { Prioridade } from "../types/prioridades";
 import { extractErrorMessage } from "../utils/error";
-
-interface ActionModalProps {
-  title: string;
-  isOpen: boolean;
-  onClose: () => void;
-  children: ReactNode;
-}
+import { LoadingSpinner } from "../components/common/LoadingOverlay";
+import { Breadcrumbs } from "../components/navigation/Breadcrumbs";
+import ConfirmDialog from "../components/common/ConfirmDialog";
+import { useToast } from "../components/common/ToastProvider";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", {
   dateStyle: "short",
@@ -39,21 +36,35 @@ function formatLookup(label: string | undefined | null): string {
   return label ?? "—";
 }
 
+interface ActionModalProps {
+  title: string;
+  isOpen: boolean;
+  onClose: () => void;
+  children: ReactNode;
+}
+
+function normalizeText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
+}
+
 function ActionModal({ title, isOpen, onClose, children }: ActionModalProps) {
   if (!isOpen) {
     return null;
   }
 
   return (
-    <div className="modal-overlay" role="dialog" aria-modal="true">
-      <div className="modal-content">
-        <div className="modal-header">
+    <div className="modal-backdrop" role="dialog" aria-modal="true">
+      <div className="modal-card">
+        <header className="modal-card__header">
           <h4>{title}</h4>
-          <button type="button" className="btn-ghost" onClick={onClose}>
-            Fechar
+          <button type="button" className="btn-ghost" onClick={onClose} aria-label="Fechar">
+            ×
           </button>
-        </div>
-        <div className="modal-body">{children}</div>
+        </header>
+        <div className="modal-card__body">{children}</div>
       </div>
     </div>
   );
@@ -69,6 +80,7 @@ export default function ChamadoDetalhePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { usuario } = useContext(AuthContext);
+  const { showToast } = useToast();
 
   const [chamadoId, setChamadoId] = useState<number | null>(null);
   const [chamado, setChamado] = useState<ChamadoResponse | null>(null);
@@ -82,10 +94,15 @@ export default function ChamadoDetalhePage() {
 
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isPrioridadeModalOpen, setIsPrioridadeModalOpen] = useState(false);
+  const [isCloseConfirmOpen, setIsCloseConfirmOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [selectedStatusId, setSelectedStatusId] = useState<string>("");
   const [selectedPrioridadeId, setSelectedPrioridadeId] = useState<string>("");
   const [isStatusUpdating, setIsStatusUpdating] = useState(false);
   const [isPrioridadeUpdating, setIsPrioridadeUpdating] = useState(false);
+  const [isClosingChamado, setIsClosingChamado] = useState(false);
+  const [isDeletingInteraction, setIsDeletingInteraction] = useState(false);
+  const [interactionToDelete, setInteractionToDelete] = useState<number | null>(null);
 
   const [interactionMessage, setInteractionMessage] = useState("");
   const [interactionAttachment, setInteractionAttachment] = useState("");
@@ -93,7 +110,6 @@ export default function ChamadoDetalhePage() {
   const [isInteractionSubmitting, setIsInteractionSubmitting] = useState(false);
 
   const [actionError, setActionError] = useState<string | null>(null);
-  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
   const interactions = useMemo(() => {
     if (!chamado?.interacoes) {
@@ -103,6 +119,39 @@ export default function ChamadoDetalhePage() {
       (a, b) => new Date(a.dataInteracao).getTime() - new Date(b.dataInteracao).getTime(),
     );
   }, [chamado?.interacoes]);
+
+  const closedStatusId = useMemo(() => {
+    const candidate = statusOptions.find((status) => {
+      const normalized = normalizeText(status.nome);
+      return normalized.includes("fechado") || normalized.includes("encerrado") || normalized.includes("resolvido");
+    });
+    return candidate?.id ?? null;
+  }, [statusOptions]);
+
+  const isChamadoFechado = useMemo(() => {
+    if (!chamado) {
+      return false;
+    }
+    if (chamado.dataFechamento) {
+      return true;
+    }
+    if (!chamado.status?.nome) {
+      return false;
+    }
+    const normalized = normalizeText(chamado.status.nome);
+    return normalized.includes("fechado") || normalized.includes("encerrado");
+  }, [chamado]);
+
+  const breadcrumbs = useMemo(
+    () => [
+      { label: "Chamados", to: "/chamados" },
+      { label: chamado ? `Chamado #${chamado.id}` : `Chamado #${id ?? ""}` },
+    ],
+    [chamado, id],
+  );
+
+  const canCloseChamado = closedStatusId !== null && !isChamadoFechado;
+  const closeButtonLabel = isChamadoFechado ? "Chamado fechado" : "Fechar chamado";
 
   const loadLookups = useCallback(async () => {
     setIsLookupLoading(true);
@@ -157,14 +206,12 @@ export default function ChamadoDetalhePage() {
   const handleOpenStatusModal = () => {
     setSelectedStatusId(chamado?.status?.id ? String(chamado.status.id) : "");
     setActionError(null);
-    setActionSuccess(null);
     setIsStatusModalOpen(true);
   };
 
   const handleOpenPrioridadeModal = () => {
     setSelectedPrioridadeId(chamado?.prioridade?.id ? String(chamado.prioridade.id) : "");
     setActionError(null);
-    setActionSuccess(null);
     setIsPrioridadeModalOpen(true);
   };
 
@@ -180,16 +227,23 @@ export default function ChamadoDetalhePage() {
     }
 
     setActionError(null);
-    setActionSuccess(null);
     setIsStatusUpdating(true);
 
     try {
       const response = await ChamadosService.atualizarStatus(chamadoId, Number(selectedStatusId));
       setChamado(response);
-      setActionSuccess("Status atualizado com sucesso.");
+      showToast({
+        tone: "success",
+        description: "Status atualizado com sucesso.",
+      });
       setIsStatusModalOpen(false);
     } catch (statusError) {
-      setActionError(extractErrorMessage(statusError));
+      const message = extractErrorMessage(statusError);
+      setActionError(message);
+      showToast({
+        tone: "error",
+        description: message,
+      });
     } finally {
       setIsStatusUpdating(false);
     }
@@ -207,7 +261,6 @@ export default function ChamadoDetalhePage() {
     }
 
     setActionError(null);
-    setActionSuccess(null);
     setIsPrioridadeUpdating(true);
 
     try {
@@ -216,12 +269,108 @@ export default function ChamadoDetalhePage() {
         Number(selectedPrioridadeId),
       );
       setChamado(response);
-      setActionSuccess("Prioridade atualizada com sucesso.");
+      showToast({
+        tone: "success",
+        description: "Prioridade atualizada com sucesso.",
+      });
       setIsPrioridadeModalOpen(false);
     } catch (prioridadeError) {
-      setActionError(extractErrorMessage(prioridadeError));
+      const message = extractErrorMessage(prioridadeError);
+      setActionError(message);
+      showToast({
+        tone: "error",
+        description: message,
+      });
     } finally {
       setIsPrioridadeUpdating(false);
+    }
+  };
+
+  const handleOpenCloseModal = () => {
+    if (!closedStatusId) {
+      showToast({
+        tone: "warning",
+        description: "Nenhum status de fechamento foi encontrado.",
+      });
+      return;
+    }
+    setIsCloseConfirmOpen(true);
+  };
+
+  const handleConfirmCloseChamado = async () => {
+    if (!chamadoId || !closedStatusId) {
+      showToast({
+        tone: "error",
+        description: "Chamado inválido para fechamento.",
+      });
+      return;
+    }
+
+    setIsClosingChamado(true);
+    setActionError(null);
+    try {
+      const response = await ChamadosService.atualizarStatus(chamadoId, closedStatusId);
+      setChamado(response);
+      showToast({
+        tone: "success",
+        description: "Chamado fechado com sucesso.",
+      });
+      setIsCloseConfirmOpen(false);
+    } catch (closeError) {
+      const message = extractErrorMessage(closeError);
+      showToast({
+        tone: "error",
+        description: message,
+      });
+    } finally {
+      setIsClosingChamado(false);
+    }
+  };
+
+  const handleRequestDeleteInteraction = (interactionId: number) => {
+    setInteractionToDelete(interactionId);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const resetDeleteDialog = () => {
+    setIsDeleteConfirmOpen(false);
+    setInteractionToDelete(null);
+  };
+
+  const handleConfirmDeleteInteraction = async () => {
+    if (!chamadoId || interactionToDelete === null) {
+      showToast({
+        tone: "error",
+        description: "Interação inválida para exclusão.",
+      });
+      return;
+    }
+
+    setIsDeletingInteraction(true);
+    try {
+      await ChamadosService.removerInteracao(chamadoId, interactionToDelete);
+      setChamado((prev) => {
+        if (!prev) {
+          return prev;
+        }
+        return {
+          ...prev,
+          interacoes: prev.interacoes.filter((interacao) => interacao.id !== interactionToDelete),
+        };
+      });
+      showToast({
+        tone: "success",
+        description: "Interação excluída com sucesso.",
+      });
+      resetDeleteDialog();
+    } catch (deleteError) {
+      const message = extractErrorMessage(deleteError);
+      showToast({
+        tone: "error",
+        description: message,
+      });
+    } finally {
+      setIsDeletingInteraction(false);
     }
   };
 
@@ -242,7 +391,6 @@ export default function ChamadoDetalhePage() {
 
     setInteractionError(null);
     setActionError(null);
-    setActionSuccess(null);
     setIsInteractionSubmitting(true);
 
     try {
@@ -262,10 +410,17 @@ export default function ChamadoDetalhePage() {
       });
       setInteractionMessage("");
       setInteractionAttachment("");
-      setActionSuccess("Interação registrada com sucesso.");
+      showToast({
+        tone: "success",
+        description: "Interação registrada com sucesso.",
+      });
     } catch (interactionErr) {
       const message = extractErrorMessage(interactionErr);
       setInteractionError(message);
+      showToast({
+        tone: "error",
+        description: message,
+      });
     } finally {
       setIsInteractionSubmitting(false);
     }
@@ -273,17 +428,28 @@ export default function ChamadoDetalhePage() {
 
   return (
     <>
+      <Breadcrumbs items={breadcrumbs} />
       <div className="content-header">
         <h2>Chamado #{id}</h2>
-        <button type="button" className="btn-secondary" onClick={() => navigate("/chamados")}>
-          Voltar
-        </button>
+        <div className="content-actions">
+          <button type="button" className="btn-secondary" onClick={() => navigate("/chamados")}>
+            Voltar
+          </button>
+          <button
+            type="button"
+            className="btn-danger btn-small"
+            onClick={handleOpenCloseModal}
+            disabled={!canCloseChamado || isClosingChamado}
+          >
+            {isClosingChamado ? "Fechando..." : closeButtonLabel}
+          </button>
+        </div>
       </div>
 
       <div className="card">
         <div className="card-content">
           {isLoading ? (
-            <p>Carregando detalhes do chamado...</p>
+            <LoadingSpinner message="Carregando detalhes do chamado..." />
           ) : error ? (
             <p>Não foi possível carregar o chamado: {error}</p>
           ) : chamado ? (
@@ -346,7 +512,6 @@ export default function ChamadoDetalhePage() {
               </div>
 
               {actionError && <p className="form-error">{actionError}</p>}
-              {actionSuccess && <p className="form-success">{actionSuccess}</p>}
             </>
           ) : (
             <p>Chamado não encontrado.</p>
@@ -364,12 +529,24 @@ export default function ChamadoDetalhePage() {
               {interactions.map((interacao) => (
                 <li key={interacao.id} className="timeline-item">
                   <div className="timeline-item-header">
-                    <span className="timeline-item-author">
-                      {interacao.usuario?.nome ?? "Usuário desconhecido"}
-                    </span>
-                    <span className="timeline-item-date">
-                      {formatDateTime(interacao.dataInteracao)}
-                    </span>
+                    <div className="timeline-item-meta">
+                      <span className="timeline-item-author">
+                        {interacao.usuario?.nome ?? "Usuário desconhecido"}
+                      </span>
+                      <span className="timeline-item-date">
+                        {formatDateTime(interacao.dataInteracao)}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn-ghost btn-small btn-ghost--danger"
+                      onClick={() => handleRequestDeleteInteraction(interacao.id)}
+                      disabled={isDeletingInteraction && interactionToDelete === interacao.id}
+                    >
+                      {isDeletingInteraction && interactionToDelete === interacao.id
+                        ? "Excluindo..."
+                        : "Excluir"}
+                    </button>
                   </div>
                   <p className="timeline-item-message">{interacao.mensagem}</p>
                   {interacao.anexoUrl && (
@@ -432,7 +609,7 @@ export default function ChamadoDetalhePage() {
         onClose={() => setIsStatusModalOpen(false)}
       >
         {isLookupLoading ? (
-          <p>Carregando opções...</p>
+          <LoadingSpinner message="Carregando opções..." />
         ) : lookupError ? (
           <div className="alert-error">
             <p>Não foi possível carregar os status: {lookupError}</p>
@@ -479,7 +656,7 @@ export default function ChamadoDetalhePage() {
         onClose={() => setIsPrioridadeModalOpen(false)}
       >
         {isLookupLoading ? (
-          <p>Carregando opções...</p>
+          <LoadingSpinner message="Carregando opções..." />
         ) : lookupError ? (
           <div className="alert-error">
             <p>Não foi possível carregar as prioridades: {lookupError}</p>
@@ -523,6 +700,36 @@ export default function ChamadoDetalhePage() {
           </form>
         )}
       </ActionModal>
+
+      <ConfirmDialog
+        isOpen={isCloseConfirmOpen}
+        title="Fechar chamado"
+        description="Tem certeza de que deseja fechar este chamado? Essa ação não poderá ser desfeita."
+        confirmLabel="Fechar chamado"
+        tone="danger"
+        isProcessing={isClosingChamado}
+        onConfirm={handleConfirmCloseChamado}
+        onCancel={() => {
+          if (!isClosingChamado) {
+            setIsCloseConfirmOpen(false);
+          }
+        }}
+      />
+
+      <ConfirmDialog
+        isOpen={isDeleteConfirmOpen}
+        title="Excluir interação"
+        description="Deseja realmente excluir esta interação? Essa operação não pode ser revertida."
+        confirmLabel="Excluir"
+        tone="danger"
+        isProcessing={isDeletingInteraction}
+        onConfirm={handleConfirmDeleteInteraction}
+        onCancel={() => {
+          if (!isDeletingInteraction) {
+            resetDeleteDialog();
+          }
+        }}
+      />
     </>
   );
 }

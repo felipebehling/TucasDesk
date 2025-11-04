@@ -51,6 +51,10 @@ async function adicionarInteracao(
   return data;
 }
 
+async function removerInteracao(id: number, interacaoId: number): Promise<void> {
+  await api.delete(`${resource}/${id}/interacoes/${interacaoId}`);
+}
+
 export const ChamadosService = {
   listar,
   buscarPorId,
@@ -59,6 +63,7 @@ export const ChamadosService = {
   atualizarStatus,
   atualizarPrioridade,
   adicionarInteracao,
+  removerInteracao,
 };
 
 export default ChamadosService;
