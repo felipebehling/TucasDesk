@@ -88,7 +88,7 @@ public class ChamadoMessagingService {
         if (StringUtils.hasText(properties.getQueueName())) {
             hasTargets = true;
             try {
-                sqsTemplate.convertAndSend(properties.getQueueName(), payload);
+                sqsTemplate.send(properties.getQueueName(), payload);
                 log.debug("event=chamado_message_sqs_published type={} chamadoId={} queue={}",
                         payload.eventType(), payload.chamadoId(), properties.getQueueName());
             } catch (Exception ex) {
