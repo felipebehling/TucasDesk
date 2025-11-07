@@ -1,43 +1,81 @@
+x-shared-database-url: &shared-database-url
+  DATABASE_URL: ${DATABASE_URL}
+
 services:
   db:
+    profiles:
+      - mysql
     image: mysql:8.0
     container_name: tucasdesk-db
+    env_file:
+      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: tucasdesk
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
       - ./docker/mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      default:
+        aliases:
+          - database
+
+  db-mariadb:
+    profiles:
+      - mariadb
+    image: mariadb:10.11
+    container_name: tucasdesk-db-mariadb
+    env_file:
+      - .env
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      default:
+        aliases:
+          - database
 
   backend:
+    profiles:
+      - mysql
+      - mariadb
     build: ./tucasdesk-backend
     container_name: tucasdesk-backend
     ports:
       - "8080:8080"
-    env_file:
-      - .env
     environment:
+      <<: *shared-database-url
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-user}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-password}
-    depends_on:
-      - db
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
 
   frontend:
+    profiles:
+      - mysql
+      - mariadb
     build:
       context: ./tucasdesk-frontend
       dockerfile: dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://tucasdesk-backend:8080}
+        VITE_API_URL: ${VITE_API_URL}
     container_name: tucasdesk-frontend
     env_file:
       - ./tucasdesk-frontend/.env
     environment:
-      - VITE_API_URL
+      <<: *shared-database-url
+      VITE_API_URL: ${VITE_API_URL}
     ports:
       - "3000:80"
     depends_on:

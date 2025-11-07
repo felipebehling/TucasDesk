@@ -1,3 +1,4 @@
 .vscode/
 tucasdesk-frontend/.env
 .env
+!/.env
