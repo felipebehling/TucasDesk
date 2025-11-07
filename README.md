@@ -48,6 +48,7 @@ Instale as ferramentas abaixo antes de iniciar:
 ```sh
 git clone https://github.com/felipebehling/tucasdesk.git
 cd tucasdesk
+cp tucasdesk-frontend/.env.example tucasdesk-frontend/.env
 docker compose up --build
 ```
 
@@ -73,12 +74,12 @@ A API ficará disponível em [http://localhost:8080](http://localhost:8080) e ut
 
 ```sh
 cd tucasdesk-frontend
+cp .env.example .env
 npm install
-echo "VITE_API_URL=http://localhost:8080" > .env
 npm run dev
 ```
 
-O Vite servirá o frontend em [http://localhost:5173](http://localhost:5173) e encaminhará as chamadas para a API configurada no `.env`.
+O Vite servirá o frontend em [http://localhost:5173](http://localhost:5173) e encaminhará as chamadas para a API configurada no `.env`. Ajuste o valor de `VITE_API_URL` conforme necessário (por exemplo, `http://localhost:8080` ao executar o backend fora do Docker).
 
 ### Testes e verificações
 
