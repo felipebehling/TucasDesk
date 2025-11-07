@@ -43,25 +43,82 @@ Instale as ferramentas abaixo antes de iniciar:
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
-### Subindo tudo com Docker Compose
+### Subindo tudo com Docker Compose (recomendado)
 
-```sh
-git clone https://github.com/felipebehling/tucasdesk.git
-cd tucasdesk
-cp .env.example .env
-cp tucasdesk-frontend/.env.example tucasdesk-frontend/.env
-docker compose up --build
-```
+1. Clone o repositório e acesse a pasta do projeto:
+
+   ```sh
+   git clone https://github.com/felipebehling/tucasdesk.git
+   cd tucasdesk
+   ```
+
+2. Crie o `.env` compartilhado na raiz com os valores obrigatórios. Comece copiando o arquivo de exemplo e, em seguida, ajuste cada variável conforme o ambiente desejado:
+
+   ```sh
+   cp .env.example .env
+   ```
+
+   Você pode usar o `.env.example` como base para os segredos do backend e complementar com as variáveis exigidas pelo Docker Compose:
+
+   | Variável | Descrição |
+   | --- | --- |
+   | `DB_VENDOR` | Define o driver utilizado pelo backend (`mysql` ou `mariadb`). |
+   | `DB_HOST` | Hostname utilizado pelos serviços para se conectar ao banco (geralmente `database`). |
+   | `DB_PORT` | Porta interna exposta pelo banco (padrão `3306`). |
+   | `DB_ROOT_PASSWORD` | Senha do usuário administrador do banco. |
+   | `DB_USER` | Usuário de aplicação que será criado na inicialização. |
+   | `DB_PASSWORD` | Senha do usuário de aplicação. |
+   | `DB_NAME` | Nome do banco utilizado pela aplicação. |
+   | `DATABASE_URL` | URL de conexão no formato aceito pelo backend (`mysql://` ou `mariadb://`). |
+   | `SPRING_DATASOURCE_URL` | URL JDBC utilizada pela API. |
+   | `SPRING_DATASOURCE_USERNAME` | Usuário JDBC do Spring. |
+   | `SPRING_DATASOURCE_PASSWORD` | Senha JDBC do Spring. |
+   | `SPRING_ACTIVE_DATABASE_PROFILE` | Perfil complementar para alternar entre `mysql` (padrão) e `mariadb`. |
+   | `VITE_API_URL` | URL interna usada pelo frontend para chamar a API. |
+   | `JWT_SECRET` | Segredo para assinar tokens JWT. |
+   | `JWT_EXPIRATION` | Tempo de expiração dos tokens JWT em milissegundos. |
+
+   > 💡 Utilize `.env.mariadb` como referência se quiser partir de um conjunto pronto para o perfil MariaDB.
+
+3. Gere o arquivo de variáveis do frontend copiando o modelo padrão:
+
+   ```sh
+   cp tucasdesk-frontend/.env.example tucasdesk-frontend/.env
+   ```
+
+   O valor de `VITE_API_URL` precisa apontar para a URL onde o backend estará acessível (por padrão, `http://tucasdesk-backend:8080` nos containers ou `http://localhost:8080` para execução local).
+
+4. Suba os serviços desejados:
+
+   ```sh
+   # Perfil padrão utilizando MySQL
+   docker compose up --build
+
+   # Perfil alternativo com MariaDB
+   docker compose --profile mariadb up --build
+   ```
+
+   Finalize a execução com `docker compose down`.
 
 Serviços disponíveis:
 
-- Frontend: [http://localhost:3000](http://localhost:3000)
-- Backend: [http://localhost:8080](http://localhost:8080)
-- Banco de dados: porta `3307`, com credenciais definidas em `compose.yaml`
+| Serviço | Perfil | Porta | Observações |
+| --- | --- | --- | --- |
+| Frontend (Nginx) | `mysql` / `mariadb` | `3000` | Interface web do TucasDesk. |
+| Backend (Spring Boot) | `mysql` / `mariadb` | `8080` | API REST da aplicação. |
+| Banco de dados | `mysql` | `3307` → `3306` | Credenciais configuradas via `.env` (MySQL 8). |
+| Banco de dados | `mariadb` | `3307` → `3306` | Credenciais configuradas via `.env` (MariaDB 10.11). |
 
-Finalize a execução com `docker compose down`.
+Resumo das credenciais padrão sugeridas:
 
-### Executando o backend localmente
+| Perfil | Imagem | Porta exposta (host → container) | Usuário root | Senha root | Usuário de aplicação | Senha de aplicação |
+| --- | --- | --- | --- | --- | --- | --- |
+| `mysql` | `mysql:8.0` | `3307` → `3306` | `root` | `DB_ROOT_PASSWORD` | `DB_USER` | `DB_PASSWORD` |
+| `mariadb` | `mariadb:10.11` | `3307` → `3306` | `root` | `DB_ROOT_PASSWORD` | `DB_USER` | `DB_PASSWORD` |
+
+> 📌 O Docker Compose é o caminho principal para executar a stack completa. A execução local (sem containers) é opcional e está detalhada na seção a seguir apenas para quem precisar personalizar ou depurar serviços individualmente.
+
+### Executando o backend localmente (opcional)
 
 ```sh
 docker compose up -d db
@@ -93,7 +150,7 @@ O backend lê as configurações sensíveis a partir de variáveis de ambiente. 
 
 > 💡 Crie um arquivo `.env` na raiz do projeto (pode usar `.env.example` como base) para informar `JWT_SECRET` e `JWT_EXPIRATION` antes de subir os containers com Docker Compose. Para testar com MariaDB, utilize o arquivo `.env.mariadb` como referência (por exemplo, `docker compose --profile mariadb --env-file .env.mariadb up`).
 
-### Executando o frontend localmente
+### Executando o frontend localmente (opcional)
 
 ```sh
 cd tucasdesk-frontend
