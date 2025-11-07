@@ -3,32 +3,8 @@ x-shared-database-url: &shared-database-url
 
 services:
   db:
-    profiles:
-      - mysql
-    image: mysql:8.0
-    container_name: tucasdesk-db
-    env_file:
-      - .env
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql-data:/var/lib/mysql
-      - ./docker/mysql-init:/docker-entrypoint-initdb.d
-    networks:
-      default:
-        aliases:
-          - database
-
-  db-mariadb:
-    profiles:
-      - mariadb
     image: mariadb:10.11
-    container_name: tucasdesk-db-mariadb
+    container_name: tucasdesk-db
     env_file:
       - .env
     environment:
@@ -39,7 +15,7 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - database-data:/var/lib/mysql
       - ./docker/mysql-init:/docker-entrypoint-initdb.d
     networks:
       default:
@@ -47,24 +23,18 @@ services:
           - database
 
   backend:
-    profiles:
-      - mysql
-      - mariadb
     build: ./tucasdesk-backend
     container_name: tucasdesk-backend
     ports:
       - "8080:8080"
     environment:
       <<: *shared-database-url
-      SPRING_PROFILES_ACTIVE: docker,${SPRING_ACTIVE_DATABASE_PROFILE:-mysql}
+      SPRING_PROFILES_ACTIVE: docker,${SPRING_ACTIVE_DATABASE_PROFILE:-mariadb}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
 
   frontend:
-    profiles:
-      - mysql
-      - mariadb
     build:
       context: ./tucasdesk-frontend
       dockerfile: dockerfile
@@ -82,4 +52,4 @@ services:
       - backend
 
 volumes:
-  mysql-data:
+  database-data:
