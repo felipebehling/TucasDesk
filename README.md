@@ -21,14 +21,14 @@ TucasDesk oferece uma experiência completa para usuários, técnicos e administ
 
 - `tucasdesk-backend/`: API em Spring Boot responsável pelas regras de negócio e integrações com o banco de dados.
 - `tucasdesk-frontend/`: interface web em React + TypeScript com componentes reutilizáveis e navegação protegida.
-- `compose.yaml`: orquestração dos serviços (frontend, backend e banco MySQL) via Docker Compose.
+- `compose.yaml`: orquestração dos serviços (frontend, backend e banco MariaDB) via Docker Compose.
 
 ## Tecnologias Utilizadas
 
 - **Java 21 + Spring Boot 3:** linguagem e framework escolhidos para entregar uma API robusta, segura e fácil de manter.
 - **Spring Data JPA:** abstrai o acesso ao banco de dados, agilizando consultas e persistência de entidades.
 - **Spring Security + JWT:** garante autenticação e autorização com tokens, mantendo o acesso protegido.
-- **MySQL:** banco relacional utilizado para armazenar chamados, usuários e configurações de forma confiável.
+- **MariaDB:** banco relacional principal para armazenar chamados, usuários e configurações com alto desempenho e confiabilidade.
 - **React 19 + TypeScript:** interface moderna, tipada e reativa que melhora a experiência do usuário e a produtividade do time.
 - **Vite:** ferramenta de build e dev server que acelera o desenvolvimento frontend.
 - **Axios:** cliente HTTP que simplifica a comunicação entre frontend e backend.
@@ -62,23 +62,23 @@ Instale as ferramentas abaixo antes de iniciar:
 
    | Variável | Descrição |
    | --- | --- |
-   | `DB_VENDOR` | Define o driver utilizado pelo backend (`mysql` ou `mariadb`). |
+   | `DB_VENDOR` | Define o driver utilizado pelo backend (`mariadb` por padrão, podendo aceitar `mysql` se necessário). |
    | `DB_HOST` | Hostname utilizado pelos serviços para se conectar ao banco (geralmente `database`). |
    | `DB_PORT` | Porta interna exposta pelo banco (padrão `3306`). |
    | `DB_ROOT_PASSWORD` | Senha do usuário administrador do banco. |
    | `DB_USER` | Usuário de aplicação que será criado na inicialização. |
    | `DB_PASSWORD` | Senha do usuário de aplicação. |
    | `DB_NAME` | Nome do banco utilizado pela aplicação. |
-   | `DATABASE_URL` | URL de conexão no formato aceito pelo backend (`mysql://` ou `mariadb://`). |
-   | `SPRING_DATASOURCE_URL` | URL JDBC utilizada pela API. |
+   | `DATABASE_URL` | URL de conexão no formato aceito pelo backend (por exemplo, `mariadb://user:password@database:3306/tucasdesk`). |
+   | `SPRING_DATASOURCE_URL` | URL JDBC utilizada pela API (por exemplo, `jdbc:mariadb://database:3306/tucasdesk`). |
    | `SPRING_DATASOURCE_USERNAME` | Usuário JDBC do Spring. |
    | `SPRING_DATASOURCE_PASSWORD` | Senha JDBC do Spring. |
-   | `SPRING_ACTIVE_DATABASE_PROFILE` | Perfil complementar para alternar entre `mysql` (padrão) e `mariadb`. |
+   | `SPRING_ACTIVE_DATABASE_PROFILE` | Perfil complementar para ajustar a configuração do Spring (`mariadb` por padrão; `mysql` permanece disponível se ainda for necessário). |
    | `VITE_API_URL` | URL interna usada pelo frontend para chamar a API. |
    | `JWT_SECRET` | Segredo para assinar tokens JWT. |
    | `JWT_EXPIRATION` | Tempo de expiração dos tokens JWT em milissegundos. |
 
-   > 💡 Utilize `.env.mariadb` como referência se quiser partir de um conjunto pronto para o perfil MariaDB.
+   > 💡 Utilize valores compatíveis com MariaDB como base (por exemplo, URLs `mariadb://` e `jdbc:mariadb://`). Caso ainda precise rodar com MySQL por compatibilidade, ajuste manualmente as variáveis para o driver equivalente.
 
 3. Gere o arquivo de variáveis do frontend copiando o modelo padrão:
 
@@ -88,33 +88,30 @@ Instale as ferramentas abaixo antes de iniciar:
 
    O valor de `VITE_API_URL` precisa apontar para a URL onde o backend estará acessível (por padrão, `http://tucasdesk-backend:8080` nos containers ou `http://localhost:8080` para execução local).
 
-4. Suba os serviços desejados:
+4. Suba os serviços:
 
    ```sh
-   # Perfil padrão utilizando MySQL
    docker compose up --build
-
-   # Perfil alternativo com MariaDB
-   docker compose --profile mariadb up --build
    ```
 
-   Finalize a execução com `docker compose down`.
+   O comando acima inicializa frontend, backend e um banco MariaDB 10.11 prontos para uso. Utilize `docker compose down` para parar e remover os containers quando terminar os testes.
 
 Serviços disponíveis:
 
-| Serviço | Perfil | Porta | Observações |
-| --- | --- | --- | --- |
-| Frontend (Nginx) | `mysql` / `mariadb` | `3000` | Interface web do TucasDesk. |
-| Backend (Spring Boot) | `mysql` / `mariadb` | `8080` | API REST da aplicação. |
-| Banco de dados | `mysql` | `3307` → `3306` | Credenciais configuradas via `.env` (MySQL 8). |
-| Banco de dados | `mariadb` | `3307` → `3306` | Credenciais configuradas via `.env` (MariaDB 10.11). |
+| Serviço | Porta | Observações |
+| --- | --- | --- |
+| Frontend (Nginx) | `3000` | Interface web do TucasDesk. |
+| Backend (Spring Boot) | `8080` | API REST da aplicação. |
+| Banco de dados (MariaDB) | `3307` → `3306` | MariaDB 10.11 com credenciais configuradas via `.env`. |
 
 Resumo das credenciais padrão sugeridas:
 
-| Perfil | Imagem | Porta exposta (host → container) | Usuário root | Senha root | Usuário de aplicação | Senha de aplicação |
-| --- | --- | --- | --- | --- | --- | --- |
-| `mysql` | `mysql:8.0` | `3307` → `3306` | `root` | `DB_ROOT_PASSWORD` | `DB_USER` | `DB_PASSWORD` |
-| `mariadb` | `mariadb:10.11` | `3307` → `3306` | `root` | `DB_ROOT_PASSWORD` | `DB_USER` | `DB_PASSWORD` |
+| Perfil | Imagem | Porta exposta (host → container) | Usuário root | Senha root | Usuário de aplicação | Senha de aplicação | Observação |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `mariadb` (padrão) | `mariadb:10.11` | `3307` → `3306` | `root` | `DB_ROOT_PASSWORD` | `DB_USER` | `DB_PASSWORD` | Perfil recomendado e habilitado por padrão. |
+| `mysql` (opcional) | `mysql:8.0` | *(configuração manual)* | `root` | `DB_ROOT_PASSWORD` | `DB_USER` | `DB_PASSWORD` | Suporte legado: ajuste imagens/variáveis manualmente se precisar manter MySQL. |
+
+> ℹ️ O Compose já está preparado para MariaDB. Caso o projeto precise operar com MySQL por compatibilidade, faça override da imagem e das variáveis (como `DB_VENDOR`, `SPRING_ACTIVE_DATABASE_PROFILE`, URLs JDBC e driver) antes de subir os serviços.
 
 > 📌 O Docker Compose é o caminho principal para executar a stack completa. A execução local (sem containers) é opcional e está detalhada na seção a seguir apenas para quem precisar personalizar ou depurar serviços individualmente.
 
@@ -134,21 +131,21 @@ O backend lê as configurações sensíveis a partir de variáveis de ambiente. 
 
 | Variável | Descrição | Valor padrão |
 | --- | --- | --- |
-| `SPRING_DATASOURCE_URL` | URL JDBC do banco de dados. | `jdbc:mysql://localhost:3307/tucasdesk?useSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true` |
-| `SPRING_DATASOURCE_DRIVER_CLASS_NAME` | Driver JDBC utilizado pelo Spring. | `com.mysql.cj.jdbc.Driver` (perfil `mariadb` troca para `org.mariadb.jdbc.Driver`) |
+| `SPRING_DATASOURCE_URL` | URL JDBC do banco de dados. | `jdbc:mariadb://localhost:3307/tucasdesk?useSSL=true&serverTimezone=UTC` |
+| `SPRING_DATASOURCE_DRIVER_CLASS_NAME` | Driver JDBC utilizado pelo Spring. | `org.mariadb.jdbc.Driver` (ajuste para `com.mysql.cj.jdbc.Driver` apenas se executar com MySQL). |
 | `SPRING_DATASOURCE_USERNAME` | Usuário do banco de dados. | `user` |
 | `SPRING_DATASOURCE_PASSWORD` | Senha do banco de dados. | `password` |
-| `SPRING_JPA_DATABASE_PLATFORM` | Dialeto do Hibernate utilizado pelo JPA. | `org.hibernate.dialect.MySQLDialect` (perfil `mariadb` troca para `org.hibernate.dialect.MariaDBDialect`) |
+| `SPRING_JPA_DATABASE_PLATFORM` | Dialeto do Hibernate utilizado pelo JPA. | `org.hibernate.dialect.MariaDBDialect` (ajuste para `org.hibernate.dialect.MySQLDialect` somente se precisar de MySQL). |
 | `APP_CORS_ALLOWED_ORIGINS` | Lista de origens liberadas para o CORS (separadas por vírgula). | `http://localhost:5173,http://localhost:3000` (no perfil `docker`, o padrão é `http://localhost:3000`) |
 | `SPRING_PROFILES_ACTIVE` | Perfis ativos do Spring Boot. Utilize `docker` ao executar via Compose. | *(sem padrão)* |
-| `SPRING_ACTIVE_DATABASE_PROFILE` | Complemento do perfil ativo usado no Docker Compose para alternar entre MySQL (`mysql`) e MariaDB (`mariadb`). | *(sem padrão — `mysql` é aplicado como fallback)* |
+| `SPRING_ACTIVE_DATABASE_PROFILE` | Complemento do perfil ativo usado no Docker Compose (padrão `mariadb`; mantenha ou altere para `mysql` apenas se compatibilidade com MySQL for necessária). | *(sem padrão — `mariadb` é aplicado como fallback)* |
 | `JWT_SECRET` | Segredo usado para assinar os tokens JWT. | *(sem padrão — configure no `.env`)* |
 | `JWT_EXPIRATION` | Tempo de expiração do token JWT em milissegundos. | *(sem padrão — configure no `.env`)* |
 | `AWS_REGION` | Região padrão da AWS para integrações de mensageria. | `us-east-1` |
 | `AWS_SNS_TOPIC_ARN` | ARN do tópico SNS utilizado para envio de mensagens. | *(vazio)* |
 | `AWS_SQS_QUEUE_NAME` | Nome da fila SQS que receberá as mensagens. | *(vazio)* |
 
-> 💡 Crie um arquivo `.env` na raiz do projeto (pode usar `.env.example` como base) para informar `JWT_SECRET` e `JWT_EXPIRATION` antes de subir os containers com Docker Compose. Para testar com MariaDB, utilize o arquivo `.env.mariadb` como referência (por exemplo, `docker compose --profile mariadb --env-file .env.mariadb up`).
+> 💡 Crie um arquivo `.env` na raiz do projeto (pode usar `.env.example` como base) para informar `JWT_SECRET` e `JWT_EXPIRATION` antes de subir os containers com Docker Compose. Ajuste variáveis como `SPRING_DATASOURCE_URL` e `DATABASE_URL` para o formato `mariadb` (por exemplo, `jdbc:mariadb://...`). Se ainda precisar rodar com MySQL por legado, adapte esses valores manualmente.
 
 ### Executando o frontend localmente (opcional)
 
