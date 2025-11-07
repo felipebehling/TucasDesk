@@ -7,9 +7,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
@@ -28,9 +28,9 @@ public class TokenService {
     /**
      * Creates a signing key from the configured JWT secret.
      *
-     * @return A {@link Key} object for signing and verifying JWTs.
+     * @return A {@link SecretKey} object for signing and verifying JWTs.
      */
-    private Key getSigningKey() {
+    private SecretKey getSigningKey() {
         byte[] keyBytes;
         try {
             keyBytes = Base64.getDecoder().decode(secret);
@@ -63,8 +63,9 @@ public class TokenService {
      * @return The subject of the token.
      */
     public String getSubjectFromToken(String token) {
+        SecretKey signingKey = getSigningKey();
         Claims claims = Jwts.parser()
-                .verifyWith((javax.crypto.SecretKey) getSigningKey())
+                .verifyWith(signingKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
