@@ -11,17 +11,27 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class LoginResponseDTO {
 
     private final String token;
+    private final String accessToken;
     private final String refreshToken;
     private final AuthenticatedUserDTO usuario;
 
     public LoginResponseDTO(String token, String refreshToken, AuthenticatedUserDTO usuario) {
+        this(token, null, refreshToken, usuario);
+    }
+
+    public LoginResponseDTO(String token, String accessToken, String refreshToken, AuthenticatedUserDTO usuario) {
         this.token = token;
+        this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.usuario = usuario;
     }
 
     public String getToken() {
         return token;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
     }
 
     public String getRefreshToken() {

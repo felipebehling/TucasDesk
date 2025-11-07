@@ -9,7 +9,8 @@ import com.example.Tucasdesk.dtos.UsuarioResponseDTO;
 import com.example.Tucasdesk.mappers.UsuarioMapper;
 import com.example.Tucasdesk.model.Usuario;
 import com.example.Tucasdesk.repository.UsuarioRepository;
-import com.example.Tucasdesk.security.TokenService;
+import com.example.Tucasdesk.security.CognitoAuthenticationResult;
+import com.example.Tucasdesk.security.CognitoService;
 import com.example.Tucasdesk.service.UsuarioService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -45,7 +47,7 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private TokenService tokenService;
+    private CognitoService cognitoService;
 
     @Autowired
     private UsuarioService usuarioService;
@@ -85,9 +87,19 @@ public class AuthController {
                     .body(new ErrorResponseDTO("Já existe um usuário cadastrado com este e-mail.", HttpStatus.CONFLICT.name()));
         }
 
-        UsuarioResponseDTO usuarioResponseDTO = usuarioService.criarUsuario(registerRequest);
-        log.info("event=auth_register status=success userId={} email={}", usuarioResponseDTO.getIdUsuario(), usuarioResponseDTO.getEmail());
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioResponseDTO);
+        try {
+            UsuarioResponseDTO usuarioResponseDTO = usuarioService.criarUsuario(registerRequest);
+            log.info("event=auth_register status=success userId={} email={}", usuarioResponseDTO.getIdUsuario(), usuarioResponseDTO.getEmail());
+            return ResponseEntity.status(HttpStatus.CREATED).body(usuarioResponseDTO);
+        } catch (ResponseStatusException ex) {
+            HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
+            if (status == null) {
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
+            String message = ex.getReason() != null ? ex.getReason() : "Não foi possível registrar o usuário.";
+            log.warn("event=auth_register status=error email={} message=\"{}\"", registerRequest.getEmail(), message, ex);
+            return ResponseEntity.status(ex.getStatusCode()).body(new ErrorResponseDTO(message, status.name()));
+        }
     }
 
     /**
@@ -114,11 +126,21 @@ public class AuthController {
                     .body(new ErrorResponseDTO("Usuário ou senha inválidos.", HttpStatus.UNAUTHORIZED.name()));
         }
 
-        String token = tokenService.generateToken(usuario);
-        AuthenticatedUserDTO usuarioDTO = UsuarioMapper.toAuthenticatedUserDTO(usuario);
-        LoginResponseDTO responseDTO = new LoginResponseDTO(token, null, usuarioDTO);
-        log.info("event=auth_login status=success userId={} email={}", usuario.getIdUsuario(), usuario.getEmail());
-        return ResponseEntity.ok(responseDTO);
+        try {
+            CognitoAuthenticationResult tokens = cognitoService.authenticate(usuario.getEmail(), loginDTO.getSenha());
+            AuthenticatedUserDTO usuarioDTO = UsuarioMapper.toAuthenticatedUserDTO(usuario);
+            LoginResponseDTO responseDTO = new LoginResponseDTO(tokens.idToken(), tokens.accessToken(), tokens.refreshToken(), usuarioDTO);
+            log.info("event=auth_login status=success userId={} email={}", usuario.getIdUsuario(), usuario.getEmail());
+            return ResponseEntity.ok(responseDTO);
+        } catch (ResponseStatusException ex) {
+            HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
+            if (status == null) {
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
+            String message = ex.getReason() != null ? ex.getReason() : "Não foi possível autenticar o usuário.";
+            log.warn("event=auth_login status=error userId={} email={} message=\"{}\"", usuario.getIdUsuario(), usuario.getEmail(), message, ex);
+            return ResponseEntity.status(ex.getStatusCode()).body(new ErrorResponseDTO(message, status.name()));
+        }
     }
 
     /**

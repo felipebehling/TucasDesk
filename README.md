@@ -27,7 +27,7 @@ TucasDesk oferece uma experiência completa para usuários, técnicos e administ
 
 - **Java 21 + Spring Boot 3:** linguagem e framework escolhidos para entregar uma API robusta, segura e fácil de manter.
 - **Spring Data JPA:** abstrai o acesso ao banco de dados, agilizando consultas e persistência de entidades.
-- **Spring Security + JWT:** garante autenticação e autorização com tokens, mantendo o acesso protegido.
+- **Spring Security + AWS Cognito:** integra autenticação gerenciada com suporte a MFA, recuperação de senha e rotação de tokens.
 - **MariaDB:** banco relacional principal para armazenar chamados, usuários e configurações com alto desempenho e confiabilidade.
 - **React 19 + TypeScript:** interface moderna, tipada e reativa que melhora a experiência do usuário e a produtividade do time.
 - **Vite:** ferramenta de build e dev server que acelera o desenvolvimento frontend.
@@ -75,8 +75,11 @@ Instale as ferramentas abaixo antes de iniciar:
    | `SPRING_DATASOURCE_PASSWORD` | Senha JDBC do Spring. |
    | `SPRING_ACTIVE_DATABASE_PROFILE` | Perfil complementar para ajustar a configuração do Spring (`mariadb` por padrão; `mysql` permanece disponível se ainda for necessário). |
    | `VITE_API_URL` | URL interna usada pelo frontend para chamar a API. |
-   | `JWT_SECRET` | Segredo para assinar tokens JWT. |
-   | `JWT_EXPIRATION` | Tempo de expiração dos tokens JWT em milissegundos. |
+   | `AWS_COGNITO_REGION` | Região da AWS onde o User Pool está provisionado. |
+   | `AWS_COGNITO_USER_POOL_ID` | Identificador do User Pool utilizado pela aplicação. |
+   | `AWS_COGNITO_APP_CLIENT_ID` | ID do App Client configurado no Cognito. |
+   | `AWS_COGNITO_ISSUER_URI` | (Opcional) Issuer URI público do User Pool. |
+   | `AWS_COGNITO_JWK_SET_URI` | (Opcional) Endpoint JWKS. Caso não informado, é derivado do issuer. |
 
    > 💡 Utilize valores compatíveis com MariaDB como base (por exemplo, URLs `mariadb://` e `jdbc:mariadb://`). Caso ainda precise rodar com MySQL por compatibilidade, ajuste manualmente as variáveis para o driver equivalente.
 
@@ -139,13 +142,16 @@ O backend lê as configurações sensíveis a partir de variáveis de ambiente. 
 | `APP_CORS_ALLOWED_ORIGINS` | Lista de origens liberadas para o CORS (separadas por vírgula). | `http://localhost:5173,http://localhost:3000` (no perfil `docker`, o padrão é `http://localhost:3000`) |
 | `SPRING_PROFILES_ACTIVE` | Perfis ativos do Spring Boot. Utilize `docker` ao executar via Compose. | *(sem padrão)* |
 | `SPRING_ACTIVE_DATABASE_PROFILE` | Complemento do perfil ativo usado no Docker Compose (padrão `mariadb`; mantenha ou altere para `mysql` apenas se compatibilidade com MySQL for necessária). | *(sem padrão — `mariadb` é aplicado como fallback)* |
-| `JWT_SECRET` | Segredo usado para assinar os tokens JWT. | *(sem padrão — configure no `.env`)* |
-| `JWT_EXPIRATION` | Tempo de expiração do token JWT em milissegundos. | *(sem padrão — configure no `.env`)* |
+| `AWS_COGNITO_REGION` | Região da AWS onde o User Pool está provisionado. | *(sem padrão — configure no `.env`)* |
+| `AWS_COGNITO_USER_POOL_ID` | Identificador do User Pool utilizado pela aplicação. | *(sem padrão — configure no `.env`)* |
+| `AWS_COGNITO_APP_CLIENT_ID` | ID do App Client utilizado para autenticação. | *(sem padrão — configure no `.env`)* |
+| `AWS_COGNITO_ISSUER_URI` | (Opcional) Issuer URI público do User Pool. | *(vazio)* |
+| `AWS_COGNITO_JWK_SET_URI` | (Opcional) Endpoint JWKS do Cognito. | *(vazio)* |
 | `AWS_REGION` | Região padrão da AWS para integrações de mensageria. | `us-east-1` |
 | `AWS_SNS_TOPIC_ARN` | ARN do tópico SNS utilizado para envio de mensagens. | *(vazio)* |
 | `AWS_SQS_QUEUE_NAME` | Nome da fila SQS que receberá as mensagens. | *(vazio)* |
 
-> 💡 Crie um arquivo `.env` na raiz do projeto (pode usar `.env.example` como base) para informar `JWT_SECRET` e `JWT_EXPIRATION` antes de subir os containers com Docker Compose. Ajuste variáveis como `SPRING_DATASOURCE_URL` e `DATABASE_URL` para o formato `mariadb` (por exemplo, `jdbc:mariadb://...`). Se ainda precisar rodar com MySQL por legado, adapte esses valores manualmente.
+> 💡 Crie um arquivo `.env` na raiz do projeto (pode usar `.env.example` como base) para configurar as variáveis do Cognito (`AWS_COGNITO_REGION`, `AWS_COGNITO_USER_POOL_ID` e `AWS_COGNITO_APP_CLIENT_ID`) antes de subir os containers com Docker Compose. Ajuste variáveis como `SPRING_DATASOURCE_URL` e `DATABASE_URL` para o formato `mariadb` (por exemplo, `jdbc:mariadb://...`). Se ainda precisar rodar com MySQL por legado, adapte esses valores manualmente.
 
 ### Executando o frontend localmente (opcional)
 

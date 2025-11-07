@@ -7,6 +7,7 @@ import com.example.Tucasdesk.dtos.UsuarioUpdateRequest;
 import com.example.Tucasdesk.mappers.UsuarioMapper;
 import com.example.Tucasdesk.model.Usuario;
 import com.example.Tucasdesk.repository.UsuarioRepository;
+import com.example.Tucasdesk.security.CognitoService;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
@@ -26,14 +27,16 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CognitoService cognitoService;
 
     private static final Pattern STRONG_PASSWORD_PATTERN = Pattern.compile(
             "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\"\\-=`~{}\\[\\]:;'<>?,./]).{8,}$"
     );
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, CognitoService cognitoService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.cognitoService = cognitoService;
     }
 
     /**
@@ -57,7 +60,9 @@ public class UsuarioService {
      * @return a {@link UsuarioResponseDTO} representing the persisted user without the password hash.
      */
     public UsuarioResponseDTO criarUsuario(Usuario usuario) {
-        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+        String rawPassword = usuario.getSenha();
+        cognitoService.registerUser(usuario.getEmail(), rawPassword);
+        usuario.setSenha(passwordEncoder.encode(rawPassword));
         if (usuario.getDataCriacao() == null) {
             usuario.setDataCriacao(LocalDateTime.now());
         }
@@ -126,6 +131,7 @@ public class UsuarioService {
 
         if (alterarSenha) {
             validarAlteracaoSenha(usuario, updateRequest);
+            cognitoService.updatePassword(usuario.getEmail(), updateRequest.getNovaSenha());
             usuario.setSenha(passwordEncoder.encode(updateRequest.getNovaSenha()));
         }
 
