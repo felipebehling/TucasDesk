@@ -1,25 +1,8 @@
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
+import { useCallback, useContext, useMemo, useRef, useState } from "react";
 import type { PropsWithChildren } from "react";
 import "./toast.css";
 
-export type ToastTone = "success" | "error" | "info" | "warning";
-
-export interface ToastOptions {
-  title?: string;
-  description: string;
-  tone?: ToastTone;
-  duration?: number;
-}
-
-interface ToastContextValue {
-  showToast: (options: ToastOptions) => void;
-}
-
-interface Toast extends Required<ToastOptions> {
-  id: number;
-}
-
-const ToastContext = createContext<ToastContextValue | undefined>(undefined);
+import { ToastContext, type Toast, type ToastOptions } from "./toastContext";
 
 const DEFAULT_DURATION = 4000;
 
@@ -78,6 +61,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
   );
 }
 
+/* eslint-disable-next-line react-refresh/only-export-components */
 export function useToast() {
   const context = useContext(ToastContext);
   if (!context) {
