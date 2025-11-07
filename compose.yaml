@@ -18,12 +18,12 @@ services:
     container_name: tucasdesk-backend
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/tucasdesk?useSSL=false&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: password
-      JWT_SECRET: a-super-secret-key-that-is-long-and-random-enough
-      JWT_EXPIRATION: 86400000
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-user}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-password}
     depends_on:
       - db
 
