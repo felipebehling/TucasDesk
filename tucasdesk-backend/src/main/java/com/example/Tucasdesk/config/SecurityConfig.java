@@ -1,6 +1,6 @@
 package com.example.Tucasdesk.config;
 
-import com.example.Tucasdesk.security.JwtAuthenticationFilter;
+import com.example.Tucasdesk.security.CognitoAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private CognitoAuthenticationFilter cognitoAuthenticationFilter;
 
     /**
      * Configures the security filter chain.
@@ -46,7 +46,7 @@ public class SecurityConfig {
                 // All other requests must be authenticated
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(cognitoAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

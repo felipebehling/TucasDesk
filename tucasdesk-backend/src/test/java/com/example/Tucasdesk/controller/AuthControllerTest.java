@@ -4,8 +4,8 @@ import com.example.Tucasdesk.config.SecurityConfig;
 import com.example.Tucasdesk.dtos.RegisterRequest;
 import com.example.Tucasdesk.dtos.UsuarioResponseDTO;
 import com.example.Tucasdesk.repository.UsuarioRepository;
-import com.example.Tucasdesk.security.JwtAuthenticationFilter;
-import com.example.Tucasdesk.security.TokenService;
+import com.example.Tucasdesk.security.CognitoAuthenticationFilter;
+import com.example.Tucasdesk.security.CognitoService;
 import com.example.Tucasdesk.service.UsuarioService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -47,10 +47,10 @@ class AuthControllerTest {
     private PasswordEncoder passwordEncoder;
 
     @MockBean
-    private TokenService tokenService;
+    private CognitoService cognitoService;
 
     @MockBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private CognitoAuthenticationFilter cognitoAuthenticationFilter;
 
     @Test
     @DisplayName("Deve registrar um usuário com sucesso")
