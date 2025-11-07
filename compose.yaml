@@ -30,9 +30,14 @@ services:
   frontend:
     build:
       context: ./tucasdesk-frontend
+      dockerfile: dockerfile
       args:
-        VITE_API_URL: http://localhost:8080
+        VITE_API_URL: ${VITE_API_URL:-http://tucasdesk-backend:8080}
     container_name: tucasdesk-frontend
+    env_file:
+      - ./tucasdesk-frontend/.env
+    environment:
+      - VITE_API_URL
     ports:
       - "3000:80"
     depends_on:
