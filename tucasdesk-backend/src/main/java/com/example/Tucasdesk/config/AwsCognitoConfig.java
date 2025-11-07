@@ -17,10 +17,11 @@ public class AwsCognitoConfig {
     @Bean
     public CognitoIdentityProviderClient cognitoIdentityProviderClient(AwsCognitoProperties properties) {
         String region = properties.getRegion();
-        CognitoIdentityProviderClient.Builder builder = CognitoIdentityProviderClient.builder();
         if (region != null && !region.isBlank()) {
-            builder = builder.region(Region.of(region));
+            return CognitoIdentityProviderClient.builder()
+                    .region(Region.of(region))
+                    .build();
         }
-        return builder.build();
+        return CognitoIdentityProviderClient.builder().build();
     }
 }
