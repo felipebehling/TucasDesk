@@ -78,18 +78,20 @@ O backend lê as configurações sensíveis a partir de variáveis de ambiente. 
 | Variável | Descrição | Valor padrão |
 | --- | --- | --- |
 | `SPRING_DATASOURCE_URL` | URL JDBC do banco de dados. | `jdbc:mysql://localhost:3307/tucasdesk?useSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true` |
-| `SPRING_DATASOURCE_DRIVER_CLASS_NAME` | Driver JDBC utilizado pelo Spring. | `com.mysql.cj.jdbc.Driver` |
+| `SPRING_DATASOURCE_DRIVER_CLASS_NAME` | Driver JDBC utilizado pelo Spring. | `com.mysql.cj.jdbc.Driver` (perfil `mariadb` troca para `org.mariadb.jdbc.Driver`) |
 | `SPRING_DATASOURCE_USERNAME` | Usuário do banco de dados. | `user` |
 | `SPRING_DATASOURCE_PASSWORD` | Senha do banco de dados. | `password` |
+| `SPRING_JPA_DATABASE_PLATFORM` | Dialeto do Hibernate utilizado pelo JPA. | `org.hibernate.dialect.MySQLDialect` (perfil `mariadb` troca para `org.hibernate.dialect.MariaDBDialect`) |
 | `APP_CORS_ALLOWED_ORIGINS` | Lista de origens liberadas para o CORS (separadas por vírgula). | `http://localhost:5173,http://localhost:3000` (no perfil `docker`, o padrão é `http://localhost:3000`) |
 | `SPRING_PROFILES_ACTIVE` | Perfis ativos do Spring Boot. Utilize `docker` ao executar via Compose. | *(sem padrão)* |
+| `SPRING_ACTIVE_DATABASE_PROFILE` | Complemento do perfil ativo usado no Docker Compose para alternar entre MySQL (`mysql`) e MariaDB (`mariadb`). | *(sem padrão — `mysql` é aplicado como fallback)* |
 | `JWT_SECRET` | Segredo usado para assinar os tokens JWT. | *(sem padrão — configure no `.env`)* |
 | `JWT_EXPIRATION` | Tempo de expiração do token JWT em milissegundos. | *(sem padrão — configure no `.env`)* |
 | `AWS_REGION` | Região padrão da AWS para integrações de mensageria. | `us-east-1` |
 | `AWS_SNS_TOPIC_ARN` | ARN do tópico SNS utilizado para envio de mensagens. | *(vazio)* |
 | `AWS_SQS_QUEUE_NAME` | Nome da fila SQS que receberá as mensagens. | *(vazio)* |
 
-> 💡 Crie um arquivo `.env` na raiz do projeto (pode usar `.env.example` como base) para informar `JWT_SECRET` e `JWT_EXPIRATION` antes de subir os containers com Docker Compose.
+> 💡 Crie um arquivo `.env` na raiz do projeto (pode usar `.env.example` como base) para informar `JWT_SECRET` e `JWT_EXPIRATION` antes de subir os containers com Docker Compose. Para testar com MariaDB, utilize o arquivo `.env.mariadb` como referência (por exemplo, `docker compose --profile mariadb --env-file .env.mariadb up`).
 
 ### Executando o frontend localmente
 
