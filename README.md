@@ -48,6 +48,7 @@ Instale as ferramentas abaixo antes de iniciar:
 ```sh
 git clone https://github.com/felipebehling/tucasdesk.git
 cd tucasdesk
+cp .env.example .env
 cp tucasdesk-frontend/.env.example tucasdesk-frontend/.env
 docker compose up --build
 ```
@@ -69,6 +70,26 @@ cd tucasdesk-backend
 ```
 
 A API ficará disponível em [http://localhost:8080](http://localhost:8080) e utiliza o banco configurado em `src/main/resources/application.properties`.
+
+### Variáveis de ambiente do backend
+
+O backend lê as configurações sensíveis a partir de variáveis de ambiente. Todas elas possuem defaults pensados para o desenvolvimento local e podem ser sobrescritas conforme o ambiente.
+
+| Variável | Descrição | Valor padrão |
+| --- | --- | --- |
+| `SPRING_DATASOURCE_URL` | URL JDBC do banco de dados. | `jdbc:mysql://localhost:3307/tucasdesk?useSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true` |
+| `SPRING_DATASOURCE_DRIVER_CLASS_NAME` | Driver JDBC utilizado pelo Spring. | `com.mysql.cj.jdbc.Driver` |
+| `SPRING_DATASOURCE_USERNAME` | Usuário do banco de dados. | `user` |
+| `SPRING_DATASOURCE_PASSWORD` | Senha do banco de dados. | `password` |
+| `APP_CORS_ALLOWED_ORIGINS` | Lista de origens liberadas para o CORS (separadas por vírgula). | `http://localhost:5173,http://localhost:3000` (no perfil `docker`, o padrão é `http://localhost:3000`) |
+| `SPRING_PROFILES_ACTIVE` | Perfis ativos do Spring Boot. Utilize `docker` ao executar via Compose. | *(sem padrão)* |
+| `JWT_SECRET` | Segredo usado para assinar os tokens JWT. | *(sem padrão — configure no `.env`)* |
+| `JWT_EXPIRATION` | Tempo de expiração do token JWT em milissegundos. | *(sem padrão — configure no `.env`)* |
+| `AWS_REGION` | Região padrão da AWS para integrações de mensageria. | `us-east-1` |
+| `AWS_SNS_TOPIC_ARN` | ARN do tópico SNS utilizado para envio de mensagens. | *(vazio)* |
+| `AWS_SQS_QUEUE_NAME` | Nome da fila SQS que receberá as mensagens. | *(vazio)* |
+
+> 💡 Crie um arquivo `.env` na raiz do projeto (pode usar `.env.example` como base) para informar `JWT_SECRET` e `JWT_EXPIRATION` antes de subir os containers com Docker Compose.
 
 ### Executando o frontend localmente
 
