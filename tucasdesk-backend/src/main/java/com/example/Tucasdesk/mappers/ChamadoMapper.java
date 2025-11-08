@@ -2,6 +2,7 @@ package com.example.Tucasdesk.mappers;
 
 import com.example.Tucasdesk.dtos.*;
 import com.example.Tucasdesk.model.*;
+import org.springframework.lang.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +23,7 @@ public final class ChamadoMapper {
      * @param interacoes  the ordered list of interactions associated with the ticket.
      * @return the mapped response DTO.
      */
+    @Nullable
     public static ChamadoResponseDTO toChamadoResponseDTO(Chamado chamado, List<Interacao> interacoes) {
         if (chamado == null) {
             return null;
@@ -55,6 +57,7 @@ public final class ChamadoMapper {
      * @param interacao the interaction entity to map.
      * @return the mapped DTO.
      */
+    @Nullable
     public static InteracaoResponseDTO toInteracaoResponseDTO(Interacao interacao) {
         if (interacao == null) {
             return null;
@@ -68,6 +71,7 @@ public final class ChamadoMapper {
         );
     }
 
+    @Nullable
     private static LookupResponseDTO toLookupResponseDTO(Categoria categoria) {
         if (categoria == null) {
             return null;
@@ -75,6 +79,7 @@ public final class ChamadoMapper {
         return new LookupResponseDTO(categoria.getIdCategoria(), categoria.getNome());
     }
 
+    @Nullable
     private static LookupResponseDTO toLookupResponseDTO(Status status) {
         if (status == null) {
             return null;
@@ -82,6 +87,7 @@ public final class ChamadoMapper {
         return new LookupResponseDTO(status.getIdStatus(), status.getNome());
     }
 
+    @Nullable
     private static LookupResponseDTO toLookupResponseDTO(Prioridade prioridade) {
         if (prioridade == null) {
             return null;
@@ -89,6 +95,7 @@ public final class ChamadoMapper {
         return new LookupResponseDTO(prioridade.getIdPrioridade(), prioridade.getNome());
     }
 
+    @Nullable
     private static UsuarioResumoDTO toUsuarioResumoDTO(Usuario usuario) {
         if (usuario == null) {
             return null;

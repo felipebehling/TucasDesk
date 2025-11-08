@@ -4,6 +4,7 @@ import com.example.Tucasdesk.dtos.AuthenticatedUserDTO;
 import com.example.Tucasdesk.dtos.UsuarioResponseDTO;
 import com.example.Tucasdesk.model.Perfil;
 import com.example.Tucasdesk.model.Usuario;
+import org.springframework.lang.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +26,7 @@ public final class UsuarioMapper {
      * @param usuario the user entity to convert.
      * @return the DTO populated with the user's public information.
      */
+    @Nullable
     public static AuthenticatedUserDTO toAuthenticatedUserDTO(Usuario usuario) {
         if (usuario == null) {
             return null;
@@ -47,6 +49,7 @@ public final class UsuarioMapper {
      * @param usuario the user entity to convert.
      * @return the DTO populated with non-sensitive user information.
      */
+    @Nullable
     public static UsuarioResponseDTO toUsuarioResponseDTO(Usuario usuario) {
         if (usuario == null) {
             return null;
