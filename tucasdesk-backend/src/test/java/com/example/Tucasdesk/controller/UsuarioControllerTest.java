@@ -1,81 +1,97 @@
 package com.example.Tucasdesk.controller;
 
 import com.example.Tucasdesk.config.SecurityConfig;
+import com.example.Tucasdesk.dtos.UsuarioResponseDTO;
 import com.example.Tucasdesk.model.Usuario;
-import com.example.Tucasdesk.repository.UsuarioRepository;
+import com.example.Tucasdesk.security.CognitoAuthenticationFilter;
+import com.example.Tucasdesk.service.UsuarioService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.hamcrest.Matchers.hasSize;
-
-import java.util.Collections;
-
 
 @WebMvcTest(UsuarioController.class)
 @Import(SecurityConfig.class)
-public class UsuarioControllerTest {
+class UsuarioControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private UsuarioRepository usuarioRepository;
+    private UsuarioService usuarioService;
 
     @MockBean
-    private PasswordEncoder passwordEncoder;
+    private CognitoAuthenticationFilter cognitoAuthenticationFilter;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    @WithMockUser
-    public void testCriarUsuario() throws Exception {
-        Usuario usuario = new Usuario();
-        usuario.setNome("Test User");
-        usuario.setEmail("test@example.com");
-        usuario.setSenha("password");
-
-        when(passwordEncoder.encode("password")).thenReturn("hashedPassword");
-        when(usuarioRepository.save(any(Usuario.class))).thenAnswer(invocation -> {
-            Usuario savedUsuario = invocation.getArgument(0);
-            savedUsuario.setIdUsuario(1);
-            return savedUsuario;
-        });
-
-        mockMvc.perform(post("/api/usuarios")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(usuario)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.senha").value("hashedPassword"));
+    @BeforeEach
+    void setupFilterChain() throws Exception {
+        doAnswer(invocation -> {
+            HttpServletRequest request = invocation.getArgument(0);
+            HttpServletResponse response = invocation.getArgument(1);
+            FilterChain chain = invocation.getArgument(2);
+            chain.doFilter(request, response);
+            return null;
+        }).when(cognitoAuthenticationFilter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
     }
 
     @Test
     @WithMockUser
-    public void testListarTodosSemSenha() throws Exception {
-        Usuario usuario = new Usuario();
-        usuario.setIdUsuario(1);
-        usuario.setNome("Test User");
-        usuario.setEmail("test@example.com");
-        usuario.setSenha("hashedPassword");
+    void testCriarUsuario() throws Exception {
+        String payload = "{" +
+                "\"nome\":\"Test User\"," +
+                "\"email\":\"test@example.com\"," +
+                "\"senha\":\"password\"" +
+                "}";
 
-        when(usuarioRepository.findAll()).thenReturn(Collections.singletonList(usuario));
+        UsuarioResponseDTO responseDTO = new UsuarioResponseDTO(1, "Test User", "test@example.com", null,
+                LocalDateTime.now(), true);
 
-        mockMvc.perform(get("/api/usuarios"))
+        when(usuarioService.criarUsuario(any(Usuario.class))).thenReturn(responseDTO);
+
+        mockMvc.perform(post("/api/usuarios")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.idUsuario").value(1))
+                .andExpect(jsonPath("$.email").value("test@example.com"))
+                .andExpect(jsonPath("$.senha").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser
+    void testListarTodosSemSenha() throws Exception {
+        UsuarioResponseDTO responseDTO = new UsuarioResponseDTO(1, "Test User", "test@example.com", null,
+                LocalDateTime.now(), true);
+
+        when(usuarioService.listarUsuarios()).thenReturn(List.of(responseDTO));
+
+        mockMvc.perform(get("/api/usuarios").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].idUsuario").value(1))
