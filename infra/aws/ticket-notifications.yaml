@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Creates dedicated SNS topics for TucasDesk ticket lifecycle events and an IAM role
+  allowed to publish to them.
+
+Parameters:
+  TicketCreatedTopicName:
+    Type: String
+    Default: tucasdesk-ticket-created
+    Description: Name of the SNS topic that receives TicketCreated notifications.
+  TicketClosedTopicName:
+    Type: String
+    Default: tucasdesk-ticket-closed
+    Description: Name of the SNS topic that receives TicketClosed notifications.
+  PublisherRoleName:
+    Type: String
+    Default: tucasdesk-ticket-publisher
+    Description: Friendly name assigned to the IAM role used by the backend service.
+  PublisherServicePrincipal:
+    Type: String
+    Default: ecs-tasks.amazonaws.com
+    Description: Service principal allowed to assume the publisher role (for example ecs-tasks.amazonaws.com or lambda.amazonaws.com).
+
+Resources:
+  TicketCreatedTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Ref TicketCreatedTopicName
+      DisplayName: TucasDesk Ticket Created
+  TicketClosedTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Ref TicketClosedTopicName
+      DisplayName: TucasDesk Ticket Closed
+  TicketNotificationsPublisherRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref PublisherRoleName
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: !Ref PublisherServicePrincipal
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: TucasDeskTicketNotificationsPublish
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource:
+                  - !Ref TicketCreatedTopic
+                  - !Ref TicketClosedTopic
+
+Outputs:
+  TicketCreatedTopicArn:
+    Description: ARN for the SNS topic that receives TicketCreated notifications.
+    Value: !Ref TicketCreatedTopic
+    Export:
+      Name: !Sub '${AWS::StackName}-TicketCreatedTopicArn'
+  TicketClosedTopicArn:
+    Description: ARN for the SNS topic that receives TicketClosed notifications.
+    Value: !Ref TicketClosedTopic
+    Export:
+      Name: !Sub '${AWS::StackName}-TicketClosedTopicArn'
+  TicketNotificationsPublisherRoleArn:
+    Description: ARN of the IAM role that can publish ticket notifications.
+    Value: !GetAtt TicketNotificationsPublisherRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-TicketNotificationsPublisherRoleArn'

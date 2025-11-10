@@ -1,6 +1,9 @@
 package com.example.Tucasdesk.messaging;
 
 import com.example.Tucasdesk.config.AwsMessagingProperties;
+import com.example.Tucasdesk.messaging.payload.TicketClosedEventPayload;
+import com.example.Tucasdesk.messaging.payload.TicketCreatedEventPayload;
+import com.example.Tucasdesk.messaging.payload.TicketEventPayload;
 import com.example.Tucasdesk.model.Chamado;
 import com.example.Tucasdesk.model.Interacao;
 import io.awspring.cloud.sns.core.SnsTemplate;
@@ -41,7 +44,31 @@ public class ChamadoMessagingService {
      * @param chamado ticket that triggered the event.
      */
     public void publishChamadoCreatedEvent(Chamado chamado) {
+        String topicArn = properties.getTopics().getTicketCreatedArn();
+        if (StringUtils.hasText(topicArn)) {
+            TicketCreatedEventPayload payload = TicketCreatedEventPayload.fromChamado(chamado);
+            if (sendTicketEvent(payload, topicArn)) {
+                sendQueue(ChamadoEventPayload.fromChamado(EVENT_CHAMADO_CREATED, chamado));
+            }
+            return;
+        }
         send(ChamadoEventPayload.fromChamado(EVENT_CHAMADO_CREATED, chamado));
+    }
+
+    /**
+     * Sends a message stating that a ticket was closed.
+     *
+     * @param chamado ticket that triggered the event.
+     */
+    public void publishChamadoClosedEvent(Chamado chamado) {
+        String topicArn = properties.getTopics().getTicketClosedArn();
+        if (StringUtils.hasText(topicArn)) {
+            TicketClosedEventPayload payload = TicketClosedEventPayload.fromChamado(chamado);
+            sendTicketEvent(payload, topicArn);
+            return;
+        }
+        log.debug("event=chamado_ticket_closed_fallback reason=topic_not_configured chamadoId={}",
+                chamado.getIdChamado());
     }
 
     /**
@@ -72,33 +99,52 @@ public class ChamadoMessagingService {
         send(ChamadoEventPayload.fromInteracao(EVENT_CHAMADO_INTERACAO_ADDED, chamado, interacao));
     }
 
+    private boolean sendTicketEvent(TicketEventPayload payload, String topicArn) {
+        boolean delivered = sendToTopic(topicArn, payload, payload.eventType(), payload.chamadoId());
+        if (!delivered) {
+            log.debug("event=chamado_message_skipped reason=no_topic_configured type={} chamadoId={}",
+                    payload.eventType(), payload.chamadoId());
+        }
+        return delivered;
+    }
+
     private void send(ChamadoEventPayload payload) {
         boolean hasTargets = false;
-        if (StringUtils.hasText(properties.getTopicArn())) {
-            hasTargets = true;
-            try {
-                snsTemplate.convertAndSend(properties.getTopicArn(), payload);
-                log.debug("event=chamado_message_sns_published type={} chamadoId={} topic={}",
-                        payload.eventType(), payload.chamadoId(), properties.getTopicArn());
-            } catch (Exception ex) {
-                log.error("event=chamado_message_sns_error type={} chamadoId={} topic={} message={}",
-                        payload.eventType(), payload.chamadoId(), properties.getTopicArn(), ex.getMessage(), ex);
-            }
-        }
-        if (StringUtils.hasText(properties.getQueueName())) {
-            hasTargets = true;
-            try {
-                sqsTemplate.send(properties.getQueueName(), payload);
-                log.debug("event=chamado_message_sqs_published type={} chamadoId={} queue={}",
-                        payload.eventType(), payload.chamadoId(), properties.getQueueName());
-            } catch (Exception ex) {
-                log.error("event=chamado_message_sqs_error type={} chamadoId={} queue={} message={}",
-                        payload.eventType(), payload.chamadoId(), properties.getQueueName(), ex.getMessage(), ex);
-            }
-        }
+        hasTargets = sendToTopic(properties.getTopicArn(), payload, payload.eventType(), payload.chamadoId()) || hasTargets;
+        hasTargets = sendQueue(payload) || hasTargets;
         if (!hasTargets) {
             log.debug("event=chamado_message_skipped reason=no_targets_configured type={} chamadoId={}",
                     payload.eventType(), payload.chamadoId());
         }
+    }
+
+    private boolean sendQueue(Object payload) {
+        if (StringUtils.hasText(properties.getQueueName())) {
+            try {
+                sqsTemplate.send(properties.getQueueName(), payload);
+                log.debug("event=chamado_message_sqs_published payloadType={} queue={}",
+                        payload.getClass().getSimpleName(), properties.getQueueName());
+            } catch (Exception ex) {
+                log.error("event=chamado_message_sqs_error payloadType={} queue={} message={}",
+                        payload.getClass().getSimpleName(), properties.getQueueName(), ex.getMessage(), ex);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private boolean sendToTopic(String topicArn, Object payload, String eventType, Integer chamadoId) {
+        if (StringUtils.hasText(topicArn)) {
+            try {
+                snsTemplate.convertAndSend(topicArn, payload);
+                log.debug("event=chamado_message_sns_published type={} chamadoId={} topic={}",
+                        eventType, chamadoId, topicArn);
+            } catch (Exception ex) {
+                log.error("event=chamado_message_sns_error type={} chamadoId={} topic={} message={}",
+                        eventType, chamadoId, topicArn, ex.getMessage(), ex);
+            }
+            return true;
+        }
+        return false;
     }
 }
