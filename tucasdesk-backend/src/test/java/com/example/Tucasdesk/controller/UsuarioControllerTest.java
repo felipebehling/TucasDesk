@@ -60,7 +60,7 @@ class UsuarioControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMINISTRADOR")
     void testCriarUsuario() throws Exception {
         String payload = "{" +
                 "\"nome\":\"Test User\"," +
@@ -84,7 +84,7 @@ class UsuarioControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMINISTRADOR")
     void testListarTodosSemSenha() throws Exception {
         UsuarioResponseDTO responseDTO = new UsuarioResponseDTO(1, "Test User", "test@example.com", null,
                 LocalDateTime.now(), true);

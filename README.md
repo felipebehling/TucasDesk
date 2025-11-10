@@ -156,6 +156,20 @@ Resumo das credenciais padrão sugeridas:
 
 > 📌 O Docker Compose é o caminho principal para executar a stack completa. A execução local (sem containers) é opcional e está detalhada na seção a seguir apenas para quem precisar personalizar ou depurar serviços individualmente.
 
+### Provisionando o User Pool Cognito
+
+O diretório [`infra/aws`](infra/aws) inclui o template CloudFormation [`cognito-user-pool.yaml`](infra/aws/cognito-user-pool.yaml), responsável por criar o User Pool, o app client com os fluxos `USER_SRP_AUTH`, `ALLOW_REFRESH_TOKEN_AUTH` e OAuth (Code + Implicit) habilitados, além dos grupos padrão (`Administrador`, `Técnico` e `Usuário`). Para realizar o deploy em uma conta AWS, execute:
+
+```sh
+aws cloudformation deploy \
+  --template-file infra/aws/cognito-user-pool.yaml \
+  --stack-name tucasdesk-cognito \
+  --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+  --parameter-overrides ProjectName=tucasdesk DomainPrefix=tucasdesk-helpdesk
+```
+
+Ao final da criação copie os outputs `UserPoolId`, `UserPoolClientId` e, se tiver configurado `DomainPrefix`, também `UserPoolDomainUrl` para as variáveis `AWS_COGNITO_USER_POOL_ID`, `AWS_COGNITO_APP_CLIENT_ID` e `AWS_COGNITO_ISSUER_URI` (ou `AWS_COGNITO_JWK_SET_URI`). Ajuste os parâmetros `CallbackUrls` e `LogoutUrls` conforme os domínios do frontend para garantir que o Hosted UI aceite o fluxo OAuth configurado.
+
 ## Arquitetura do Sistema
 
 A arquitetura do TucasDesk foi desenhada para ser escalável, desacoplada e resiliente, combinando serviços síncronos e assíncronos para otimizar a experiência do usuário e a eficiência operacional.

@@ -1,5 +1,8 @@
 package com.example.Tucasdesk.security;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -7,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -15,8 +20,12 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.example.Tucasdesk.config.AwsCognitoProperties;
+import com.example.Tucasdesk.model.Perfil;
+import com.example.Tucasdesk.model.Usuario;
+import com.example.Tucasdesk.repository.PerfilRepository;
 import com.example.Tucasdesk.repository.UsuarioRepository;
 
 /**
@@ -30,11 +39,14 @@ public class CognitoTokenService {
 
     private final AwsCognitoProperties properties;
     private final UsuarioRepository usuarioRepository;
+    private final PerfilRepository perfilRepository;
     private final AtomicReference<JwtDecoder> decoderReference = new AtomicReference<>();
 
-    public CognitoTokenService(AwsCognitoProperties properties, UsuarioRepository usuarioRepository) {
+    public CognitoTokenService(AwsCognitoProperties properties, UsuarioRepository usuarioRepository,
+            PerfilRepository perfilRepository) {
         this.properties = properties;
         this.usuarioRepository = usuarioRepository;
+        this.perfilRepository = perfilRepository;
     }
 
     /**
@@ -57,13 +69,35 @@ public class CognitoTokenService {
             return;
         }
 
-        Optional.ofNullable(extractUsername(jwt.get()))
-                .flatMap(usuarioRepository::findByEmail)
-                .ifPresentOrElse(usuario -> {
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            usuario, null, usuario.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }, () -> log.warn("event=cognito_authentication status=user_not_found subject={}", jwt.get().getSubject()));
+        Optional<Usuario> usuarioOptional = Optional.ofNullable(extractUsername(jwt.get()))
+                .flatMap(usuarioRepository::findByEmail);
+
+        Optional<Perfil> perfilOptional = resolvePerfil(jwt.get());
+        Collection<? extends GrantedAuthority> authorities;
+        if (perfilOptional.isPresent()) {
+            authorities = authoritiesForPerfil(perfilOptional.get());
+        } else if (usuarioOptional.isPresent()) {
+            authorities = usuarioOptional.get().getAuthorities();
+        } else {
+            authorities = List.of();
+        }
+
+        usuarioOptional.ifPresent(usuario -> perfilOptional.ifPresent(usuario::setPerfil));
+
+        if (usuarioOptional.isPresent()) {
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    usuarioOptional.get(), null, authorities);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else if (!authorities.isEmpty()) {
+            Map<String, Object> principal = Map.of(
+                    "username", extractUsername(jwt.get()),
+                    "claims", jwt.get().getClaims());
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal, null,
+                    authorities);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else {
+            log.warn("event=cognito_authentication status=user_not_found subject={}", jwt.get().getSubject());
+        }
     }
 
     private Optional<Jwt> decode(String token) {
@@ -112,5 +146,38 @@ public class CognitoTokenService {
             return cognitoUsername;
         }
         return jwt.getSubject();
+    }
+
+    private Optional<Perfil> resolvePerfil(Jwt jwt) {
+        String claimName = properties.getProfileClaim();
+        if (!StringUtils.hasText(claimName)) {
+            return Optional.empty();
+        }
+
+        Object claim = jwt.getClaims().get(claimName);
+        if (claim instanceof String stringClaim) {
+            return findPerfil(stringClaim);
+        }
+        if (claim instanceof Collection<?> collection) {
+            return collection.stream()
+                    .map(Object::toString)
+                    .map(this::findPerfil)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .findFirst();
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Perfil> findPerfil(String profileName) {
+        if (!StringUtils.hasText(profileName)) {
+            return Optional.empty();
+        }
+        return perfilRepository.findByNomeIgnoreCase(profileName.trim());
+    }
+
+    private List<GrantedAuthority> authoritiesForPerfil(Perfil perfil) {
+        String authority = AuthorityUtils.createRoleAuthority(perfil.getNome());
+        return List.of(new SimpleGrantedAuthority(authority));
     }
 }

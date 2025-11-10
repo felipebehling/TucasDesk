@@ -5,8 +5,10 @@ import com.example.Tucasdesk.dtos.RegisterRequest;
 import com.example.Tucasdesk.dtos.UsuarioResponseDTO;
 import com.example.Tucasdesk.dtos.UsuarioUpdateRequest;
 import com.example.Tucasdesk.mappers.UsuarioMapper;
+import com.example.Tucasdesk.model.Perfil;
 import com.example.Tucasdesk.model.Usuario;
 import com.example.Tucasdesk.repository.UsuarioRepository;
+import com.example.Tucasdesk.repository.PerfilRepository;
 import com.example.Tucasdesk.security.CognitoService;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,15 +30,22 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final CognitoService cognitoService;
+    private final PerfilRepository perfilRepository;
+
+    private static final String DEFAULT_PROFILE_NAME = "Usuário";
 
     private static final Pattern STRONG_PASSWORD_PATTERN = Pattern.compile(
             "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\"\\-=`~{}\\[\\]:;'<>?,./]).{8,}$"
     );
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, CognitoService cognitoService) {
+    public UsuarioService(UsuarioRepository usuarioRepository,
+                          PasswordEncoder passwordEncoder,
+                          CognitoService cognitoService,
+                          PerfilRepository perfilRepository) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.cognitoService = cognitoService;
+        this.perfilRepository = perfilRepository;
     }
 
     /**
@@ -60,8 +69,12 @@ public class UsuarioService {
      * @return a {@link UsuarioResponseDTO} representing the persisted user without the password hash.
      */
     public UsuarioResponseDTO criarUsuario(Usuario usuario) {
+        Perfil perfil = resolvePerfil(usuario.getPerfil());
+        usuario.setPerfil(perfil);
+
         String rawPassword = usuario.getSenha();
         cognitoService.registerUser(usuario.getEmail(), rawPassword);
+        cognitoService.addUserToGroup(usuario.getEmail(), perfil.getNome());
         usuario.setSenha(passwordEncoder.encode(rawPassword));
         if (usuario.getDataCriacao() == null) {
             usuario.setDataCriacao(LocalDateTime.now());
@@ -185,5 +198,24 @@ public class UsuarioService {
 
     private boolean isStrongPassword(String senha) {
         return senha != null && STRONG_PASSWORD_PATTERN.matcher(senha).matches();
+    }
+
+    private Perfil resolvePerfil(Perfil perfilInformado) {
+        if (perfilInformado != null) {
+            if (perfilInformado.getIdPerfil() != null) {
+                return perfilRepository.findById(perfilInformado.getIdPerfil())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                "O perfil informado não existe."));
+            }
+            if (StringUtils.hasText(perfilInformado.getNome())) {
+                return perfilRepository.findByNomeIgnoreCase(perfilInformado.getNome().trim())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                "O perfil informado não existe."));
+            }
+        }
+
+        return perfilRepository.findByNomeIgnoreCase(DEFAULT_PROFILE_NAME)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Perfil padrão não configurado. Cadastre o perfil 'Usuário'."));
     }
 }

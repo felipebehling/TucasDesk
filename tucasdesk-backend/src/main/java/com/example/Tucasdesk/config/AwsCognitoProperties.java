@@ -14,6 +14,7 @@ public class AwsCognitoProperties {
     private String appClientId;
     private String issuerUri;
     private String jwkSetUri;
+    private String profileClaim = "cognito:groups";
 
     public String getRegion() {
         return region;
@@ -66,6 +67,14 @@ public class AwsCognitoProperties {
 
     public void setJwkSetUri(String jwkSetUri) {
         this.jwkSetUri = jwkSetUri;
+    }
+
+    public String getProfileClaim() {
+        return profileClaim;
+    }
+
+    public void setProfileClaim(String profileClaim) {
+        this.profileClaim = profileClaim;
     }
 
     /**

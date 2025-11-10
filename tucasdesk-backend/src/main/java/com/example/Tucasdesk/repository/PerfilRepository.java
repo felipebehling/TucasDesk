@@ -20,4 +20,12 @@ public interface PerfilRepository extends JpaRepository<Perfil, Integer> {
      * @return An {@link Optional} containing the profile if found, or empty otherwise.
      */
     Optional<Perfil> findByNome(String nome);
+
+    /**
+     * Finds a profile by its name ignoring casing.
+     *
+     * @param nome The name of the profile to find.
+     * @return An {@link Optional} containing the profile if found, or empty otherwise.
+     */
+    Optional<Perfil> findByNomeIgnoreCase(String nome);
 }

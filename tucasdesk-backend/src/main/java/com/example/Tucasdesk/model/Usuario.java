@@ -4,10 +4,13 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+
+import com.example.Tucasdesk.security.AuthorityUtils;
 
 /**
  * Represents a user in the system.
@@ -169,7 +172,10 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + this.perfil.getNome()));
+        String profileName = this.perfil != null && StringUtils.hasText(this.perfil.getNome())
+                ? this.perfil.getNome()
+                : null;
+        return List.of(new SimpleGrantedAuthority(AuthorityUtils.createRoleAuthority(profileName)));
     }
 
     @Override
