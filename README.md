@@ -13,10 +13,9 @@ TucasDesk oferece uma experiência completa para usuários, técnicos e administ
 ## Arquitetura do Sistema
 
 A arquitetura do TucasDesk foi desenhada para ser escalável, desacoplada e resiliente, combinando serviços síncronos e assíncronos para otimizar a experiência do usuário e a eficiência operacional.
+O diagrama abaixo detalha os principais componentes e o fluxo de comunicação entre eles:
 
 ![Arquitetura do TucasDesk](docs/images/architecture-diagram.jpeg)
-
-O diagrama abaixo detalha os principais componentes e o fluxo de comunicação entre eles:
 
 ### Componentes Principais
 
