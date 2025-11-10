@@ -12,6 +12,18 @@ Parameters:
     Type: String
     Default: tucasdesk-ticket-closed
     Description: Name of the SNS topic that receives TicketClosed notifications.
+  TicketEventsQueueName:
+    Type: String
+    Default: tucasdesk-ticket-events
+    Description: Name of the SQS queue that receives ticket event notifications.
+  TicketEventsDeadLetterQueueName:
+    Type: String
+    Default: tucasdesk-ticket-events-dlq
+    Description: Name of the dead-letter queue for ticket event notifications.
+  TicketEventsMaxReceiveCount:
+    Type: Number
+    Default: 5
+    Description: Number of delivery attempts before a message is moved to the dead-letter queue.
   PublisherRoleName:
     Type: String
     Default: tucasdesk-ticket-publisher
@@ -54,6 +66,64 @@ Resources:
                 Resource:
                   - !Ref TicketCreatedTopic
                   - !Ref TicketClosedTopic
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                Resource:
+                  - !GetAtt TicketEventsQueue.Arn
+  TicketEventsDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Ref TicketEventsDeadLetterQueueName
+      MessageRetentionPeriod: 1209600 # 14 days
+  TicketEventsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Ref TicketEventsQueueName
+      VisibilityTimeout: 30
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt TicketEventsDeadLetterQueue.Arn
+        maxReceiveCount: !Ref TicketEventsMaxReceiveCount
+  TicketEventsQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref TicketEventsQueue
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Action:
+              - sqs:SendMessage
+            Resource: !GetAtt TicketEventsQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref TicketCreatedTopic
+          - Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Action:
+              - sqs:SendMessage
+            Resource: !GetAtt TicketEventsQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref TicketClosedTopic
+  TicketCreatedQueueSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref TicketCreatedTopic
+      Protocol: sqs
+      Endpoint: !GetAtt TicketEventsQueue.Arn
+      RawMessageDelivery: true
+  TicketClosedQueueSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref TicketClosedTopic
+      Protocol: sqs
+      Endpoint: !GetAtt TicketEventsQueue.Arn
+      RawMessageDelivery: true
 
 Outputs:
   TicketCreatedTopicArn:
@@ -71,3 +141,18 @@ Outputs:
     Value: !GetAtt TicketNotificationsPublisherRole.Arn
     Export:
       Name: !Sub '${AWS::StackName}-TicketNotificationsPublisherRoleArn'
+  TicketEventsQueueUrl:
+    Description: URL of the SQS queue subscribed to ticket notification topics.
+    Value: !Ref TicketEventsQueue
+    Export:
+      Name: !Sub '${AWS::StackName}-TicketEventsQueueUrl'
+  TicketEventsQueueArn:
+    Description: ARN of the SQS queue subscribed to ticket notification topics.
+    Value: !GetAtt TicketEventsQueue.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-TicketEventsQueueArn'
+  TicketEventsDeadLetterQueueArn:
+    Description: ARN of the dead-letter queue storing failed ticket notifications.
+    Value: !GetAtt TicketEventsDeadLetterQueue.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-TicketEventsDeadLetterQueueArn'
