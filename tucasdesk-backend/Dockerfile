@@ -2,13 +2,17 @@
 FROM maven:3.9.8-sapmachine-21 AS build
 WORKDIR /app
 
-COPY pom.xml .
+COPY pom.xml ./
+RUN mvn -B dependency:go-offline
+
 COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Etapa 2: imagem de execução
-FROM sapmachine:21.0.6-jdk-alpine
+FROM amazoncorretto:21-alpine3.18
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+
+COPY --from=build /app/target/tucasdesk-backend-*.jar app.jar
+
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
