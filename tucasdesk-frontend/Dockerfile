@@ -1,6 +1,8 @@
 # Etapa 1: build do frontend
-FROM node:22-bullseye AS build
+FROM node:22-alpine AS build
 WORKDIR /app
+
+RUN apk add --no-cache python3 make g++
 
 ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
@@ -8,13 +10,7 @@ ENV VITE_API_URL=${VITE_API_URL}
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
 COPY . .
-RUN if [ -z "${VITE_API_URL}" ] && [ -f .env ]; then \
-      set -a; \
-      . ./.env; \
-      set +a; \
-    fi; \
-    export VITE_API_URL="${VITE_API_URL:-http://tucasdesk-backend:8080}"; \
-    npm run build
+RUN npm run build
 
 # Etapa 2: produção com Nginx
 FROM nginx:alpine
