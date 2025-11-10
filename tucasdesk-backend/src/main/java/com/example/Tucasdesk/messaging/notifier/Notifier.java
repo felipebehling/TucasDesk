@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Service responsible for transforming ticket events into user-facing notifications
@@ -51,7 +53,8 @@ public class Notifier {
     NotificationMessage buildMessage(ChamadoEventPayload payload) {
         String subject = buildSubject(payload);
         String body = buildBody(payload);
-        return new NotificationMessage(subject, body);
+        Map<String, Object> templateModel = buildTemplateModel(payload, subject, body);
+        return new NotificationMessage(subject, body, templateModel);
     }
 
     private String buildSubject(ChamadoEventPayload payload) {
@@ -101,5 +104,43 @@ public class Notifier {
             }
         }
         return body.toString();
+    }
+
+    private Map<String, Object> buildTemplateModel(ChamadoEventPayload payload, String subject, String body) {
+        Map<String, Object> model = new LinkedHashMap<>();
+        model.put("subject", subject);
+        model.put("body", body);
+        model.put("eventType", payload.eventType());
+        model.put("ticketId", payload.chamadoId());
+        if (StringUtils.hasText(payload.titulo())) {
+            model.put("titulo", payload.titulo());
+        }
+        if (StringUtils.hasText(payload.descricao())) {
+            model.put("descricao", payload.descricao());
+        }
+        if (payload.dataAbertura() != null) {
+            model.put("dataAbertura", DATE_FORMATTER.format(payload.dataAbertura()));
+        }
+        if (payload.dataFechamento() != null) {
+            model.put("dataFechamento", DATE_FORMATTER.format(payload.dataFechamento()));
+        }
+        if (payload.interacao() != null) {
+            Map<String, Object> interaction = new LinkedHashMap<>();
+            interaction.put("interacaoId", payload.interacao().interacaoId());
+            if (payload.interacao().usuarioId() != null) {
+                interaction.put("usuarioId", payload.interacao().usuarioId());
+            }
+            if (StringUtils.hasText(payload.interacao().mensagem())) {
+                interaction.put("mensagem", payload.interacao().mensagem());
+            }
+            if (payload.interacao().dataInteracao() != null) {
+                interaction.put("dataInteracao", DATE_FORMATTER.format(payload.interacao().dataInteracao()));
+            }
+            if (StringUtils.hasText(payload.interacao().anexoUrl())) {
+                interaction.put("anexoUrl", payload.interacao().anexoUrl());
+            }
+            model.put("interacao", interaction);
+        }
+        return model;
     }
 }

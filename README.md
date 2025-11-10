@@ -229,15 +229,34 @@ O backend lê as configurações sensíveis a partir de variáveis de ambiente. 
 | `AWS_COGNITO_APP_CLIENT_ID` | ID do App Client utilizado para autenticação. | *(sem padrão — configure no `.env`)* |
 | `AWS_COGNITO_ISSUER_URI` | (Opcional) Issuer URI público do User Pool. | *(vazio)* |
 | `AWS_COGNITO_JWK_SET_URI` | (Opcional) Endpoint JWKS do Cognito. | *(vazio)* |
-| `AWS_REGION` | Região padrão da AWS para integrações de mensageria. | `us-east-1` |
+| `AWS_REGION` | Região padrão da AWS para integrações de mensageria. | `sa-east-1` |
 | `AWS_SNS_TOPIC_ARN` | ARN genérico utilizado como fallback quando tópicos dedicados não estão configurados. | *(vazio)* |
 | `AWS_SQS_QUEUE_NAME` | Nome da fila SQS que receberá as mensagens legadas. | *(vazio)* |
 | `AWS_SNS_TICKET_CREATED_TOPIC_ARN` | ARN do tópico SNS exclusivo para eventos `TicketCreated`. | *(vazio)* |
 | `AWS_SNS_TICKET_CLOSED_TOPIC_ARN` | ARN do tópico SNS exclusivo para eventos `TicketClosed`. | *(vazio)* |
+| `AWS_SES_ENABLED` | Habilita o envio real de e-mails pelo AWS SES (`true`/`false`). | `false` |
+| `AWS_SES_REGION` | Região onde as identidades do SES foram verificadas. | *(herda `AWS_REGION` quando vazio)* |
+| `AWS_SES_FROM_ADDRESS` | Endereço verificado no SES que aparecerá como remetente. | *(vazio — obrigatório quando o SES estiver habilitado)* |
+| `AWS_SES_REPLY_TO_ADDRESS` | Endereço que receberá as respostas do e-mail. | *(vazio)* |
+| `AWS_SES_TO_ADDRESSES` | Lista de destinatários separados por vírgula para receber notificações. | *(vazio — obrigatório quando o SES estiver habilitado)* |
+| `AWS_SES_TEMPLATE_NAME` | Nome do template do SES usado pelo `Notifier`. | `tucasdesk-ticket-update` |
+| `AWS_SES_CONFIGURATION_SET` | Configuration Set opcional para métricas no SES. | *(vazio)* |
+| `AWS_ACCESS_KEY_ID` | Chave de acesso utilizada pelo SDK ao invocar SES/SNS/SQS. | *(vazio — utilize perfis IAM ou variáveis seguras)* |
+| `AWS_SECRET_ACCESS_KEY` | Segredo associado à chave de acesso. | *(vazio — utilize perfis IAM ou variáveis seguras)* |
 
-> 💡 Crie um arquivo `.env` na raiz do projeto (pode usar `.env.example` como base) para configurar as variáveis do Cognito (`AWS_COGNITO_REGION`, `AWS_COGNITO_USER_POOL_ID` e `AWS_COGNITO_APP_CLIENT_ID`) antes de subir os containers com Docker Compose. Ajuste variáveis como `SPRING_DATASOURCE_URL` e `DATABASE_URL` para o formato `mariadb` (por exemplo, `jdbc:mariadb://...`). Se ainda precisar rodar com MySQL por legado, adapte esses valores manualmente.
+> 💡 Crie um arquivo `.env` na raiz do projeto (pode usar `.env.example` como base) para configurar as variáveis do Cognito (`AWS_COGNITO_REGION`, `AWS_COGNITO_USER_POOL_ID` e `AWS_COGNITO_APP_CLIENT_ID`) e, quando for enviar e-mails de verdade, informe também as credenciais/identidades do SES (`AWS_SES_ENABLED`, `AWS_SES_FROM_ADDRESS`, `AWS_SES_TO_ADDRESSES`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`). Ajuste variáveis como `SPRING_DATASOURCE_URL` e `DATABASE_URL` para o formato `mariadb` (por exemplo, `jdbc:mariadb://...`). Se ainda precisar rodar com MySQL por legado, adapte esses valores manualmente.
 
 Para provisionar rapidamente os tópicos SNS dedicados e a role com permissão de publicação, utilize o template CloudFormation localizado em `infra/aws/ticket-notifications.yaml`.
+
+#### Configuração do AWS SES
+
+1. **Verifique o domínio ou remetente:** no console do SES, acesse *Verified identities* e adicione o domínio corporativo (recomendado) ou os e-mails individuais que serão usados em `AWS_SES_FROM_ADDRESS` e `AWS_SES_TO_ADDRESSES`. Conclua o processo de verificação DNS antes de habilitar o envio em produção.
+2. **Saia do sandbox (se necessário):** para ambientes novos solicite o aumento de limite (Production access) informando o domínio verificado e o tipo de tráfego esperado.
+3. **Crie o template de e-mail:** ainda no SES, registre um template com o nome configurado em `AWS_SES_TEMPLATE_NAME` contendo os placeholders `{{subject}}`, `{{body}}`, `{{eventType}}`, `{{ticketId}}` e `{{#interacao}}...{{/interacao}}` (para dados opcionais). Utilize HTML para a versão rica e inclua uma versão de texto puro se desejar compatibilidade com clientes legados.
+4. **Configure as credenciais:** defina `AWS_ACCESS_KEY_ID` e `AWS_SECRET_ACCESS_KEY` (ou utilize um perfil IAM/role) com permissão `ses:SendEmail`, `ses:SendTemplatedEmail`, `sns:*` e `sqs:*` conforme o ambiente. Para uso local, armazene-as no `.env` e nunca faça commit desses valores.
+5. **Ajuste as variáveis do backend:** atualize o `.env` com os valores de `AWS_SES_ENABLED=true`, `AWS_SES_FROM_ADDRESS`, `AWS_SES_TO_ADDRESSES` e `AWS_SES_REGION` (se diferente da região padrão). Reinicie o backend para que as propriedades sejam recarregadas.
+
+> 💡 O serviço de notificação coleta métricas básicas (`notifier.ses.deliveries` e `notifier.ses.throttled`) via Micrometer. Ao integrar com Prometheus/CloudWatch você poderá acompanhar a taxa de sucesso e eventuais respostas de quota do SES.
 
 ### Executando o frontend localmente (opcional)
 
