@@ -1,69 +1,34 @@
-# React + TypeScript + Vite
+# TucasDesk Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Variáveis de ambiente
 
-Currently, two official plugins are available:
+O processo de build utiliza o script `npm run build`, que carrega `VITE_API_URL` a partir de:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1. Variáveis de ambiente fornecidas na execução do comando.
+2. Um arquivo `.env` local (se existir).
+3. Um valor padrão (`http://tucasdesk-backend:8080`) quando nenhuma das opções anteriores estiver disponível.
 
-## Expanding the ESLint configuration
+### Qual é a função do `.env`?
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+O arquivo `.env`, quando presente na raiz do projeto, permite definir `VITE_API_URL` localmente durante o desenvolvimento sem precisar exportar a variável manualmente a cada execução. O script `scripts/build.mjs` lê esse arquivo apenas para recuperar o valor da chave `VITE_API_URL` e encaminhá-lo para o processo de build.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### E se o `.env` não for criado?
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+Nada falha: o build ignora a ausência do arquivo e usa a variável de ambiente fornecida externamente ou o valor padrão `http://tucasdesk-backend:8080`. Isso significa que:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Em ambientes como CI/CD ou Docker, basta informar `VITE_API_URL` via `ARG`/`ENV` para personalizar a URL do backend.
+- Em ambientes locais, você pode executar `VITE_API_URL=https://sua-api npm run build` sem manter um arquivo `.env`.
+
+Crie o `.env` apenas se quiser guardar uma configuração padrão para os builds locais; caso contrário, ele é totalmente opcional.
+
+## Docker
+
+Ao construir a imagem Docker, defina `VITE_API_URL` como `ARG`/`ENV` para ajustar o backend consumido pelo frontend, por exemplo:
+
+```bash
+docker build \
+  --build-arg VITE_API_URL="https://api.exemplo.com" \
+  -t tucasdesk-frontend .
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Se precisar parametrizar a URL em tempo de execução (e não apenas no build), utilize um entrypoint que gere o arquivo esperado pelo Nginx via `envsubst` (ou ferramenta similar) antes de iniciar o servidor.
