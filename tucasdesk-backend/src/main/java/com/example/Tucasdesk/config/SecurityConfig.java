@@ -4,6 +4,7 @@ import com.example.Tucasdesk.security.CognitoAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -34,19 +35,34 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Disable CSRF protection
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(authorize -> authorize
-                // Permit access to the H2 console
-                .requestMatchers("/h2-console/**").permitAll()
-                // Permit access to login and registration endpoints
-                .requestMatchers("/auth/**").permitAll()
-                // Permit access to Swagger UI and API docs
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                // All other requests must be authenticated
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(cognitoAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categorias/**", "/api/prioridades/**", "/api/status/**",
+                                "/api/perfis/**").hasAnyRole("ADMINISTRADOR", "TECNICO", "USUARIO")
+                        .requestMatchers(HttpMethod.POST, "/api/categorias/**", "/api/prioridades/**", "/api/status/**",
+                                "/api/perfis/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/categorias/**", "/api/prioridades/**", "/api/status/**",
+                                "/api/perfis/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/categorias/**", "/api/prioridades/**", "/api/status/**",
+                                "/api/perfis/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/me").hasAnyRole("ADMINISTRADOR", "TECNICO",
+                                "USUARIO")
+                        .requestMatchers(HttpMethod.PUT, "/api/usuarios/me").hasAnyRole("ADMINISTRADOR", "TECNICO",
+                                "USUARIO")
+                        .requestMatchers("/api/usuarios/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.GET, "/chamados/**").hasAnyRole("ADMINISTRADOR", "TECNICO",
+                                "USUARIO")
+                        .requestMatchers(HttpMethod.POST, "/chamados/**").hasAnyRole("ADMINISTRADOR", "TECNICO",
+                                "USUARIO")
+                        .requestMatchers(HttpMethod.PUT, "/chamados/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
+                        .requestMatchers(HttpMethod.PATCH, "/chamados/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
+                        .anyRequest().authenticated())
+                .addFilterBefore(cognitoAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

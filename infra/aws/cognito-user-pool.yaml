@@ -1,0 +1,147 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Creates the Cognito User Pool, OAuth client and default groups used by TucasDesk.
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: tucasdesk
+    Description: Project prefix used to name Cognito resources.
+  DomainPrefix:
+    Type: String
+    Default: ''
+    Description: >-
+      Optional domain prefix used for the Cognito hosted UI. Leave empty to skip
+      domain creation.
+  CallbackUrls:
+    Type: CommaDelimitedList
+    Default: 'http://localhost:5173/callback,http://localhost:3000/callback'
+    Description: Allowed OAuth callback URLs for the web application.
+  LogoutUrls:
+    Type: CommaDelimitedList
+    Default: 'http://localhost:5173/logout,http://localhost:3000/logout'
+    Description: Allowed logout URLs for the web application.
+  AllowedOAuthFlows:
+    Type: CommaDelimitedList
+    Default: 'code,implicit'
+    Description: OAuth flows enabled for the app client.
+  AllowedOAuthScopes:
+    Type: CommaDelimitedList
+    Default: 'openid,email,profile'
+    Description: OAuth scopes granted to the app client.
+
+Conditions:
+  HasDomainPrefix: !Not [!Equals [!Ref DomainPrefix, '']]
+
+Resources:
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub '${ProjectName}-user-pool'
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Mutable: false
+          Required: true
+        - AttributeDataType: String
+          Name: name
+          Mutable: true
+          Required: false
+        - AttributeDataType: String
+          Name: 'custom:perfil'
+          Mutable: true
+          Required: false
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireUppercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub '${ProjectName}-web'
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      AllowedOAuthFlows: !Ref AllowedOAuthFlows
+      AllowedOAuthScopes: !Ref AllowedOAuthScopes
+      AllowedOAuthFlowsUserPoolClient: true
+      AccessTokenValidity: 60
+      RefreshTokenValidity: 30
+      TokenValidityUnits:
+        AccessToken: minutes
+        RefreshToken: days
+        IdToken: minutes
+      CallbackURLs: !Ref CallbackUrls
+      LogoutURLs: !Ref LogoutUrls
+      SupportedIdentityProviders:
+        - COGNITO
+      PreventUserExistenceErrors: ENABLED
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+      ReadAttributes:
+        - email
+        - email_verified
+        - name
+        - custom:perfil
+      WriteAttributes:
+        - name
+        - custom:perfil
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Condition: HasDomainPrefix
+    Properties:
+      Domain: !Ref DomainPrefix
+      UserPoolId: !Ref UserPool
+
+  AdministradorGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: 'Administrador'
+      Description: Administradores com acesso total aos recursos do TucasDesk.
+      Precedence: 1
+      UserPoolId: !Ref UserPool
+
+  TecnicoGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: 'Técnico'
+      Description: Técnicos responsáveis por atuar nos chamados.
+      Precedence: 5
+      UserPoolId: !Ref UserPool
+
+  UsuarioGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: 'Usuário'
+      Description: Usuários finais capazes de abrir e acompanhar chamados.
+      Precedence: 10
+      UserPoolId: !Ref UserPool
+
+Outputs:
+  UserPoolId:
+    Description: Identifier of the created User Pool.
+    Value: !Ref UserPool
+  UserPoolArn:
+    Description: ARN of the created User Pool.
+    Value: !GetAtt UserPool.Arn
+  UserPoolClientId:
+    Description: Identifier of the application client configured for SRP and OAuth flows.
+    Value: !Ref UserPoolClient
+  UserPoolDomainUrl:
+    Condition: HasDomainPrefix
+    Description: Hosted UI URL associated with the configured domain prefix.
+    Value: !Sub 'https://${DomainPrefix}.auth.${AWS::Region}.amazoncognito.com'

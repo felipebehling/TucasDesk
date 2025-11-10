@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.Tucasdesk.config.AwsCognitoProperties;
 
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminAddUserToGroupRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminInitiateAuthRequest;
@@ -81,6 +82,7 @@ public class CognitoService {
                     .password(password)
                     .permanent(true)
                     .build());
+            log.debug("event=cognito_register status=password_set username={}", email);
         } catch (UsernameExistsException ex) {
             log.warn("event=cognito_register status=conflict username={}", email);
             throw new ResponseStatusException(HttpStatus.CONFLICT,
@@ -116,6 +118,30 @@ public class CognitoService {
             log.error("event=cognito_update_password status=error username={} message=\"{}\"", email, ex.getMessage(), ex);
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
                     "Não foi possível atualizar a senha no serviço Cognito.");
+        }
+    }
+
+    public void addUserToGroup(String username, String groupName) {
+        if (!org.springframework.util.StringUtils.hasText(groupName)) {
+            return;
+        }
+        try {
+            cognitoClient.adminAddUserToGroup(AdminAddUserToGroupRequest.builder()
+                    .userPoolId(properties.getUserPoolId())
+                    .username(username)
+                    .groupName(groupName)
+                    .build());
+            log.info("event=cognito_assign_group status=success username={} group={}", username, groupName);
+        } catch (UserNotFoundException ex) {
+            log.warn("event=cognito_assign_group status=user_not_found username={} group={} message=\"{}\"", username,
+                    groupName, ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Usuário não encontrado no serviço Cognito para atribuição de grupo.");
+        } catch (CognitoIdentityProviderException ex) {
+            log.error("event=cognito_assign_group status=error username={} group={} message=\"{}\"", username,
+                    groupName, ex.getMessage(), ex);
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                    "Não foi possível atualizar o grupo do usuário no serviço Cognito.");
         }
     }
 }
