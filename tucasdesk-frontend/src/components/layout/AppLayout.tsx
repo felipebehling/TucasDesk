@@ -1,5 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Home, Ticket, User, Users, LogOut, Tags } from "lucide-react";
+import { Home, Ticket, User, Users, LogOut, Tags, Sun, Moon } from "lucide-react";
+import { useContext } from "react";
+import { ThemeContext } from "../../context/ThemeContext";
 
 /**
  * The main layout for the authenticated part of the application.
@@ -9,6 +11,8 @@ import { Home, Ticket, User, Users, LogOut, Tags } from "lucide-react";
  * @returns {JSX.Element} The main application layout.
  */
 export default function AppLayout({ handleLogout }: { handleLogout: () => void }) {
+  const { theme, toggleTheme } = useContext(ThemeContext);
+
   return (
     <div className="app-container">
       <div className="sidebar">
@@ -23,6 +27,10 @@ export default function AppLayout({ handleLogout }: { handleLogout: () => void }
           <NavLink to="/usuarios"><Users size={20} /> Usuários</NavLink>
           <NavLink to="/categorias"><Tags size={20} /> Categorias</NavLink>
         </nav>
+        <button onClick={toggleTheme} className="sidebar-logout">
+          {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+          {theme === "dark" ? "Light Mode" : "Dark Mode"}
+        </button>
         <a href="#" onClick={handleLogout} className="sidebar-logout">
           <LogOut size={20} /> Sair
         </a>
