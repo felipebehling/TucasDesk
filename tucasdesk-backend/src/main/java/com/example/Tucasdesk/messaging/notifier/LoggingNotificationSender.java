@@ -2,6 +2,7 @@ package com.example.Tucasdesk.messaging.notifier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,12 +13,14 @@ import org.springframework.stereotype.Component;
  * </p>
  */
 @Component
+@ConditionalOnProperty(prefix = "app.aws.ses", name = "enabled", havingValue = "false", matchIfMissing = true)
 public class LoggingNotificationSender implements NotificationSender {
 
     private static final Logger log = LoggerFactory.getLogger(LoggingNotificationSender.class);
 
     @Override
     public void send(NotificationMessage message) {
-        log.info("event=notifier_notification_sent subject={} body={}", message.subject(), message.body());
+        log.info("event=notifier_notification_sent subject={} body={} templateModel={}",
+                message.subject(), message.body(), message.templateModel());
     }
 }
