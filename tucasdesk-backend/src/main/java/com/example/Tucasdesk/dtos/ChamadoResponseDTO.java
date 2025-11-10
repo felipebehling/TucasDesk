@@ -20,6 +20,7 @@ public class ChamadoResponseDTO {
     private LocalDateTime dataAbertura;
     private LocalDateTime dataFechamento;
     private List<InteracaoResponseDTO> interacoes = new ArrayList<>();
+    private List<HistoricoStatusResponseDTO> historicoStatus = new ArrayList<>();
 
     public ChamadoResponseDTO() {
     }
@@ -34,7 +35,8 @@ public class ChamadoResponseDTO {
                               UsuarioResumoDTO tecnico,
                               LocalDateTime dataAbertura,
                               LocalDateTime dataFechamento,
-                              List<InteracaoResponseDTO> interacoes) {
+                              List<InteracaoResponseDTO> interacoes,
+                              List<HistoricoStatusResponseDTO> historicoStatus) {
         this.id = id;
         this.titulo = titulo;
         this.descricao = descricao;
@@ -47,6 +49,9 @@ public class ChamadoResponseDTO {
         this.dataFechamento = dataFechamento;
         if (interacoes != null) {
             this.interacoes = interacoes;
+        }
+        if (historicoStatus != null) {
+            this.historicoStatus = historicoStatus;
         }
     }
 
@@ -136,5 +141,13 @@ public class ChamadoResponseDTO {
 
     public void setInteracoes(List<InteracaoResponseDTO> interacoes) {
         this.interacoes = interacoes;
+    }
+
+    public List<HistoricoStatusResponseDTO> getHistoricoStatus() {
+        return historicoStatus;
+    }
+
+    public void setHistoricoStatus(List<HistoricoStatusResponseDTO> historicoStatus) {
+        this.historicoStatus = historicoStatus;
     }
 }

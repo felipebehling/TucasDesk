@@ -31,6 +31,7 @@ public class ChamadoService {
     private final UsuarioRepository usuarioRepository;
     private final InteracaoRepository interacaoRepository;
     private final ChamadoMessagingService chamadoMessagingService;
+    private final HistoricoStatusRepository historicoStatusRepository;
 
     public ChamadoService(ChamadoRepository chamadoRepository,
                           CategoriaRepository categoriaRepository,
@@ -38,6 +39,7 @@ public class ChamadoService {
                           StatusRepository statusRepository,
                           UsuarioRepository usuarioRepository,
                           InteracaoRepository interacaoRepository,
+                          HistoricoStatusRepository historicoStatusRepository,
                           ChamadoMessagingService chamadoMessagingService) {
         this.chamadoRepository = chamadoRepository;
         this.categoriaRepository = categoriaRepository;
@@ -45,6 +47,7 @@ public class ChamadoService {
         this.statusRepository = statusRepository;
         this.usuarioRepository = usuarioRepository;
         this.interacaoRepository = interacaoRepository;
+        this.historicoStatusRepository = historicoStatusRepository;
         this.chamadoMessagingService = chamadoMessagingService;
     }
 
@@ -55,7 +58,10 @@ public class ChamadoService {
      */
     public List<ChamadoResponseDTO> listarTodos() {
         return chamadoRepository.findAll().stream()
-                .map(chamado -> ChamadoMapper.toChamadoResponseDTO(chamado, carregarInteracoes(chamado)))
+                .map(chamado -> ChamadoMapper.toChamadoResponseDTO(
+                        chamado,
+                        carregarInteracoes(chamado),
+                        carregarHistoricoStatus(chamado)))
                 .collect(Collectors.toList());
     }
 
@@ -67,7 +73,7 @@ public class ChamadoService {
      */
     public ChamadoResponseDTO buscarPorId(Integer id) {
         Chamado chamado = obterChamado(id);
-        return ChamadoMapper.toChamadoResponseDTO(chamado, carregarInteracoes(chamado));
+        return ChamadoMapper.toChamadoResponseDTO(chamado, carregarInteracoes(chamado), carregarHistoricoStatus(chamado));
     }
 
     /**
@@ -88,6 +94,7 @@ public class ChamadoService {
         chamado.setDataAbertura(LocalDateTime.now());
         ajustarDataFechamento(chamado);
         Chamado salvo = chamadoRepository.save(chamado);
+        registrarHistoricoStatus(salvo, salvo.getStatus());
         log.info("event=chamado_create status=success chamadoId={} usuarioId={} categoriaId={} prioridadeId={} statusId={}",
                 salvo.getIdChamado(),
                 salvo.getUsuario() != null ? salvo.getUsuario().getIdUsuario() : null,
@@ -95,7 +102,7 @@ public class ChamadoService {
                 salvo.getPrioridade() != null ? salvo.getPrioridade().getIdPrioridade() : null,
                 salvo.getStatus() != null ? salvo.getStatus().getIdStatus() : null);
         chamadoMessagingService.publishChamadoCreatedEvent(salvo);
-        return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo));
+        return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo), carregarHistoricoStatus(salvo));
     }
 
     /**
@@ -119,16 +126,24 @@ public class ChamadoService {
         if (request.getPrioridadeId() != null) {
             chamado.setPrioridade(buscarPrioridade(request.getPrioridadeId()));
         }
+        boolean statusAlterado = false;
         if (request.getStatusId() != null) {
-            chamado.setStatus(buscarStatus(request.getStatusId()));
+            Status novoStatus = buscarStatus(request.getStatusId());
+            validarTransicaoStatus(chamado.getStatus(), novoStatus);
+            chamado.setStatus(novoStatus);
+            statusAlterado = true;
         }
         if (request.getTecnicoId() != null) {
             chamado.setTecnico(buscarUsuario(request.getTecnicoId()));
         }
         ajustarDataFechamento(chamado);
         Chamado salvo = chamadoRepository.save(chamado);
+        if (statusAlterado) {
+            registrarHistoricoStatus(salvo, salvo.getStatus());
+            chamadoMessagingService.publishChamadoStatusChangedEvent(salvo);
+        }
         chamadoMessagingService.publishChamadoUpdatedEvent(salvo);
-        return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo));
+        return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo), carregarHistoricoStatus(salvo));
     }
 
     /**
@@ -145,8 +160,9 @@ public class ChamadoService {
         chamado.setStatus(novoStatus);
         ajustarDataFechamento(chamado);
         Chamado salvo = chamadoRepository.save(chamado);
+        registrarHistoricoStatus(salvo, salvo.getStatus());
         chamadoMessagingService.publishChamadoStatusChangedEvent(salvo);
-        return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo));
+        return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo), carregarHistoricoStatus(salvo));
     }
 
     /**
@@ -162,7 +178,7 @@ public class ChamadoService {
         chamado.setPrioridade(novaPrioridade);
         Chamado salvo = chamadoRepository.save(chamado);
         chamadoMessagingService.publishChamadoUpdatedEvent(salvo);
-        return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo));
+        return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo), carregarHistoricoStatus(salvo));
     }
 
     /**
@@ -196,6 +212,10 @@ public class ChamadoService {
 
     private List<Interacao> carregarInteracoes(Chamado chamado) {
         return interacaoRepository.findByChamadoOrderByDataInteracaoAsc(chamado);
+    }
+
+    private List<HistoricoStatus> carregarHistoricoStatus(Chamado chamado) {
+        return historicoStatusRepository.findByChamadoOrderByDataRegistroAsc(chamado);
     }
 
     private Chamado obterChamado(Integer id) {
@@ -253,5 +273,16 @@ public class ChamadoService {
         if (statusAtual != null && statusAtual.equals(novoStatus)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O chamado já está com o status informado.");
         }
+    }
+
+    private void registrarHistoricoStatus(Chamado chamado, Status status) {
+        if (status == null) {
+            return;
+        }
+        HistoricoStatus historicoStatus = new HistoricoStatus();
+        historicoStatus.setChamado(chamado);
+        historicoStatus.setStatus(status);
+        historicoStatus.setDataRegistro(LocalDateTime.now());
+        historicoStatusRepository.save(historicoStatus);
     }
 }
