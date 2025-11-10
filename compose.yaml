@@ -17,6 +17,13 @@ services:
     volumes:
       - database-data:/var/lib/mysql
       - ./docker/mysql-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "--silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+      
     networks:
       default:
         aliases:
@@ -27,6 +34,9 @@ services:
     container_name: tucasdesk-backend
     ports:
       - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       <<: *shared-database-url
       SPRING_PROFILES_ACTIVE: docker,${SPRING_ACTIVE_DATABASE_PROFILE:-mariadb}
@@ -38,7 +48,11 @@ services:
       AWS_COGNITO_APP_CLIENT_ID: ${AWS_COGNITO_APP_CLIENT_ID}
       AWS_COGNITO_ISSUER_URI: ${AWS_COGNITO_ISSUER_URI}
       AWS_COGNITO_JWK_SET_URI: ${AWS_COGNITO_JWK_SET_URI}
-
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
   frontend:
     build:
       context: ./tucasdesk-frontend
