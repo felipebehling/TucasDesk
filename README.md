@@ -15,21 +15,6 @@ TucasDesk oferece uma experiência completa para usuários, técnicos e administ
 A ilustração abaixo consolida o fluxo de dados entre frontend, serviços síncronos do Spring Boot, camada assíncrona na AWS e integrações externas utilizadas para autenticação e notificações. Ela evidencia como os eventos `TicketCreated` e `TicketClosed` são publicados em tópicos SNS dedicados, permanecendo compatíveis com a fila legada consumida pelo serviço `Notifier` e permitindo fan-out para provedores como o SES.
 
 
-```mermaid
-flowchart LR
-    client[Cliente] --> frontend[Frontend React]
-    frontend --> api[API Spring Boot]
-    api --> db[(MariaDB)]
-    api --> snsCreated[SNS TicketCreated]
-    api --> snsClosed[SNS TicketClosed]
-    snsCreated --> queue[SQS legada]
-    snsClosed --> queue
-    queue --> notifier[Serviço Notifier]
-    snsCreated --> ses[AWS SES]
-    snsClosed --> ses
-    frontend --> cognito[AWS Cognito]
-```
-
 A jornada começa com o cliente acessando o frontend, que aciona interceptadores expostos pela API. O backend valida e persiste os dados no MariaDB e, conforme o status do chamado, publica os eventos em SNS. A partir daí, o template cria tanto o fan-out para a fila SQS consumida pelo `Notifier` quanto integrações externas — por exemplo, Cognito para autenticação e SES para e-mails — garantindo que cada mudança no ciclo de vida do ticket alcance os consumidores apropriados.
 
 ### Principais Recursos
