@@ -2,6 +2,8 @@ package com.example.Tucasdesk.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a support ticket in the system.
@@ -72,6 +74,19 @@ public class Chamado {
      * The timestamp when the ticket was closed. Can be null if the ticket is not yet closed.
      */
     private LocalDateTime dataFechamento;
+
+    /**
+     * The list of interactions registered for this ticket.
+     */
+    @OneToMany(mappedBy = "chamado", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Interacao> interacoes = new ArrayList<>();
+
+    /**
+     * The chronological status history of this ticket.
+     */
+    @OneToMany(mappedBy = "chamado", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("dataRegistro ASC")
+    private List<HistoricoStatus> historicoStatus = new ArrayList<>();
 
     /**
      * Gets the unique identifier for the ticket.
@@ -233,5 +248,21 @@ public class Chamado {
         this.dataFechamento = dataFechamento;
     }
 
-    
+    public List<Interacao> getInteracoes() {
+        return interacoes;
+    }
+
+    public void setInteracoes(List<Interacao> interacoes) {
+        this.interacoes = interacoes;
+    }
+
+    public List<HistoricoStatus> getHistoricoStatus() {
+        return historicoStatus;
+    }
+
+    public void setHistoricoStatus(List<HistoricoStatus> historicoStatus) {
+        this.historicoStatus = historicoStatus;
+    }
+
+
 }

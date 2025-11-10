@@ -24,7 +24,9 @@ public final class ChamadoMapper {
      * @return the mapped response DTO.
      */
     @Nullable
-    public static ChamadoResponseDTO toChamadoResponseDTO(Chamado chamado, List<Interacao> interacoes) {
+    public static ChamadoResponseDTO toChamadoResponseDTO(Chamado chamado,
+                                                         List<Interacao> interacoes,
+                                                         List<HistoricoStatus> historicoStatus) {
         if (chamado == null) {
             return null;
         }
@@ -33,6 +35,13 @@ public final class ChamadoMapper {
         if (interacoes != null && !interacoes.isEmpty()) {
             interacaoDTOS = interacoes.stream()
                     .map(ChamadoMapper::toInteracaoResponseDTO)
+                    .collect(Collectors.toList());
+        }
+
+        List<HistoricoStatusResponseDTO> historicoStatusDTOS = Collections.emptyList();
+        if (historicoStatus != null && !historicoStatus.isEmpty()) {
+            historicoStatusDTOS = historicoStatus.stream()
+                    .map(ChamadoMapper::toHistoricoStatusResponseDTO)
                     .collect(Collectors.toList());
         }
 
@@ -47,7 +56,8 @@ public final class ChamadoMapper {
                 toUsuarioResumoDTO(chamado.getTecnico()),
                 chamado.getDataAbertura(),
                 chamado.getDataFechamento(),
-                interacaoDTOS
+                interacaoDTOS,
+                historicoStatusDTOS
         );
     }
 
@@ -68,6 +78,17 @@ public final class ChamadoMapper {
                 interacao.getAnexoUrl(),
                 interacao.getDataInteracao(),
                 toUsuarioResumoDTO(interacao.getUsuario())
+        );
+    }
+
+    @Nullable
+    private static HistoricoStatusResponseDTO toHistoricoStatusResponseDTO(HistoricoStatus historicoStatus) {
+        if (historicoStatus == null) {
+            return null;
+        }
+        return new HistoricoStatusResponseDTO(
+                toLookupResponseDTO(historicoStatus.getStatus()),
+                historicoStatus.getDataRegistro()
         );
     }
 
