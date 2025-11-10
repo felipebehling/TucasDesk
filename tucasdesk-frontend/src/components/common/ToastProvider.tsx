@@ -1,8 +1,18 @@
-import { useCallback, useContext, useMemo, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { PropsWithChildren } from "react";
 import "./toast.css";
 
 import { ToastContext, type Toast, type ToastOptions } from "./toastContext";
+import { subscribeToApiEvents } from "../../api/apiEvents";
+import { extractErrorMessage } from "../../utils/error";
+
+function getHeaderValue(headers: Record<string, unknown> | undefined, key: string): string | undefined {
+  if (!headers) {
+    return undefined;
+  }
+  const value = headers[key] ?? headers[key.toLowerCase()];
+  return typeof value === "string" ? value : undefined;
+}
 
 const DEFAULT_DURATION = 4000;
 
@@ -48,6 +58,41 @@ export function ToastProvider({ children }: PropsWithChildren) {
   }, [dismiss]);
 
   const contextValue = useMemo(() => ({ showToast }), [showToast]);
+
+  useEffect(() => {
+    const unsubscribeError = subscribeToApiEvents("request:error", ({ config, error, response }) => {
+      if (config.skipErrorToast) {
+        return;
+      }
+      const headerMessage = getHeaderValue(response?.headers as Record<string, unknown>, "x-feedback-message");
+      const description = config.errorMessage ?? headerMessage ?? extractErrorMessage(error);
+      if (!description) {
+        return;
+      }
+      const title = config.errorTitle ?? getHeaderValue(response?.headers as Record<string, unknown>, "x-feedback-title");
+      const tone = (getHeaderValue(response?.headers as Record<string, unknown>, "x-feedback-tone") as Toast["tone"]) ?? "error";
+      showToast({ description, title: title ?? "", tone });
+    });
+
+    const unsubscribeSuccess = subscribeToApiEvents("request:success", ({ config, response }) => {
+      if (config.skipSuccessToast) {
+        return;
+      }
+      const headerMessage = getHeaderValue(response?.headers as Record<string, unknown>, "x-feedback-message");
+      const description = config.successMessage ?? headerMessage;
+      if (!description) {
+        return;
+      }
+      const title = config.successTitle ?? getHeaderValue(response?.headers as Record<string, unknown>, "x-feedback-title") ?? "";
+      const tone = (getHeaderValue(response?.headers as Record<string, unknown>, "x-feedback-tone") as Toast["tone"]) ?? "success";
+      showToast({ description, title, tone });
+    });
+
+    return () => {
+      unsubscribeError();
+      unsubscribeSuccess();
+    };
+  }, [showToast]);
 
   return (
     <ToastContext.Provider value={contextValue}>

@@ -22,6 +22,37 @@ export default function DashboardPage() {
     () => chamados.filter(c => c.status?.nome?.toLowerCase() === "em andamento").length,
     [chamados],
   );
+  const totalFechados = useMemo(
+    () =>
+      chamados.filter((c) => {
+        const statusLower = c.status?.nome?.toLowerCase() ?? "";
+        return statusLower.includes("fechado") || statusLower.includes("encerrado") || c.dataFechamento !== null;
+      }).length,
+    [chamados],
+  );
+  const totalChamados = chamados.length;
+
+  const statusResumo = useMemo(() => {
+    const mapa = new Map<string, number>();
+    chamados.forEach((c) => {
+      const label = formatStatus(c.status?.nome);
+      mapa.set(label, (mapa.get(label) ?? 0) + 1);
+    });
+    return Array.from(mapa.entries())
+      .map(([label, total]) => ({ label, total }))
+      .sort((a, b) => b.total - a.total || a.label.localeCompare(b.label));
+  }, [chamados]);
+
+  const prioridadeResumo = useMemo(() => {
+    const mapa = new Map<string, number>();
+    chamados.forEach((c) => {
+      const label = c.prioridade?.nome ?? "Não definida";
+      mapa.set(label, (mapa.get(label) ?? 0) + 1);
+    });
+    return Array.from(mapa.entries())
+      .map(([label, total]) => ({ label, total }))
+      .sort((a, b) => b.total - a.total || a.label.localeCompare(b.label));
+  }, [chamados]);
 
   return (
     <>
@@ -62,9 +93,57 @@ export default function DashboardPage() {
               <p>Não foi possível carregar as estatísticas.</p>
             ) : (
               <>
+                <p>Total de chamados: {totalChamados}</p>
                 <p>Total de chamados abertos: {totalAbertos}</p>
                 <p>Total de chamados em andamento: {totalEmAndamento}</p>
+                <p>Total de chamados encerrados: {totalFechados}</p>
               </>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="grid-2-col" style={{ marginTop: "1rem" }}>
+        <div className="card">
+          <div className="card-header">
+            <h3>Resumo por Status</h3>
+          </div>
+          <div className="card-content">
+            {isLoading ? (
+              <p>Carregando resumo por status...</p>
+            ) : error ? (
+              <p>Não foi possível carregar o resumo por status.</p>
+            ) : statusResumo.length > 0 ? (
+              <ul>
+                {statusResumo.map((item) => (
+                  <li key={item.label}>
+                    {item.label}: {item.total}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Nenhum dado de status disponível.</p>
+            )}
+          </div>
+        </div>
+        <div className="card">
+          <div className="card-header">
+            <h3>Resumo por Prioridade</h3>
+          </div>
+          <div className="card-content">
+            {isLoading ? (
+              <p>Carregando resumo por prioridade...</p>
+            ) : error ? (
+              <p>Não foi possível carregar o resumo por prioridade.</p>
+            ) : prioridadeResumo.length > 0 ? (
+              <ul>
+                {prioridadeResumo.map((item) => (
+                  <li key={item.label}>
+                    {item.label}: {item.total}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Nenhum dado de prioridade disponível.</p>
             )}
           </div>
         </div>

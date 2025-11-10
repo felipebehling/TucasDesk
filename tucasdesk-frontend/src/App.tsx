@@ -3,6 +3,7 @@
 import { lazy, Suspense, useContext } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeProvider";
 
 // 1. Lazy load all page components for code-splitting
 const LoginPage = lazy(() => import("./pages/Login"));

@@ -232,18 +232,10 @@ export default function ChamadoDetalhePage() {
     try {
       const response = await ChamadosService.atualizarStatus(chamadoId, Number(selectedStatusId));
       setChamado(response);
-      showToast({
-        tone: "success",
-        description: "Status atualizado com sucesso.",
-      });
       setIsStatusModalOpen(false);
     } catch (statusError) {
       const message = extractErrorMessage(statusError);
       setActionError(message);
-      showToast({
-        tone: "error",
-        description: message,
-      });
     } finally {
       setIsStatusUpdating(false);
     }
@@ -269,18 +261,10 @@ export default function ChamadoDetalhePage() {
         Number(selectedPrioridadeId),
       );
       setChamado(response);
-      showToast({
-        tone: "success",
-        description: "Prioridade atualizada com sucesso.",
-      });
       setIsPrioridadeModalOpen(false);
     } catch (prioridadeError) {
       const message = extractErrorMessage(prioridadeError);
       setActionError(message);
-      showToast({
-        tone: "error",
-        description: message,
-      });
     } finally {
       setIsPrioridadeUpdating(false);
     }
@@ -309,19 +293,14 @@ export default function ChamadoDetalhePage() {
     setIsClosingChamado(true);
     setActionError(null);
     try {
-      const response = await ChamadosService.atualizarStatus(chamadoId, closedStatusId);
-      setChamado(response);
-      showToast({
-        tone: "success",
-        description: "Chamado fechado com sucesso.",
+      const response = await ChamadosService.atualizarStatus(chamadoId, closedStatusId, {
+        successMessage: "Chamado fechado com sucesso.",
       });
+      setChamado(response);
       setIsCloseConfirmOpen(false);
     } catch (closeError) {
       const message = extractErrorMessage(closeError);
-      showToast({
-        tone: "error",
-        description: message,
-      });
+      setActionError(message);
     } finally {
       setIsClosingChamado(false);
     }
@@ -358,17 +337,10 @@ export default function ChamadoDetalhePage() {
           interacoes: prev.interacoes.filter((interacao) => interacao.id !== interactionToDelete),
         };
       });
-      showToast({
-        tone: "success",
-        description: "Interação excluída com sucesso.",
-      });
       resetDeleteDialog();
     } catch (deleteError) {
       const message = extractErrorMessage(deleteError);
-      showToast({
-        tone: "error",
-        description: message,
-      });
+      setActionError(message);
     } finally {
       setIsDeletingInteraction(false);
     }
@@ -410,17 +382,9 @@ export default function ChamadoDetalhePage() {
       });
       setInteractionMessage("");
       setInteractionAttachment("");
-      showToast({
-        tone: "success",
-        description: "Interação registrada com sucesso.",
-      });
     } catch (interactionErr) {
       const message = extractErrorMessage(interactionErr);
       setInteractionError(message);
-      showToast({
-        tone: "error",
-        description: message,
-      });
     } finally {
       setIsInteractionSubmitting(false);
     }

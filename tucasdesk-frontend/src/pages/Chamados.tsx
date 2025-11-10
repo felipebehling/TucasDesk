@@ -14,7 +14,6 @@ import type { Status } from "../types/status";
 import { extractErrorMessage } from "../utils/error";
 import { Breadcrumbs } from "../components/navigation/Breadcrumbs";
 import { LoadingSpinner } from "../components/common/LoadingOverlay";
-import { useToast } from "../components/common/ToastProvider";
 
 interface NovoChamadoFormState {
   titulo: string;
@@ -62,7 +61,6 @@ export default function ChamadosPage() {
   const [formState, setFormState] = useState<NovoChamadoFormState>(initialFormState);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { showToast } = useToast();
 
   const hasChamados = useMemo(() => chamados.length > 0, [chamados]);
   const isInitialLoading = isLoading && !hasChamados && !error;
@@ -132,18 +130,10 @@ export default function ChamadosPage() {
         statusId: Number(formState.statusId),
         usuarioId: usuario.id,
       });
-      showToast({
-        tone: "success",
-        description: "Chamado criado com sucesso!",
-      });
       setFormState(initialFormState);
     } catch (createError) {
       const message = extractErrorMessage(createError);
       setFormError(message);
-      showToast({
-        tone: "error",
-        description: message,
-      });
     } finally {
       setIsSubmitting(false);
     }
