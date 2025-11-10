@@ -1,5 +1,9 @@
 package com.example.Tucasdesk.dtos;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 import java.util.Objects;
 
 /**
@@ -7,11 +11,18 @@ import java.util.Objects;
  */
 public class ChamadoRequest {
 
+    @NotBlank(message = "O título do chamado é obrigatório.")
+    @Size(max = 255, message = "O título deve ter no máximo 255 caracteres.")
     private String titulo;
+
+    @Size(max = 4000, message = "A descrição deve ter no máximo 4000 caracteres.")
     private String descricao;
     private Integer categoriaId;
     private Integer prioridadeId;
+    @NotNull(message = "O status inicial do chamado é obrigatório.")
     private Integer statusId;
+
+    @NotNull(message = "O usuário solicitante é obrigatório.")
     private Integer usuarioId;
     private Integer tecnicoId;
 

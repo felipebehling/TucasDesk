@@ -1,11 +1,19 @@
 package com.example.Tucasdesk.dtos;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 /**
  * DTO that represents a request to create a new {@code Interacao} for a {@code Chamado}.
  */
 public class InteracaoRequest {
 
+    @NotNull(message = "O usuário da interação é obrigatório.")
     private Integer usuarioId;
+
+    @NotBlank(message = "A mensagem da interação é obrigatória.")
+    @Size(max = 2000, message = "A mensagem deve ter no máximo 2000 caracteres.")
     private String mensagem;
     private String anexoUrl;
 

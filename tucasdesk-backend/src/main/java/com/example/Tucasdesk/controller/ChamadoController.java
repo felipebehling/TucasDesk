@@ -2,8 +2,10 @@ package com.example.Tucasdesk.controller;
 
 import com.example.Tucasdesk.dtos.*;
 import com.example.Tucasdesk.service.ChamadoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -50,7 +52,7 @@ public class ChamadoController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ChamadoResponseDTO criar(@RequestBody ChamadoRequest request) {
+    public ChamadoResponseDTO criar(@Valid @RequestBody ChamadoRequest request) {
         return chamadoService.criar(request);
     }
 
@@ -76,7 +78,7 @@ public class ChamadoController {
     @PatchMapping("/{id}/status")
     public ChamadoResponseDTO atualizarStatus(@PathVariable Integer id, @RequestBody ChamadoUpdateRequest request) {
         if (request.getStatusId() == null) {
-            throw new IllegalArgumentException("O status é obrigatório para atualização parcial.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O status é obrigatório para atualização parcial.");
         }
         return chamadoService.atualizarStatus(id, request.getStatusId());
     }
@@ -91,7 +93,7 @@ public class ChamadoController {
     @PatchMapping("/{id}/prioridade")
     public ChamadoResponseDTO atualizarPrioridade(@PathVariable Integer id, @RequestBody ChamadoUpdateRequest request) {
         if (request.getPrioridadeId() == null) {
-            throw new IllegalArgumentException("A prioridade é obrigatória para atualização parcial.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A prioridade é obrigatória para atualização parcial.");
         }
         return chamadoService.atualizarPrioridade(id, request.getPrioridadeId());
     }
@@ -105,7 +107,7 @@ public class ChamadoController {
      */
     @PostMapping("/{id}/interacoes")
     @ResponseStatus(HttpStatus.CREATED)
-    public InteracaoResponseDTO adicionarInteracao(@PathVariable Integer id, @RequestBody InteracaoRequest request) {
+    public InteracaoResponseDTO adicionarInteracao(@PathVariable Integer id, @Valid @RequestBody InteracaoRequest request) {
         return chamadoService.adicionarInteracao(id, request);
     }
 }
