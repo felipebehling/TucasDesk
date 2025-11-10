@@ -1,0 +1,45 @@
+# Dependency directories
+/node_modules/
+/.pnp/
+.pnp.js
+
+# Build output
+/dist/
+/build/
+/.nuxt/
+/.next/
+
+# Coverage and test artifacts
+/coverage/
+/.nyc_output/
+
+# Version control
+/.git/
+/.github/
+
+# IDE and editor settings
+/.idea/
+/.vscode/
+*.iml
+
+# Local environment files
+.env
+.env.*
+
+# Logs and debug
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Cache directories
+/.cache/
+/.vite/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+.tmp/
+*.swp
