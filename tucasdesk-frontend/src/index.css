@@ -1,11 +1,11 @@
 :root {
-  --bg-primary: #14171a;
-  --text-primary: #ffffff;
-  --text-muted: #a6a6a6;
-  --border-default: #333333;
+  --bg-primary: #ffffff;
+  --text-primary: #14171a;
+  --text-muted: #555555;
+  --border-default: #dddddd;
   --color-primary: #f6851b;
   --color-primary-dark: #cc6c00;
-  --bg-accent: #1e2124;
+  --bg-accent: #f5f5f5;
   --inter-font: "Inter", sans-serif;
   --color-error: #e53e3e;
   line-height: 1.5;
@@ -17,6 +17,14 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme='dark'] {
+  --bg-primary: #14171a;
+  --text-primary: #ffffff;
+  --text-muted: #a6a6a6;
+  --border-default: #333333;
+  --bg-accent: #1e2124;
 }
 
 *,

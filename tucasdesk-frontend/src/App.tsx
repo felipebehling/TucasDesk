@@ -32,32 +32,34 @@ export default function App() {
   const { autenticado, logout, carregando } = useContext(AuthContext);
 
   return (
-    <BrowserRouter>
-      <Suspense fallback={<LoadingOverlay fullscreen message="Carregando páginas..." />}>
-        <Routes>
-          {/* Rotas Públicas (Login/Registro) */}
-          <Route element={<AuthLayout />}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/registro" element={<RegisterPage />} />
-          </Route>
-
-          {/* Rotas Protegidas (Aplicação Principal) */}
-          <Route element={<ProtectedRoute isAuthenticated={autenticado} isLoading={carregando} />}>
-            <Route element={<AppLayout handleLogout={logout} />}>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/chamados" element={<ChamadosPage />} />
-              <Route path="/chamados/:id" element={<ChamadoDetalhePage />} />
-              <Route path="/perfil" element={<PerfilPage />} />
-              <Route path="/usuarios" element={<UsuariosPage />} />
-              <Route path="/categorias" element={<CategoriasPage />} />
+    <ThemeProvider>
+      <BrowserRouter>
+        <Suspense fallback={<LoadingOverlay fullscreen message="Carregando páginas..." />}>
+          <Routes>
+            {/* Rotas Públicas (Login/Registro) */}
+            <Route element={<AuthLayout />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/registro" element={<RegisterPage />} />
             </Route>
-          </Route>
 
-          {/* Rota de fallback caso nenhuma outra corresponda */}
-          <Route path="*" element={<Navigate to={autenticado ? "/" : "/login"} replace />} />
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
+            {/* Rotas Protegidas (Aplicação Principal) */}
+            <Route element={<ProtectedRoute isAuthenticated={autenticado} isLoading={carregando} />}>
+              <Route element={<AppLayout handleLogout={logout} />}>
+                <Route path="/" element={<DashboardPage />} />
+                <Route path="/chamados" element={<ChamadosPage />} />
+                <Route path="/chamados/:id" element={<ChamadoDetalhePage />} />
+                <Route path="/perfil" element={<PerfilPage />} />
+                <Route path="/usuarios" element={<UsuariosPage />} />
+                <Route path="/categorias" element={<CategoriasPage />} />
+              </Route>
+            </Route>
+
+            {/* Rota de fallback caso nenhuma outra corresponda */}
+            <Route path="*" element={<Navigate to={autenticado ? "/" : "/login"} replace />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
