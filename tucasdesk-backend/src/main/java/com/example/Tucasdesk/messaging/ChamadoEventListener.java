@@ -1,11 +1,13 @@
 package com.example.Tucasdesk.messaging;
 
+import com.example.Tucasdesk.messaging.notifier.Notifier;
+import io.awspring.cloud.sqs.annotation.SqsListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
-
-import io.awspring.cloud.sqs.annotation.SqsListener;
+import org.springframework.util.StringUtils;
 
 /**
  * Component responsible for consuming messages from the configured SQS queue.
@@ -16,22 +18,51 @@ public class ChamadoEventListener {
 
     private static final Logger log = LoggerFactory.getLogger(ChamadoEventListener.class);
 
+    private final Notifier notifier;
+
+    public ChamadoEventListener(Notifier notifier) {
+        this.notifier = notifier;
+    }
+
     @SqsListener("${app.aws.messaging.queue-name}")
-    public void onChamadoEvent(ChamadoEventPayload payload) {
+    public void onChamadoEvent(ChamadoEventPayload payload,
+                               @Header(name = "ApproximateReceiveCount", required = false) String receiveCount) {
+        int attempts = parseAttempts(receiveCount);
         if (payload == null) {
-            log.warn("event=chamado_message_received payload=null");
+            log.warn("event=chamado_message_received payload=null attempts={}", attempts);
             return;
         }
-        log.info("event=chamado_message_received type={} chamadoId={} usuarioId={} tecnicoId={}",
+        log.info("event=chamado_message_received type={} chamadoId={} usuarioId={} tecnicoId={} attempts={}",
                 payload.eventType(),
                 payload.chamadoId(),
                 payload.usuarioId(),
-                payload.tecnicoId());
+                payload.tecnicoId(),
+                attempts);
         if (payload.interacao() != null) {
-            log.info("event=chamado_interacao_received chamadoId={} interacaoId={} usuarioId={}",
+            log.info("event=chamado_interacao_received chamadoId={} interacaoId={} usuarioId={} attempts={}",
                     payload.chamadoId(),
                     payload.interacao().interacaoId(),
-                    payload.interacao().usuarioId());
+                    payload.interacao().usuarioId(),
+                    attempts);
+        }
+        try {
+            notifier.notify(payload);
+        } catch (RuntimeException ex) {
+            log.error("event=chamado_notification_error chamadoId={} attempts={} message={}",
+                    payload.chamadoId(), attempts, ex.getMessage(), ex);
+            throw ex;
+        }
+    }
+
+    private int parseAttempts(String receiveCount) {
+        if (!StringUtils.hasText(receiveCount)) {
+            return 1;
+        }
+        try {
+            return Integer.parseInt(receiveCount);
+        } catch (NumberFormatException ex) {
+            log.warn("event=chamado_receive_count_invalid value={}", receiveCount, ex);
+            return 1;
         }
     }
 }
