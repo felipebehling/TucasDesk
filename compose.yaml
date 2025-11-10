@@ -42,7 +42,6 @@ services:
   frontend:
     build:
       context: ./tucasdesk-frontend
-      dockerfile: dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL}
     container_name: tucasdesk-frontend
