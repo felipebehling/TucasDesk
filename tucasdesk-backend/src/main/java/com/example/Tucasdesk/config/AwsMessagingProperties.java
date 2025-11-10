@@ -9,9 +9,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class AwsMessagingProperties {
 
     /**
-     * SNS topic ARN that will receive ticket related notifications.
+     * General fallback topic ARN used when a specific mapping is not provided.
      */
     private String topicArn;
+
+    /**
+     * Collection of ticket related topics.
+     */
+    private final Topics topics = new Topics();
 
     /**
      * SQS queue name subscribed to the SNS topic or used directly by the application.
@@ -26,11 +31,47 @@ public class AwsMessagingProperties {
         this.topicArn = topicArn;
     }
 
+    public Topics getTopics() {
+        return topics;
+    }
+
     public String getQueueName() {
         return queueName;
     }
 
     public void setQueueName(String queueName) {
         this.queueName = queueName;
+    }
+
+    /**
+     * Nested configuration that maps ticket events to dedicated SNS topics.
+     */
+    public static class Topics {
+
+        /**
+         * Topic ARN used for {@code TicketCreated} notifications.
+         */
+        private String ticketCreatedArn;
+
+        /**
+         * Topic ARN used for {@code TicketClosed} notifications.
+         */
+        private String ticketClosedArn;
+
+        public String getTicketCreatedArn() {
+            return ticketCreatedArn;
+        }
+
+        public void setTicketCreatedArn(String ticketCreatedArn) {
+            this.ticketCreatedArn = ticketCreatedArn;
+        }
+
+        public String getTicketClosedArn() {
+            return ticketClosedArn;
+        }
+
+        public void setTicketClosedArn(String ticketClosedArn) {
+            this.ticketClosedArn = ticketClosedArn;
+        }
     }
 }

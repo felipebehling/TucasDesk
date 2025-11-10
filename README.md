@@ -10,6 +10,28 @@ TucasDesk é uma plataforma open-source de helpdesk que centraliza o atendimento
 
 TucasDesk oferece uma experiência completa para usuários, técnicos e administradores. Com ele é possível registrar, acompanhar e encerrar chamados em poucos cliques, garantindo transparência em todo o ciclo de suporte.
 
+### Arquitetura de notificações
+
+A ilustração abaixo consolida o fluxo de dados entre frontend, serviços síncronos do Spring Boot, camada assíncrona na AWS e integrações externas utilizadas para autenticação e notificações. Ela evidencia como os eventos `TicketCreated` e `TicketClosed` são publicados em tópicos SNS dedicados, permanecendo compatíveis com a fila legada consumida pelo serviço `Notifier` e permitindo fan-out para provedores como o SES.
+
+
+```mermaid
+flowchart LR
+    client[Cliente] --> frontend[Frontend React]
+    frontend --> api[API Spring Boot]
+    api --> db[(MariaDB)]
+    api --> snsCreated[SNS TicketCreated]
+    api --> snsClosed[SNS TicketClosed]
+    snsCreated --> queue[SQS legada]
+    snsClosed --> queue
+    queue --> notifier[Serviço Notifier]
+    snsCreated --> ses[AWS SES]
+    snsClosed --> ses
+    frontend --> cognito[AWS Cognito]
+```
+
+A jornada começa com o cliente acessando o frontend, que aciona interceptadores expostos pela API. O backend valida e persiste os dados no MariaDB e, conforme o status do chamado, publica os eventos em SNS. A partir daí, o template cria tanto o fan-out para a fila SQS consumida pelo `Notifier` quanto integrações externas — por exemplo, Cognito para autenticação e SES para e-mails — garantindo que cada mudança no ciclo de vida do ticket alcance os consumidores apropriados.
+
 ### Principais Recursos
 
 - **Gestão de chamados:** criação, atualização, categorização e encerramento.
@@ -148,10 +170,14 @@ O backend lê as configurações sensíveis a partir de variáveis de ambiente. 
 | `AWS_COGNITO_ISSUER_URI` | (Opcional) Issuer URI público do User Pool. | *(vazio)* |
 | `AWS_COGNITO_JWK_SET_URI` | (Opcional) Endpoint JWKS do Cognito. | *(vazio)* |
 | `AWS_REGION` | Região padrão da AWS para integrações de mensageria. | `us-east-1` |
-| `AWS_SNS_TOPIC_ARN` | ARN do tópico SNS utilizado para envio de mensagens. | *(vazio)* |
-| `AWS_SQS_QUEUE_NAME` | Nome da fila SQS que receberá as mensagens. | *(vazio)* |
+| `AWS_SNS_TOPIC_ARN` | ARN genérico utilizado como fallback quando tópicos dedicados não estão configurados. | *(vazio)* |
+| `AWS_SQS_QUEUE_NAME` | Nome da fila SQS que receberá as mensagens legadas. | *(vazio)* |
+| `AWS_SNS_TICKET_CREATED_TOPIC_ARN` | ARN do tópico SNS exclusivo para eventos `TicketCreated`. | *(vazio)* |
+| `AWS_SNS_TICKET_CLOSED_TOPIC_ARN` | ARN do tópico SNS exclusivo para eventos `TicketClosed`. | *(vazio)* |
 
 > 💡 Crie um arquivo `.env` na raiz do projeto (pode usar `.env.example` como base) para configurar as variáveis do Cognito (`AWS_COGNITO_REGION`, `AWS_COGNITO_USER_POOL_ID` e `AWS_COGNITO_APP_CLIENT_ID`) antes de subir os containers com Docker Compose. Ajuste variáveis como `SPRING_DATASOURCE_URL` e `DATABASE_URL` para o formato `mariadb` (por exemplo, `jdbc:mariadb://...`). Se ainda precisar rodar com MySQL por legado, adapte esses valores manualmente.
+
+Para provisionar rapidamente os tópicos SNS dedicados e a role com permissão de publicação, utilize o template CloudFormation localizado em `infra/aws/ticket-notifications.yaml`.
 
 ### Executando o frontend localmente (opcional)
 

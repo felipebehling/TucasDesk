@@ -102,6 +102,9 @@ public class ChamadoService {
                 salvo.getPrioridade() != null ? salvo.getPrioridade().getIdPrioridade() : null,
                 salvo.getStatus() != null ? salvo.getStatus().getIdStatus() : null);
         chamadoMessagingService.publishChamadoCreatedEvent(salvo);
+        if (isChamadoFechado(salvo)) {
+            chamadoMessagingService.publishChamadoClosedEvent(salvo);
+        }
         return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo), carregarHistoricoStatus(salvo));
     }
 
@@ -114,6 +117,7 @@ public class ChamadoService {
      */
     public ChamadoResponseDTO atualizar(Integer id, ChamadoUpdateRequest request) {
         Chamado chamado = obterChamado(id);
+        boolean estavaFechado = isChamadoFechado(chamado);
         if (request.getTitulo() != null) {
             chamado.setTitulo(request.getTitulo());
         }
@@ -143,6 +147,9 @@ public class ChamadoService {
             chamadoMessagingService.publishChamadoStatusChangedEvent(salvo);
         }
         chamadoMessagingService.publishChamadoUpdatedEvent(salvo);
+        if (!estavaFechado && isChamadoFechado(salvo)) {
+            chamadoMessagingService.publishChamadoClosedEvent(salvo);
+        }
         return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo), carregarHistoricoStatus(salvo));
     }
 
@@ -155,6 +162,7 @@ public class ChamadoService {
      */
     public ChamadoResponseDTO atualizarStatus(Integer id, Integer statusId) {
         Chamado chamado = obterChamado(id);
+        boolean estavaFechado = isChamadoFechado(chamado);
         Status novoStatus = buscarStatus(statusId);
         validarTransicaoStatus(chamado.getStatus(), novoStatus);
         chamado.setStatus(novoStatus);
@@ -162,6 +170,9 @@ public class ChamadoService {
         Chamado salvo = chamadoRepository.save(chamado);
         registrarHistoricoStatus(salvo, salvo.getStatus());
         chamadoMessagingService.publishChamadoStatusChangedEvent(salvo);
+        if (!estavaFechado && isChamadoFechado(salvo)) {
+            chamadoMessagingService.publishChamadoClosedEvent(salvo);
+        }
         return ChamadoMapper.toChamadoResponseDTO(salvo, carregarInteracoes(salvo), carregarHistoricoStatus(salvo));
     }
 
@@ -267,6 +278,11 @@ public class ChamadoService {
         } else {
             chamado.setDataFechamento(null);
         }
+    }
+
+    private boolean isChamadoFechado(Chamado chamado) {
+        Status status = chamado.getStatus();
+        return status != null && status.getNome() != null && status.getNome().equalsIgnoreCase("Fechado");
     }
 
     private void validarTransicaoStatus(Status statusAtual, Status novoStatus) {
