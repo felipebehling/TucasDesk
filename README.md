@@ -10,19 +10,50 @@ TucasDesk é uma plataforma open-source de helpdesk que centraliza o atendimento
 
 TucasDesk oferece uma experiência completa para usuários, técnicos e administradores. Com ele é possível registrar, acompanhar e encerrar chamados em poucos cliques, garantindo transparência em todo o ciclo de suporte.
 
-### Arquitetura de notificações
+## Arquitetura do Sistema
 
-A ilustração abaixo consolida o fluxo de dados entre frontend, serviços síncronos do Spring Boot, camada assíncrona na AWS e integrações externas utilizadas para autenticação e notificações. Ela evidencia como os eventos `TicketCreated` e `TicketClosed` são publicados em tópicos SNS dedicados, permanecendo compatíveis com a fila legada consumida pelo serviço `Notifier` e permitindo fan-out para provedores como o SES.
+A arquitetura do TucasDesk foi desenhada para ser escalável, desacoplada e resiliente, combinando serviços síncronos e assíncronos para otimizar a experiência do usuário e a eficiência operacional.
 
+![Arquitetura do TucasDesk](docs/images/architecture-diagram.jpeg)
 
-A jornada começa com o cliente acessando o frontend, que aciona interceptadores expostos pela API. O backend valida e persiste os dados no MariaDB e, conforme o status do chamado, publica os eventos em SNS. A partir daí, o template cria tanto o fan-out para a fila SQS consumida pelo `Notifier` quanto integrações externas — por exemplo, Cognito para autenticação e SES para e-mails — garantindo que cada mudança no ciclo de vida do ticket alcance os consumidores apropriados.
+O diagrama abaixo detalha os principais componentes e o fluxo de comunicação entre eles:
 
-### Principais Recursos
+### Componentes Principais
 
-- **Gestão de chamados:** criação, atualização, categorização e encerramento.
-- **Autenticação segura:** login, registro e perfis com controle de acesso.
-- **Dashboard em tempo real:** indicadores de chamados abertos, fechados e tarefas pendentes.
-- **Administração de usuários:** gerenciamento de permissões e perfis.
+1.  **Frontend/Cliente (React + TypeScript)**:
+    *   Interface web onde o usuário (cliente ou técnico) interage com o sistema.
+    *   Responsável por consumir os endpoints da API para criar, visualizar e gerenciar chamados e interações.
+    *   Realiza a validação de autenticação com a API, que delega a verificação para o AWS Cognito.
+
+2.  **API e Serviços Síncronos (Spring Boot)**:
+    *   **Endpoint-Tickets**: recebe requisições para criar (`TicketCreated`), fechar (`TicketClosed`) ou interagir (`TicketInteracted`) em um chamado.
+    *   **Service-Tickets e Service-Interações**: contêm a lógica de negócio principal. Eles orquestram as operações de CRUD (criar, ler, atualizar, deletar) no banco de dados e publicam eventos para notificação.
+    *   **Publica Evento**: ao criar, fechar ou adicionar uma interação a um chamado, a API publica eventos (ex: `TicketCreated`, `TicketClosed`) em um tópico do AWS SNS. Essa abordagem desacopla a API da lógica de notificação.
+
+3.  **Middleware e Serviços Assíncronos (AWS)**:
+    *   **AWS SNS (Simple Notification Service)**: atua como um tópico de distribuição de eventos. A API publica mensagens no SNS, que as encaminha para todas as filas SQS inscritas.
+    *   **AWS SQS (Simple Queue Service)**: fila que recebe os eventos do SNS. O `Service: Notifier` consome mensagens desta fila para processá-las de forma assíncrona. Isso garante que, mesmo em caso de falha no serviço de notificação, a mensagem não será perdida.
+    *   **Service: Notifier**: serviço que processa as mensagens da fila SQS. Ele é responsável por formatar e enviar e-mails utilizando o AWS SES.
+
+4.  **Persistência (MariaDB)**:
+    *   Banco de dados relacional onde todos os dados de chamados, usuários e interações são armazenados. As operações de CRUD são executadas pela API Spring Boot.
+
+5.  **APIs Externas**:
+    *   **AWS Cognito**: serviço de gerenciamento de identidade da AWS. A API o utiliza para validar os tokens de autenticação (`JWT`) enviados pelo frontend, garantindo que apenas usuários autenticados acessem os recursos.
+    *   **AWS SES (Simple Email Service)**: serviço de envio de e-mails da AWS. O `Service: Notifier` o utiliza para enviar notificações por e-mail quando eventos importantes ocorrem (ex: confirmação de abertura de chamado).
+
+### Fluxo de um Novo Chamado
+
+1.  O usuário cria um novo chamado no **Frontend**.
+2.  O **Frontend** envia uma requisição para o **Endpoint-Ticket** na API Spring Boot.
+3.  O **Service-Tickets** processa a requisição, salva os dados no **MariaDB** (operação de CRUD) e publica um evento `TicketCreated` no tópico **AWS SNS**.
+4.  O **AWS SNS** distribui o evento para a fila **AWS SQS**.
+5.  O **Service: Notifier** consome a mensagem da fila SQS.
+6.  O **Service: Notifier** utiliza o **AWS SES** para enviar um e-mail de notificação ao usuário.
+7.  O **Frontend** recebe a resposta da API e atualiza a interface para o usuário.
+
+Este design garante que a API principal permaneça rápida e responsiva, enquanto tarefas mais lentas, como o envio de e-mails, são executadas em segundo plano de forma confiável.
+
 
 ### Estrutura Essencial do Projeto
 
