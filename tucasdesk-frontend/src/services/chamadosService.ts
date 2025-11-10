@@ -1,4 +1,4 @@
-import api from "../api/api";
+import api, { type ApiRequestConfig } from "../api/api";
 import type {
   ChamadoResponse,
   CreateChamadoPayload,
@@ -9,50 +9,109 @@ import type {
 
 const resource = "/chamados" as const;
 
-async function listar(): Promise<ChamadoResponse[]> {
-  const { data } = await api.get<ChamadoResponse[]>(resource);
+function withSuccessMessage(
+  defaultMessage: string,
+  config?: ApiRequestConfig,
+): ApiRequestConfig | undefined {
+  if (!config) {
+    return { successMessage: defaultMessage };
+  }
+  if (config.successMessage) {
+    return config;
+  }
+  return {
+    ...config,
+    successMessage: defaultMessage,
+  };
+}
+
+async function listar(config?: ApiRequestConfig): Promise<ChamadoResponse[]> {
+  const { data } = await api.get<ChamadoResponse[]>(resource, config);
   return data;
 }
 
-async function buscarPorId(id: number): Promise<ChamadoResponse> {
-  const { data } = await api.get<ChamadoResponse>(`${resource}/${id}`);
+async function buscarPorId(id: number, config?: ApiRequestConfig): Promise<ChamadoResponse> {
+  const { data } = await api.get<ChamadoResponse>(`${resource}/${id}`, config);
   return data;
 }
 
-async function criar(payload: CreateChamadoPayload): Promise<ChamadoResponse> {
-  const { data } = await api.post<ChamadoResponse>(resource, payload);
+async function criar(
+  payload: CreateChamadoPayload,
+  config?: ApiRequestConfig,
+): Promise<ChamadoResponse> {
+  const { data } = await api.post<ChamadoResponse>(
+    resource,
+    payload,
+    withSuccessMessage("Chamado criado com sucesso!", config),
+  );
   return data;
 }
 
-async function atualizar(id: number, payload: UpdateChamadoPayload): Promise<ChamadoResponse> {
-  const { data } = await api.put<ChamadoResponse>(`${resource}/${id}`, payload);
+async function atualizar(
+  id: number,
+  payload: UpdateChamadoPayload,
+  config?: ApiRequestConfig,
+): Promise<ChamadoResponse> {
+  const { data } = await api.put<ChamadoResponse>(
+    `${resource}/${id}`,
+    payload,
+    withSuccessMessage("Chamado atualizado com sucesso.", config),
+  );
   return data;
 }
 
-async function atualizarStatus(id: number, statusId: number): Promise<ChamadoResponse> {
-  const { data } = await api.patch<ChamadoResponse>(`${resource}/${id}/status`, {
-    statusId,
-  });
+async function atualizarStatus(
+  id: number,
+  statusId: number,
+  config?: ApiRequestConfig,
+): Promise<ChamadoResponse> {
+  const { data } = await api.patch<ChamadoResponse>(
+    `${resource}/${id}/status`,
+    {
+      statusId,
+    },
+    withSuccessMessage("Status atualizado com sucesso.", config),
+  );
   return data;
 }
 
-async function atualizarPrioridade(id: number, prioridadeId: number): Promise<ChamadoResponse> {
-  const { data } = await api.patch<ChamadoResponse>(`${resource}/${id}/prioridade`, {
-    prioridadeId,
-  });
+async function atualizarPrioridade(
+  id: number,
+  prioridadeId: number,
+  config?: ApiRequestConfig,
+): Promise<ChamadoResponse> {
+  const { data } = await api.patch<ChamadoResponse>(
+    `${resource}/${id}/prioridade`,
+    {
+      prioridadeId,
+    },
+    withSuccessMessage("Prioridade atualizada com sucesso.", config),
+  );
   return data;
 }
 
 async function adicionarInteracao(
   id: number,
   payload: CreateInteracaoPayload,
+  config?: ApiRequestConfig,
 ): Promise<InteracaoResponse> {
-  const { data } = await api.post<InteracaoResponse>(`${resource}/${id}/interacoes`, payload);
+  const { data } = await api.post<InteracaoResponse>(
+    `${resource}/${id}/interacoes`,
+    payload,
+    withSuccessMessage("Interação registrada com sucesso.", config),
+  );
   return data;
 }
 
-async function removerInteracao(id: number, interacaoId: number): Promise<void> {
-  await api.delete(`${resource}/${id}/interacoes/${interacaoId}`);
+async function removerInteracao(
+  id: number,
+  interacaoId: number,
+  config?: ApiRequestConfig,
+): Promise<void> {
+  await api.delete(
+    `${resource}/${id}/interacoes/${interacaoId}`,
+    withSuccessMessage("Interação excluída com sucesso.", config),
+  );
 }
 
 export const ChamadosService = {
