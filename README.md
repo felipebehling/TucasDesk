@@ -140,6 +140,50 @@ Resumo das credenciais padrão sugeridas:
 
 > 📌 O Docker Compose é o caminho principal para executar a stack completa. A execução local (sem containers) é opcional e está detalhada na seção a seguir apenas para quem precisar personalizar ou depurar serviços individualmente.
 
+## Arquitetura do Sistema
+
+A arquitetura do TucasDesk foi desenhada para ser escalável, desacoplada e resiliente, combinando serviços síncronos e assíncronos para otimizar a experiência do usuário e a eficiência operacional.
+
+![Arquitetura do TucasDesk](docs/images/architecture-diagram.jpeg)
+
+O diagrama abaixo detalha os principais componentes e o fluxo de comunicação entre eles:
+
+### Componentes Principais
+
+1.  **Frontend/Cliente (React + TypeScript)**:
+    *   Interface web onde o usuário (cliente ou técnico) interage com o sistema.
+    *   Responsável por consumir os endpoints da API para criar, visualizar e gerenciar chamados e interações.
+    *   Realiza a validação de autenticação com a API, que delega a verificação para o AWS Cognito.
+
+2.  **API e Serviços Síncronos (Spring Boot)**:
+    *   **Endpoint-Tickets**: recebe requisições para criar (`TicketCreated`), fechar (`TicketClosed`) ou interagir (`TicketInteracted`) em um chamado.
+    *   **Service-Tickets e Service-Interações**: contêm a lógica de negócio principal. Eles orquestram as operações de CRUD (criar, ler, atualizar, deletar) no banco de dados e publicam eventos para notificação.
+    *   **Publica Evento**: ao criar, fechar ou adicionar uma interação a um chamado, a API publica eventos (ex: `TicketCreated`, `TicketClosed`) em um tópico do AWS SNS. Essa abordagem desacopla a API da lógica de notificação.
+
+3.  **Middleware e Serviços Assíncronos (AWS)**:
+    *   **AWS SNS (Simple Notification Service)**: atua como um tópico de distribuição de eventos. A API publica mensagens no SNS, que as encaminha para todas as filas SQS inscritas.
+    *   **AWS SQS (Simple Queue Service)**: fila que recebe os eventos do SNS. O `Service: Notifier` consome mensagens desta fila para processá-las de forma assíncrona. Isso garante que, mesmo em caso de falha no serviço de notificação, a mensagem não será perdida.
+    *   **Service: Notifier**: serviço que processa as mensagens da fila SQS. Ele é responsável por formatar e enviar e-mails utilizando o AWS SES.
+
+4.  **Persistência (MariaDB)**:
+    *   Banco de dados relacional onde todos os dados de chamados, usuários e interações são armazenados. As operações de CRUD são executadas pela API Spring Boot.
+
+5.  **APIs Externas**:
+    *   **AWS Cognito**: serviço de gerenciamento de identidade da AWS. A API o utiliza para validar os tokens de autenticação (`JWT`) enviados pelo frontend, garantindo que apenas usuários autenticados acessem os recursos.
+    *   **AWS SES (Simple Email Service)**: serviço de envio de e-mails da AWS. O `Service: Notifier` o utiliza para enviar notificações por e-mail quando eventos importantes ocorrem (ex: confirmação de abertura de chamado).
+
+### Fluxo de um Novo Chamado
+
+1.  O usuário cria um novo chamado no **Frontend**.
+2.  O **Frontend** envia uma requisição para o **Endpoint-Ticket** na API Spring Boot.
+3.  O **Service-Tickets** processa a requisição, salva os dados no **MariaDB** (operação de CRUD) e publica um evento `TicketCreated` no tópico **AWS SNS**.
+4.  O **AWS SNS** distribui o evento para a fila **AWS SQS**.
+5.  O **Service: Notifier** consome a mensagem da fila SQS.
+6.  O **Service: Notifier** utiliza o **AWS SES** para enviar um e-mail de notificação ao usuário.
+7.  O **Frontend** recebe a resposta da API e atualiza a interface para o usuário.
+
+Este design garante que a API principal permaneça rápida e responsiva, enquanto tarefas mais lentas, como o envio de e-mails, são executadas em segundo plano de forma confiável.
+
 ### Executando o backend localmente (opcional)
 
 ```sh
