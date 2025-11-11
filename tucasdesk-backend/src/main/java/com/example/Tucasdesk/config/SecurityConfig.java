@@ -61,6 +61,7 @@ public class SecurityConfig {
                                 "USUARIO")
                         .requestMatchers(HttpMethod.PUT, "/chamados/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
                         .requestMatchers(HttpMethod.PATCH, "/chamados/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
+                        .requestMatchers(HttpMethod.DELETE, "/chamados/**").hasAnyRole("ADMINISTRADOR", "TECNICO", "USUARIO")
                         .anyRequest().authenticated())
                 .addFilterBefore(cognitoAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
