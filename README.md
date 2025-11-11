@@ -170,6 +170,16 @@ aws cloudformation deploy \
 
 Ao final da criação copie os outputs `UserPoolId`, `UserPoolClientId` e, se tiver configurado `DomainPrefix`, também `UserPoolDomainUrl` para as variáveis `AWS_COGNITO_USER_POOL_ID`, `AWS_COGNITO_APP_CLIENT_ID` e `AWS_COGNITO_ISSUER_URI` (ou `AWS_COGNITO_JWK_SET_URI`). Ajuste os parâmetros `CallbackUrls` e `LogoutUrls` conforme os domínios do frontend para garantir que o Hosted UI aceite o fluxo OAuth configurado.
 
+### Habilitando o fluxo de refresh de tokens
+
+Para que o endpoint `POST /auth/refresh` funcione corretamente é necessário configurar o App Client do Cognito com suporte à renovação de sessões. Garanta os seguintes pontos no User Pool utilizado pelo TucasDesk:
+
+1. **Fluxo `ALLOW_REFRESH_TOKEN_AUTH` habilitado** – na configuração do App Client marque a opção *Enable username password auth for admin APIs for authentication (ALLOW_ADMIN_USER_PASSWORD_AUTH, ALLOW_REFRESH_TOKEN_AUTH)* ou ajuste o template CloudFormation para incluir o fluxo.
+2. **Validade do Refresh Token** – defina o tempo de expiração conforme a política de segurança da organização (padrão sugerido: 30 dias). O frontend utiliza o refresh token armazenado para renovar o `idToken`/`accessToken` antes de expirar.
+3. **Variáveis de ambiente** – informe no backend os valores `AWS_COGNITO_REGION`, `AWS_COGNITO_USER_POOL_ID`, `AWS_COGNITO_APP_CLIENT_ID`, `AWS_COGNITO_ISSUER_URI` (opcional) e `AWS_COGNITO_JWK_SET_URI` (opcional). O frontend consome o endpoint `/auth/refresh` automaticamente quando recebe `401` do backend, portanto mantenha as URLs (`VITE_API_URL`) apontando para a instância correta.
+
+Com essa configuração o backend poderá trocar o refresh token por novos `idToken`/`accessToken`, mantendo a sessão do usuário alinhada entre frontend e Cognito.
+
 ## Arquitetura do Sistema
 
 A arquitetura do TucasDesk foi desenhada para ser escalável, desacoplada e resiliente, combinando serviços síncronos e assíncronos para otimizar a experiência do usuário e a eficiência operacional.

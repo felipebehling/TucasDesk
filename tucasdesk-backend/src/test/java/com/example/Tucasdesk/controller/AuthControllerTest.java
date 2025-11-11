@@ -1,12 +1,16 @@
 package com.example.Tucasdesk.controller;
 
 import com.example.Tucasdesk.config.SecurityConfig;
+import com.example.Tucasdesk.dtos.RefreshTokenRequest;
 import com.example.Tucasdesk.dtos.RegisterRequest;
 import com.example.Tucasdesk.dtos.UsuarioResponseDTO;
 import com.example.Tucasdesk.repository.UsuarioRepository;
 import com.example.Tucasdesk.security.CognitoAuthenticationFilter;
 import com.example.Tucasdesk.security.CognitoService;
+import com.example.Tucasdesk.security.CognitoAuthenticationResult;
 import com.example.Tucasdesk.service.UsuarioService;
+import com.example.Tucasdesk.model.Usuario;
+import com.example.Tucasdesk.model.Perfil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -147,4 +151,71 @@ class AuthControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("A confirmação da senha deve coincidir com a senha informada."));
     }
+
+    @Test
+    @DisplayName("Deve renovar os tokens com sucesso")
+    void deveRenovarTokensComSucesso() throws Exception {
+        RefreshTokenRequest request = new RefreshTokenRequest("valid-refresh-token");
+
+        Usuario usuario = new Usuario();
+        usuario.setIdUsuario(42);
+        usuario.setNome("Usuário Teste");
+        usuario.setEmail("teste@example.com");
+        Perfil perfil = new Perfil();
+        perfil.setNome("Usuário");
+        usuario.setPerfil(perfil);
+
+        when(usuarioRepository.findByEmail("teste@example.com")).thenReturn(Optional.of(usuario));
+
+        CognitoAuthenticationResult authenticationResult = new CognitoAuthenticationResult(
+                "novo-id-token",
+                "novo-access-token",
+                "novo-refresh-token",
+                "teste@example.com"
+        );
+
+        when(cognitoService.refreshToken("valid-refresh-token")).thenReturn(authenticationResult);
+
+        mockMvc.perform(post("/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("novo-id-token"))
+                .andExpect(jsonPath("$.accessToken").value("novo-access-token"))
+                .andExpect(jsonPath("$.refreshToken").value("novo-refresh-token"))
+                .andExpect(jsonPath("$.usuario.email").value("teste@example.com"));
+    }
+
+    @Test
+    @DisplayName("Não deve renovar quando o refresh token é inválido")
+    void naoDeveRenovarQuandoRefreshTokenInvalido() throws Exception {
+        mockMvc.perform(post("/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Informe um refresh token válido."));
+    }
+
+    @Test
+    @DisplayName("Não deve renovar quando o usuário não existe mais")
+    void naoDeveRenovarQuandoUsuarioNaoExiste() throws Exception {
+        RefreshTokenRequest request = new RefreshTokenRequest("valid-refresh-token");
+
+        CognitoAuthenticationResult authenticationResult = new CognitoAuthenticationResult(
+                "novo-id-token",
+                "novo-access-token",
+                "novo-refresh-token",
+                "inexistente@example.com"
+        );
+
+        when(cognitoService.refreshToken("valid-refresh-token")).thenReturn(authenticationResult);
+        when(usuarioRepository.findByEmail("inexistente@example.com")).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Usuário não encontrado."));
+    }
+
 }

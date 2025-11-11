@@ -5,6 +5,7 @@ import com.example.Tucasdesk.dtos.ErrorResponseDTO;
 import com.example.Tucasdesk.dtos.LoginDTO;
 import com.example.Tucasdesk.dtos.LoginResponseDTO;
 import com.example.Tucasdesk.dtos.RegisterRequest;
+import com.example.Tucasdesk.dtos.RefreshTokenRequest;
 import com.example.Tucasdesk.dtos.UsuarioResponseDTO;
 import com.example.Tucasdesk.mappers.UsuarioMapper;
 import com.example.Tucasdesk.model.Usuario;
@@ -143,6 +144,29 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        try {
+            CognitoAuthenticationResult tokens = cognitoService.refreshToken(refreshTokenRequest.getRefreshToken());
+            AuthenticatedUserDTO usuarioDTO = resolveUsuarioFromUsername(tokens.username());
+            LoginResponseDTO responseDTO = new LoginResponseDTO(
+                    tokens.idToken(),
+                    tokens.accessToken(),
+                    tokens.refreshToken(),
+                    usuarioDTO);
+            log.info("event=auth_refresh status=success email={}", usuarioDTO.getEmail());
+            return ResponseEntity.ok(responseDTO);
+        } catch (ResponseStatusException ex) {
+            HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
+            if (status == null) {
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
+            String message = ex.getReason() != null ? ex.getReason() : "Não foi possível renovar o token.";
+            log.warn("event=auth_refresh status=error message=\"{}\"", message, ex);
+            return ResponseEntity.status(ex.getStatusCode()).body(new ErrorResponseDTO(message, status.name()));
+        }
+    }
+
     /**
      * Retrieves the currently authenticated user's data.
      *
@@ -185,5 +209,15 @@ public class AuthController {
 
     private boolean isStrongPassword(String senha) {
         return senha != null && STRONG_PASSWORD_PATTERN.matcher(senha).matches();
+    }
+
+    private AuthenticatedUserDTO resolveUsuarioFromUsername(String username) {
+        if (username == null || username.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não encontrado.");
+        }
+
+        return usuarioRepository.findByEmail(username)
+                .map(UsuarioMapper::toAuthenticatedUserDTO)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não encontrado."));
     }
 }
