@@ -267,36 +267,36 @@ npm run lint
 4. Abra novos chamados ou gerencie os existentes pelo menu "Chamados".
 5. Administre usuários e permissões pela página "Usuários" (perfil administrador).
 
-## Configuration Tutorial
+## Credentials Configuration Tutorial
 
-To run TucasDesk on your own machine, you'll need to configure a few credentials for the database, AWS services, and the API.
+To run TucasDesk on your local machine, you need to configure credentials for the database (MariaDB), AWS services, and the API. Follow this step-by-step guide to get everything set up.
 
 ### 1. Create your `.env` file
 
-The easiest way to get started is by copying the example file:
+The first step is to create a `.env` file in the root of the project. You can do this by copying the example file:
 
 ```sh
 cp .env.example .env
 ```
 
-This file will be used by Docker Compose to set the environment variables for the backend and database services.
+This file is used by Docker Compose to manage the environment variables for the backend and database services.
 
 ### 2. Database Credentials (MariaDB)
 
-You need to provide credentials for the MariaDB database. Open your `.env` file and set the following variables:
+Next, you need to configure the credentials for your MariaDB database. Open the `.env` file and set the following variables:
 
 - `DB_ROOT_PASSWORD`: The root password for your MariaDB instance.
-- `DB_NAME`: The name of the database for TucasDesk.
-- `DB_USER`: The username for the TucasDesk application to connect to the database.
+- `DB_NAME`: The name of the database TucasDesk will use.
+- `DB_USER`: The username for the TucasDesk application to connect with.
 - `DB_PASSWORD`: The password for the application user.
-- `DATABASE_URL`: The full database connection URL. Example: `mariadb://user:password@localhost:3307/tucasdesk`
-- `SPRING_DATASOURCE_URL`: The JDBC connection URL for the backend. Example: `jdbc:mariadb://localhost:3307/tucasdesk`
-- `SPRING_DATASOURCE_USERNAME`: The same as `DB_USER`.
-- `SPRING_DATASOURCE_PASSWORD`: The same as `DB_PASSWORD`.
+- `DATABASE_URL`: The full database connection URL. For example: `mariadb://user:password@localhost:3307/tucasdesk`.
+- `SPRING_DATASOURCE_URL`: The JDBC connection URL for the backend. For example: `jdbc:mariadb://localhost:3307/tucasdesk`.
+- `SPRING_DATASOURCE_USERNAME`: Should be the same as `DB_USER`.
+- `SPRING_DATASOURCE_PASSWORD`: Should be the same as `DB_PASSWORD`.
 
 ### 3. AWS Credentials (Cognito and SES)
 
-TucasDesk uses AWS Cognito for user authentication and AWS SES for sending email notifications.
+TucasDesk uses AWS Cognito for user authentication and AWS SES for email notifications.
 
 #### AWS Cognito
 
@@ -304,36 +304,36 @@ TucasDesk uses AWS Cognito for user authentication and AWS SES for sending email
 - `AWS_COGNITO_USER_POOL_ID`: The ID of your Cognito User Pool.
 - `AWS_COGNITO_APP_CLIENT_ID`: The App Client ID for your Cognito User Pool.
 
-You can optionally set `AWS_COGNITO_ISSUER_URI` and `AWS_COGNITO_JWK_SET_URI` if you have custom URIs.
+You can also set `AWS_COGNITO_ISSUER_URI` and `AWS_COGNITO_JWK_SET_URI` if you have custom URIs.
 
 #### AWS SES (for email notifications)
 
-If you want to enable email notifications, you need to configure AWS SES:
+If you plan to use email notifications, configure AWS SES with the following:
 
 - `AWS_SES_ENABLED`: Set to `true` to enable email notifications.
 - `AWS_SES_REGION`: The AWS region where your SES is configured.
-- `AWS_SES_FROM_ADDRESS`: The email address that will be used as the sender.
-- `AWS_SES_TO_ADDRESSES`: A comma-separated list of email addresses that will receive notifications.
+- `AWS_SES_FROM_ADDRESS`: The sender's email address.
+- `AWS_SES_TO_ADDRESSES`: A comma-separated list of recipient email addresses for notifications.
 - `AWS_ACCESS_KEY_ID`: Your AWS access key.
 - `AWS_SECRET_ACCESS_KEY`: Your AWS secret access key.
 
-**Important:** For security reasons, it's recommended to use IAM roles instead of access keys when running in a production environment.
+**Note:** For better security, it is recommended to use IAM roles instead of access keys, especially in a production environment.
 
 ### 4. Frontend API URL
 
-The frontend needs to know the URL of the backend API.
+The frontend needs the URL of the backend API to communicate with it.
 
-1.  Copy the example environment file for the frontend:
+1.  Create a `.env` file for the frontend by copying the example file:
 
     ```sh
     cp tucasdesk-frontend/.env.example tucasdesk-frontend/.env
     ```
 
 2.  Open `tucasdesk-frontend/.env` and set the `VITE_API_URL`.
-    -   If you are running the backend with Docker Compose, the default value `http://tucasdesk-backend:8080` should work.
-    -   If you are running the backend locally, you should change it to `http://localhost:8080`.
+    -   If you are running the backend with Docker Compose, the default value (`http://tucasdesk-backend:8080`) should work.
+    -   If you are running the backend locally, change it to `http://localhost:8080`.
 
-After configuring these variables, you can run the application using Docker Compose as described in the "How to Start" section.
+With these configurations in place, you can run the application using Docker Compose as described in the "How to Start" section.
 
 ## Como contribuir
 
