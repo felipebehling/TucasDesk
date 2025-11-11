@@ -1,11 +1,13 @@
 package com.example.Tucasdesk.security;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.Tucasdesk.config.AwsCognitoProperties;
@@ -20,6 +22,9 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminSetUse
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.GetUserRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.GetUserResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.InvalidPasswordException;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.MessageActionType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.NotAuthorizedException;
@@ -47,14 +52,14 @@ public class CognitoService {
             AdminInitiateAuthResponse response = cognitoClient.adminInitiateAuth(AdminInitiateAuthRequest.builder()
                     .userPoolId(properties.getUserPoolId())
                     .clientId(properties.getAppClientId())
-                    .authFlow("ADMIN_USER_PASSWORD_AUTH")
+                    .authFlow(AuthFlowType.ADMIN_USER_PASSWORD_AUTH)
                     .authParameters(Map.of("USERNAME", username, "PASSWORD", password))
                     .build());
             AuthenticationResultType result = response.authenticationResult();
             if (result == null) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário ou senha inválidos.");
             }
-            return new CognitoAuthenticationResult(result.idToken(), result.accessToken(), result.refreshToken());
+            return new CognitoAuthenticationResult(result.idToken(), result.accessToken(), result.refreshToken(), username);
         } catch (NotAuthorizedException | UserNotFoundException ex) {
             log.warn("event=cognito_authenticate status=unauthorized username={}", username);
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário ou senha inválidos.");
@@ -62,6 +67,71 @@ public class CognitoService {
             log.error("event=cognito_authenticate status=error username={} message=\"{}\"", username, ex.getMessage(), ex);
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
                     "Não foi possível autenticar no serviço Cognito.");
+        }
+    }
+
+    public CognitoAuthenticationResult refreshToken(String refreshToken) {
+        if (!StringUtils.hasText(refreshToken)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe um refresh token válido.");
+        }
+
+        try {
+            AdminInitiateAuthResponse response = cognitoClient.adminInitiateAuth(AdminInitiateAuthRequest.builder()
+                    .userPoolId(properties.getUserPoolId())
+                    .clientId(properties.getAppClientId())
+                    .authFlow(AuthFlowType.REFRESH_TOKEN_AUTH)
+                    .authParameters(Map.of("REFRESH_TOKEN", refreshToken))
+                    .build());
+
+            AuthenticationResultType result = response.authenticationResult();
+            if (result == null || !StringUtils.hasText(result.idToken())) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token inválido.");
+            }
+
+            String returnedRefreshToken = StringUtils.hasText(result.refreshToken())
+                    ? result.refreshToken()
+                    : refreshToken;
+            String username = resolveUsernameFromAccessToken(result.accessToken());
+
+            return new CognitoAuthenticationResult(result.idToken(), result.accessToken(), returnedRefreshToken, username);
+        } catch (NotAuthorizedException ex) {
+            log.warn("event=cognito_refresh status=unauthorized message=\"{}\"", ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token inválido.");
+        } catch (CognitoIdentityProviderException ex) {
+            log.error("event=cognito_refresh status=error message=\"{}\"", ex.getMessage(), ex);
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                    "Não foi possível renovar o token no serviço Cognito.");
+        }
+    }
+
+    private String resolveUsernameFromAccessToken(String accessToken) {
+        if (!StringUtils.hasText(accessToken)) {
+            return null;
+        }
+
+        try {
+            GetUserResponse userResponse = cognitoClient.getUser(GetUserRequest.builder()
+                    .accessToken(accessToken)
+                    .build());
+
+            if (userResponse == null) {
+                return null;
+            }
+
+            if (userResponse.userAttributes() == null || userResponse.userAttributes().isEmpty()) {
+                return StringUtils.hasText(userResponse.username()) ? userResponse.username() : null;
+            }
+
+            Optional<String> email = userResponse.userAttributes().stream()
+                    .filter(attribute -> "email".equals(attribute.name()))
+                    .map(AttributeType::value)
+                    .filter(StringUtils::hasText)
+                    .findFirst();
+
+            return email.orElseGet(() -> StringUtils.hasText(userResponse.username()) ? userResponse.username() : null);
+        } catch (CognitoIdentityProviderException ex) {
+            log.warn("event=cognito_resolve_user status=error message=\"{}\"", ex.getMessage());
+            return null;
         }
     }
 
