@@ -267,73 +267,73 @@ npm run lint
 4. Abra novos chamados ou gerencie os existentes pelo menu "Chamados".
 5. Administre usuários e permissões pela página "Usuários" (perfil administrador).
 
-## Credentials Configuration Tutorial
+## Tutorial de Configuração de Credenciais
 
-To run TucasDesk on your local machine, you need to configure credentials for the database (MariaDB), AWS services, and the API. Follow this step-by-step guide to get everything set up.
+Para executar o TucasDesk na sua máquina local, é necessário configurar as credenciais do banco de dados (MariaDB), dos serviços AWS e da API. Siga este passo a passo para deixar tudo pronto.
 
-### 1. Create your `.env` file
+### 1. Crie o arquivo `.env`
 
-The first step is to create a `.env` file in the root of the project. You can do this by copying the example file:
+O primeiro passo é criar um arquivo `.env` na raiz do projeto. Você pode fazer isso copiando o arquivo de exemplo:
 
 ```sh
 cp .env.example .env
 ```
 
-This file is used by Docker Compose to manage the environment variables for the backend and database services.
+Esse arquivo é utilizado pelo Docker Compose para gerenciar as variáveis de ambiente dos serviços de backend e banco de dados.
 
-### 2. Database Credentials (MariaDB)
+### 2. Credenciais do Banco de Dados (MariaDB)
 
-Next, you need to configure the credentials for your MariaDB database. Open the `.env` file and set the following variables:
+Em seguida, configure as credenciais do banco MariaDB. Abra o arquivo `.env` e defina as variáveis a seguir:
 
-- `DB_ROOT_PASSWORD`: The root password for your MariaDB instance.
-- `DB_NAME`: The name of the database TucasDesk will use.
-- `DB_USER`: The username for the TucasDesk application to connect with.
-- `DB_PASSWORD`: The password for the application user.
-- `DATABASE_URL`: The full database connection URL. For example: `mariadb://user:password@localhost:3307/tucasdesk`.
-- `SPRING_DATASOURCE_URL`: The JDBC connection URL for the backend. For example: `jdbc:mariadb://localhost:3307/tucasdesk`.
-- `SPRING_DATASOURCE_USERNAME`: Should be the same as `DB_USER`.
-- `SPRING_DATASOURCE_PASSWORD`: Should be the same as `DB_PASSWORD`.
+- `DB_ROOT_PASSWORD`: senha do usuário root da instância MariaDB.
+- `DB_NAME`: nome do banco que será utilizado pelo TucasDesk.
+- `DB_USER`: usuário que a aplicação TucasDesk utilizará para se conectar.
+- `DB_PASSWORD`: senha do usuário de aplicação.
+- `DATABASE_URL`: URL completa de conexão com o banco. Exemplo: `mariadb://user:password@localhost:3307/tucasdesk`.
+- `SPRING_DATASOURCE_URL`: URL JDBC utilizada pelo backend. Exemplo: `jdbc:mariadb://localhost:3307/tucasdesk`.
+- `SPRING_DATASOURCE_USERNAME`: deve ser o mesmo valor de `DB_USER`.
+- `SPRING_DATASOURCE_PASSWORD`: deve ser o mesmo valor de `DB_PASSWORD`.
 
-### 3. AWS Credentials (Cognito and SES)
+### 3. Credenciais AWS (Cognito e SES)
 
-TucasDesk uses AWS Cognito for user authentication and AWS SES for email notifications.
+O TucasDesk utiliza o AWS Cognito para autenticação de usuários e o AWS SES para envio de notificações por e-mail.
 
 #### AWS Cognito
 
-- `AWS_COGNITO_REGION`: The AWS region where your Cognito User Pool is located (e.g., `us-east-1`).
-- `AWS_COGNITO_USER_POOL_ID`: The ID of your Cognito User Pool.
-- `AWS_COGNITO_APP_CLIENT_ID`: The App Client ID for your Cognito User Pool.
+- `AWS_COGNITO_REGION`: região AWS onde seu User Pool está localizado (por exemplo, `us-east-1`).
+- `AWS_COGNITO_USER_POOL_ID`: identificador do seu User Pool Cognito.
+- `AWS_COGNITO_APP_CLIENT_ID`: ID do App Client configurado no Cognito.
 
-You can also set `AWS_COGNITO_ISSUER_URI` and `AWS_COGNITO_JWK_SET_URI` if you have custom URIs.
+Você também pode informar `AWS_COGNITO_ISSUER_URI` e `AWS_COGNITO_JWK_SET_URI` caso utilize URIs personalizadas.
 
-#### AWS SES (for email notifications)
+#### AWS SES (para notificações por e-mail)
 
-If you plan to use email notifications, configure AWS SES with the following:
+Se for utilizar notificações por e-mail, configure o AWS SES com os seguintes valores:
 
-- `AWS_SES_ENABLED`: Set to `true` to enable email notifications.
-- `AWS_SES_REGION`: The AWS region where your SES is configured.
-- `AWS_SES_FROM_ADDRESS`: The sender's email address.
-- `AWS_SES_TO_ADDRESSES`: A comma-separated list of recipient email addresses for notifications.
-- `AWS_ACCESS_KEY_ID`: Your AWS access key.
-- `AWS_SECRET_ACCESS_KEY`: Your AWS secret access key.
+- `AWS_SES_ENABLED`: defina como `true` para habilitar o envio de e-mails.
+- `AWS_SES_REGION`: região AWS onde o SES está configurado.
+- `AWS_SES_FROM_ADDRESS`: endereço de e-mail do remetente.
+- `AWS_SES_TO_ADDRESSES`: lista, separada por vírgulas, de e-mails que receberão as notificações.
+- `AWS_ACCESS_KEY_ID`: chave de acesso AWS.
+- `AWS_SECRET_ACCESS_KEY`: chave secreta correspondente.
 
-**Note:** For better security, it is recommended to use IAM roles instead of access keys, especially in a production environment.
+**Observação:** para maior segurança, prefira utilizar roles do IAM em vez de chaves de acesso, especialmente em ambientes de produção.
 
-### 4. Frontend API URL
+### 4. URL da API no Frontend
 
-The frontend needs the URL of the backend API to communicate with it.
+O frontend precisa da URL da API para se comunicar corretamente com o backend.
 
-1.  Create a `.env` file for the frontend by copying the example file:
+1.  Crie o arquivo `.env` do frontend copiando o arquivo de exemplo:
 
     ```sh
     cp tucasdesk-frontend/.env.example tucasdesk-frontend/.env
     ```
 
-2.  Open `tucasdesk-frontend/.env` and set the `VITE_API_URL`.
-    -   If you are running the backend with Docker Compose, the default value (`http://tucasdesk-backend:8080`) should work.
-    -   If you are running the backend locally, change it to `http://localhost:8080`.
+2.  Abra `tucasdesk-frontend/.env` e configure `VITE_API_URL`.
+    -   Se estiver executando o backend com Docker Compose, o valor padrão (`http://tucasdesk-backend:8080`) deve funcionar.
+    -   Se estiver executando o backend localmente, altere para `http://localhost:8080`.
 
-With these configurations in place, you can run the application using Docker Compose as described in the "How to Start" section.
+Com essas configurações definidas, você poderá executar a aplicação com o Docker Compose conforme descrito na seção "Como Começar".
 
 ## Como contribuir
 
