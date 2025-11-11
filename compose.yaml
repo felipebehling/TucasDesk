@@ -3,7 +3,7 @@ x-shared-database-url: &shared-database-url
 
 services:
   db:
-    image: mariadb:10.11
+    image: mariadb:12.0
     container_name: tucasdesk-db
     env_file:
       - .env
@@ -27,7 +27,7 @@ services:
     networks:
       default:
         aliases:
-          - database
+          - localhost
 
   backend:
     build: ./tucasdesk-backend
