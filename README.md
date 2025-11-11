@@ -1,7 +1,7 @@
 # TucasDesk
 
 <p align="center">
-  <img src="tucasdesk-frontend/public/tucas-icon-nobg.png" alt="TucasDesk Logo" width="120">
+  <img src="apps/frontend/public/tucas-icon-nobg.png" alt="TucasDesk Logo" width="120">
 </p>
 
 TucasDesk é uma plataforma open-source de helpdesk que centraliza o atendimento e facilita o acompanhamento de chamados. Ideal para equipes que precisam organizar solicitações, priorizar demandas e manter o suporte sob controle.
@@ -57,9 +57,10 @@ Este design garante que a API principal permaneça rápida e responsiva, enquant
 
 ### Estrutura Essencial do Projeto
 
-- `tucasdesk-backend/`: API em Spring Boot responsável pelas regras de negócio e integrações com o banco de dados.
-- `tucasdesk-frontend/`: interface web em React + TypeScript com componentes reutilizáveis e navegação protegida.
-- `compose.yaml`: orquestração dos serviços (frontend, backend e banco MariaDB) via Docker Compose.
+- `apps/backend/`: API em Spring Boot responsável pelas regras de negócio e integrações com o banco de dados.
+- `apps/frontend/`: interface web em React + TypeScript com componentes reutilizáveis e navegação protegida.
+- `infra/docker/`: arquivos do Docker Compose, incluindo `compose.yaml` e scripts de inicialização do banco.
+- `config/env/`: variáveis de ambiente compartilhadas utilizadas durante a orquestração.
 
 ## Tecnologias Utilizadas
 
@@ -90,13 +91,13 @@ Instale as ferramentas abaixo antes de iniciar:
    cd tucasdesk
    ```
 
-2. Crie o `.env` compartilhado na raiz com os valores obrigatórios. Comece copiando o arquivo de exemplo e, em seguida, ajuste cada variável conforme o ambiente desejado:
+2. Crie o `.env` compartilhado em `config/env/` com os valores obrigatórios. Comece copiando o arquivo de exemplo e, em seguida, ajuste cada variável conforme o ambiente desejado:
 
    ```sh
-   cp .env.example .env
+   cp config/env/.env.example config/env/.env
    ```
 
-   Você pode usar o `.env.example` como base para os segredos do backend e complementar com as variáveis exigidas pelo Docker Compose:
+   Você pode usar o `config/env/.env.example` como base para os segredos do backend e complementar com as variáveis exigidas pelo Docker Compose:
 
    | Variável | Descrição |
    | --- | --- |
@@ -123,18 +124,18 @@ Instale as ferramentas abaixo antes de iniciar:
 3. Gere o arquivo de variáveis do frontend copiando o modelo padrão:
 
    ```sh
-   cp tucasdesk-frontend/.env.example tucasdesk-frontend/.env
+   cp apps/frontend/.env.example apps/frontend/.env
    ```
 
    O valor de `VITE_API_URL` precisa apontar para a URL onde o backend estará acessível (por padrão, `http://tucasdesk-backend:8080` nos containers ou `http://localhost:8080` para execução local).
 
-4. Suba os serviços:
+4. Suba os serviços a partir da raiz do repositório:
 
    ```sh
-   docker compose up --build
+   docker compose --env-file config/env/.env -f infra/docker/compose.yaml up --build
    ```
 
-   O comando acima inicializa frontend, backend e um banco MariaDB 12.0 prontos para uso. Utilize `docker compose down` para parar e remover os containers quando terminar os testes.
+   O comando acima inicializa frontend, backend e um banco MariaDB 12.0 prontos para uso. Utilize `docker compose --env-file config/env/.env -f infra/docker/compose.yaml down` para parar e remover os containers quando terminar os testes.
 
 Serviços disponíveis:
 
@@ -142,7 +143,7 @@ Serviços disponíveis:
 | --- | --- | --- |
 | Frontend (Nginx) | `3000` | Interface web do TucasDesk. |
 | Backend (Spring Boot) | `8080` | API REST da aplicação. |
-| Banco de dados (MariaDB) | `3307` → `3306` | MariaDB 12.0 com credenciais configuradas via `.env`. |
+| Banco de dados (MariaDB) | `3307` → `3306` | MariaDB 12.0 com credenciais configuradas via `config/env/.env`. |
 
 Resumo das credenciais padrão sugeridas:
 
@@ -181,8 +182,8 @@ Com essa configuração o backend poderá trocar o refresh token por novos `idTo
 ### Executando o backend localmente (opcional)
 
 ```sh
-docker compose up -d db
-cd tucasdesk-backend
+docker compose --env-file config/env/.env -f infra/docker/compose.yaml up -d db
+cd apps/backend
 ./mvnw spring-boot:run
 ```
 
@@ -202,9 +203,9 @@ O backend lê as configurações sensíveis a partir de variáveis de ambiente. 
 | `APP_CORS_ALLOWED_ORIGINS` | Lista de origens liberadas para o CORS (separadas por vírgula). | `http://localhost:5173,http://localhost:3000` (no perfil `docker`, o padrão é `http://localhost:3000`) |
 | `SPRING_PROFILES_ACTIVE` | Perfis ativos do Spring Boot. Utilize `docker` ao executar via Compose. | *(sem padrão)* |
 | `SPRING_ACTIVE_DATABASE_PROFILE` | Complemento do perfil ativo usado no Docker Compose. | *(sem padrão — `mariadb` é aplicado como fallback e é o único perfil disponível atualmente)* |
-| `AWS_COGNITO_REGION` | Região da AWS onde o User Pool está provisionado. | *(sem padrão — configure no `.env`)* |
-| `AWS_COGNITO_USER_POOL_ID` | Identificador do User Pool utilizado pela aplicação. | *(sem padrão — configure no `.env`)* |
-| `AWS_COGNITO_APP_CLIENT_ID` | ID do App Client utilizado para autenticação. | *(sem padrão — configure no `.env`)* |
+| `AWS_COGNITO_REGION` | Região da AWS onde o User Pool está provisionado. | *(sem padrão — configure em `config/env/.env`)* |
+| `AWS_COGNITO_USER_POOL_ID` | Identificador do User Pool utilizado pela aplicação. | *(sem padrão — configure em `config/env/.env`)* |
+| `AWS_COGNITO_APP_CLIENT_ID` | ID do App Client utilizado para autenticação. | *(sem padrão — configure em `config/env/.env`)* |
 | `AWS_COGNITO_ISSUER_URI` | (Opcional) Issuer URI público do User Pool. | *(vazio)* |
 | `AWS_COGNITO_JWK_SET_URI` | (Opcional) Endpoint JWKS do Cognito. | *(vazio)* |
 | `AWS_REGION` | Região padrão da AWS para integrações de mensageria. | `sa-east-1` |
@@ -222,7 +223,7 @@ O backend lê as configurações sensíveis a partir de variáveis de ambiente. 
 | `AWS_ACCESS_KEY_ID` | Chave de acesso utilizada pelo SDK ao invocar SES/SNS/SQS. | *(vazio — utilize perfis IAM ou variáveis seguras)* |
 | `AWS_SECRET_ACCESS_KEY` | Segredo associado à chave de acesso. | *(vazio — utilize perfis IAM ou variáveis seguras)* |
 
-> 💡 Crie um arquivo `.env` na raiz do projeto (pode usar `.env.example` como base) para configurar as variáveis do Cognito (`AWS_COGNITO_REGION`, `AWS_COGNITO_USER_POOL_ID` e `AWS_COGNITO_APP_CLIENT_ID`) e, quando for enviar e-mails de verdade, informe também as credenciais/identidades do SES (`AWS_SES_ENABLED`, `AWS_SES_FROM_ADDRESS`, `AWS_SES_TO_ADDRESSES`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`). Ajuste variáveis como `SPRING_DATASOURCE_URL` e `DATABASE_URL` para o formato `mariadb` (por exemplo, `jdbc:mariadb://...`).
+> 💡 Mantenha as variáveis sensíveis no arquivo `config/env/.env` (utilize `config/env/.env.example` como base) para configurar Cognito (`AWS_COGNITO_REGION`, `AWS_COGNITO_USER_POOL_ID` e `AWS_COGNITO_APP_CLIENT_ID`) e, quando for enviar e-mails de verdade, informe também as credenciais/identidades do SES (`AWS_SES_ENABLED`, `AWS_SES_FROM_ADDRESS`, `AWS_SES_TO_ADDRESSES`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`). Ajuste variáveis como `SPRING_DATASOURCE_URL` e `DATABASE_URL` para o formato `mariadb` (por exemplo, `jdbc:mariadb://...`).
 
 Para provisionar rapidamente os tópicos SNS dedicados e a role com permissão de publicação, utilize o template CloudFormation localizado em `infra/aws/ticket-notifications.yaml`.
 
@@ -232,30 +233,30 @@ Para provisionar rapidamente os tópicos SNS dedicados e a role com permissão d
 2. **Saia do sandbox (se necessário):** para ambientes novos solicite o aumento de limite (Production access) informando o domínio verificado e o tipo de tráfego esperado.
 3. **Crie o template de e-mail:** ainda no SES, registre um template com o nome configurado em `AWS_SES_TEMPLATE_NAME` contendo os placeholders `{{subject}}`, `{{body}}`, `{{eventType}}`, `{{ticketId}}` e `{{#interacao}}...{{/interacao}}` (para dados opcionais). Utilize HTML para a versão rica e inclua uma versão de texto puro se desejar compatibilidade com clientes legados.
 4. **Configure as credenciais:** defina `AWS_ACCESS_KEY_ID` e `AWS_SECRET_ACCESS_KEY` (ou utilize um perfil IAM/role) com permissão `ses:SendEmail`, `ses:SendTemplatedEmail`, `sns:*` e `sqs:*` conforme o ambiente. Para uso local, armazene-as no `.env` e nunca faça commit desses valores.
-5. **Ajuste as variáveis do backend:** atualize o `.env` com os valores de `AWS_SES_ENABLED=true`, `AWS_SES_FROM_ADDRESS`, `AWS_SES_TO_ADDRESSES` e `AWS_SES_REGION` (se diferente da região padrão). Reinicie o backend para que as propriedades sejam recarregadas.
+5. **Ajuste as variáveis do backend:** atualize o arquivo `config/env/.env` com os valores de `AWS_SES_ENABLED=true`, `AWS_SES_FROM_ADDRESS`, `AWS_SES_TO_ADDRESSES` e `AWS_SES_REGION` (se diferente da região padrão). Reinicie o backend para que as propriedades sejam recarregadas.
 
 > 💡 O serviço de notificação coleta métricas básicas (`notifier.ses.deliveries` e `notifier.ses.throttled`) via Micrometer. Ao integrar com Prometheus/CloudWatch você poderá acompanhar a taxa de sucesso e eventuais respostas de quota do SES.
 
 ### Executando o frontend localmente (opcional)
 
 ```sh
-cd tucasdesk-frontend
+cd apps/frontend
 cp .env.example .env
 npm install
 npm run dev
 ```
 
-O Vite servirá o frontend em [http://localhost:5173](http://localhost:5173) e encaminhará as chamadas para a API configurada no `.env`. Ajuste o valor de `VITE_API_URL` conforme necessário (por exemplo, `http://localhost:8080` ao executar o backend fora do Docker).
+O Vite servirá o frontend em [http://localhost:5173](http://localhost:5173) e encaminhará as chamadas para a API configurada no arquivo `.env` localizado em `apps/frontend`. Ajuste o valor de `VITE_API_URL` conforme necessário (por exemplo, `http://localhost:8080` ao executar o backend fora do Docker).
 
 ### Testes e verificações
 
 ```sh
 # Backend
-cd tucasdesk-backend
+cd apps/backend
 ./mvnw test
 
 # Frontend
-cd tucasdesk-frontend
+cd apps/frontend
 npm run lint
 ```
 
@@ -271,19 +272,19 @@ npm run lint
 
 Para executar o TucasDesk na sua máquina local, é necessário configurar as credenciais do banco de dados (MariaDB), dos serviços AWS e da API. Siga este passo a passo para deixar tudo pronto.
 
-### 1. Crie o arquivo `.env`
+### 1. Crie o arquivo `config/env/.env`
 
-O primeiro passo é criar um arquivo `.env` na raiz do projeto. Você pode fazer isso copiando o arquivo de exemplo:
+O primeiro passo é criar um arquivo de variáveis compartilhadas dentro da pasta `config/env/`. Você pode fazer isso copiando o arquivo de exemplo:
 
 ```sh
-cp .env.example .env
+cp config/env/.env.example config/env/.env
 ```
 
 Esse arquivo é utilizado pelo Docker Compose para gerenciar as variáveis de ambiente dos serviços de backend e banco de dados.
 
 ### 2. Credenciais do Banco de Dados (MariaDB)
 
-Em seguida, configure as credenciais do banco MariaDB. Abra o arquivo `.env` e defina as variáveis a seguir:
+Em seguida, configure as credenciais do banco MariaDB. Abra o arquivo `config/env/.env` e defina as variáveis a seguir:
 
 - `DB_ROOT_PASSWORD`: senha do usuário root da instância MariaDB.
 - `DB_NAME`: nome do banco que será utilizado pelo TucasDesk.
@@ -326,10 +327,10 @@ O frontend precisa da URL da API para se comunicar corretamente com o backend.
 1.  Crie o arquivo `.env` do frontend copiando o arquivo de exemplo:
 
     ```sh
-    cp tucasdesk-frontend/.env.example tucasdesk-frontend/.env
+    cp apps/frontend/.env.example apps/frontend/.env
     ```
 
-2.  Abra `tucasdesk-frontend/.env` e configure `VITE_API_URL`.
+2.  Abra `apps/frontend/.env` e configure `VITE_API_URL`.
     -   Se estiver executando o backend com Docker Compose, o valor padrão (`http://tucasdesk-backend:8080`) deve funcionar.
     -   Se estiver executando o backend localmente, altere para `http://localhost:8080`.
 

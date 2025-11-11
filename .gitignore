@@ -1,4 +1,4 @@
 .vscode/
-tucasdesk-frontend/.env
-.env
-!/.env
+apps/frontend/.env
+!config/env/.env
+!config/env/.env.example
