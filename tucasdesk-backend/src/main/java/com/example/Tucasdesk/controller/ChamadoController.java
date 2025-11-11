@@ -110,4 +110,19 @@ public class ChamadoController {
     public InteracaoResponseDTO adicionarInteracao(@PathVariable Integer id, @Valid @RequestBody InteracaoRequest request) {
         return chamadoService.adicionarInteracao(id, request);
     }
+
+    /**
+     * Removes an interaction from a ticket.
+     *
+     * @param id           the ticket identifier.
+     * @param interacaoId  the interaction identifier.
+     * @param usuarioId    the optional interaction author identifier used to validate the removal.
+     */
+    @DeleteMapping("/{id}/interacoes/{interacaoId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removerInteracao(@PathVariable Integer id,
+                                 @PathVariable Integer interacaoId,
+                                 @RequestParam(value = "usuarioId", required = false) Integer usuarioId) {
+        chamadoService.removerInteracao(id, interacaoId, usuarioId);
+    }
 }

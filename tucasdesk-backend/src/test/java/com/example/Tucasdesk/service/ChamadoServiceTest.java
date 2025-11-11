@@ -188,4 +188,70 @@ class ChamadoServiceTest {
         verify(historicoStatusRepository, never()).save(any());
         verify(chamadoRepository, never()).save(any());
     }
+
+    @Test
+    void deveRemoverInteracaoQuandoPertenceAoChamadoEUsuario() {
+        Chamado chamado = new Chamado();
+        chamado.setIdChamado(10);
+
+        Usuario usuario = new Usuario();
+        usuario.setIdUsuario(30);
+
+        Interacao interacao = new Interacao();
+        interacao.setIdInteracao(55);
+        interacao.setChamado(chamado);
+        interacao.setUsuario(usuario);
+
+        when(chamadoRepository.findById(10)).thenReturn(Optional.of(chamado));
+        when(interacaoRepository.findById(55)).thenReturn(Optional.of(interacao));
+
+        chamadoService.removerInteracao(10, 55, 30);
+
+        verify(interacaoRepository).delete(interacao);
+    }
+
+    @Test
+    void naoDeveRemoverInteracaoQuandoNaoPertenceAoChamado() {
+        Chamado chamado = new Chamado();
+        chamado.setIdChamado(10);
+
+        Chamado outroChamado = new Chamado();
+        outroChamado.setIdChamado(20);
+
+        Interacao interacao = new Interacao();
+        interacao.setIdInteracao(77);
+        interacao.setChamado(outroChamado);
+
+        when(chamadoRepository.findById(10)).thenReturn(Optional.of(chamado));
+        when(interacaoRepository.findById(77)).thenReturn(Optional.of(interacao));
+
+        assertThatThrownBy(() -> chamadoService.removerInteracao(10, 77, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("A interação não pertence ao chamado informado.");
+
+        verify(interacaoRepository, never()).delete(any());
+    }
+
+    @Test
+    void naoDeveRemoverInteracaoQuandoUsuarioNaoCorresponde() {
+        Chamado chamado = new Chamado();
+        chamado.setIdChamado(10);
+
+        Usuario usuario = new Usuario();
+        usuario.setIdUsuario(30);
+
+        Interacao interacao = new Interacao();
+        interacao.setIdInteracao(88);
+        interacao.setChamado(chamado);
+        interacao.setUsuario(usuario);
+
+        when(chamadoRepository.findById(10)).thenReturn(Optional.of(chamado));
+        when(interacaoRepository.findById(88)).thenReturn(Optional.of(interacao));
+
+        assertThatThrownBy(() -> chamadoService.removerInteracao(10, 88, 99))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("A interação não pertence ao usuário informado.");
+
+        verify(interacaoRepository, never()).delete(any());
+    }
 }

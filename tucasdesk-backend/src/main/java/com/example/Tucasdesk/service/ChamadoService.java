@@ -221,6 +221,36 @@ public class ChamadoService {
         return ChamadoMapper.toInteracaoResponseDTO(salvo);
     }
 
+    /**
+     * Removes an interaction from a ticket after validating that it belongs to the
+     * informed ticket and, when provided, that it was created by the expected user.
+     *
+     * @param chamadoId    the ticket identifier.
+     * @param interacaoId  the interaction identifier.
+     * @param usuarioId    the expected author identifier (can be {@code null} for
+     *                     administrators or technicians).
+     */
+    public void removerInteracao(Integer chamadoId, Integer interacaoId, Integer usuarioId) {
+        Chamado chamado = obterChamado(chamadoId);
+        Interacao interacao = interacaoRepository.findById(interacaoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Interação não encontrada."));
+
+        if (interacao.getChamado() == null || interacao.getChamado().getIdChamado() == null
+                || !interacao.getChamado().getIdChamado().equals(chamado.getIdChamado())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A interação não pertence ao chamado informado.");
+        }
+
+        if (usuarioId != null) {
+            Usuario usuarioInteracao = interacao.getUsuario();
+            if (usuarioInteracao == null || usuarioInteracao.getIdUsuario() == null
+                    || !usuarioId.equals(usuarioInteracao.getIdUsuario())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "A interação não pertence ao usuário informado.");
+            }
+        }
+
+        interacaoRepository.delete(interacao);
+    }
+
     private List<Interacao> carregarInteracoes(Chamado chamado) {
         return interacaoRepository.findByChamadoOrderByDataInteracaoAsc(chamado);
     }
