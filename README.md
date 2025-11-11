@@ -100,7 +100,6 @@ Instale as ferramentas abaixo antes de iniciar:
 
    | Variável | Descrição |
    | --- | --- |
-   | `DB_VENDOR` | Define o driver utilizado pelo backend (`mariadb` por padrão, podendo aceitar `mysql` se necessário). |
    | `DB_HOST` | Hostname utilizado pelos serviços para se conectar ao banco (geralmente `database`). |
    | `DB_PORT` | Porta interna exposta pelo banco (padrão `3306`). |
    | `DB_ROOT_PASSWORD` | Senha do usuário administrador do banco. |
@@ -111,7 +110,7 @@ Instale as ferramentas abaixo antes de iniciar:
    | `SPRING_DATASOURCE_URL` | URL JDBC utilizada pela API (por exemplo, `jdbc:mariadb://database:3306/tucasdesk`). |
    | `SPRING_DATASOURCE_USERNAME` | Usuário JDBC do Spring. |
    | `SPRING_DATASOURCE_PASSWORD` | Senha JDBC do Spring. |
-   | `SPRING_ACTIVE_DATABASE_PROFILE` | Perfil complementar para ajustar a configuração do Spring (`mariadb` por padrão; `mysql` permanece disponível se ainda for necessário). |
+   | `SPRING_ACTIVE_DATABASE_PROFILE` | Perfil complementar para ajustar a configuração do Spring (mantém `mariadb`, perfil hoje suportado). |
    | `VITE_API_URL` | URL interna usada pelo frontend para chamar a API. |
    | `AWS_COGNITO_REGION` | Região da AWS onde o User Pool está provisionado. |
    | `AWS_COGNITO_USER_POOL_ID` | Identificador do User Pool utilizado pela aplicação. |
@@ -119,7 +118,7 @@ Instale as ferramentas abaixo antes de iniciar:
    | `AWS_COGNITO_ISSUER_URI` | (Opcional) Issuer URI público do User Pool. |
    | `AWS_COGNITO_JWK_SET_URI` | (Opcional) Endpoint JWKS. Caso não informado, é derivado do issuer. |
 
-   > 💡 Utilize valores compatíveis com MariaDB como base (por exemplo, URLs `mariadb://` e `jdbc:mariadb://`). Caso ainda precise rodar com MySQL por compatibilidade, ajuste manualmente as variáveis para o driver equivalente.
+   > 💡 Utilize valores compatíveis com MariaDB como base (por exemplo, URLs `mariadb://` e `jdbc:mariadb://`). Caso escolha outra engine, adapte manualmente as variáveis para o driver correspondente.
 
 3. Gere o arquivo de variáveis do frontend copiando o modelo padrão:
 
@@ -135,7 +134,7 @@ Instale as ferramentas abaixo antes de iniciar:
    docker compose up --build
    ```
 
-   O comando acima inicializa frontend, backend e um banco MariaDB 10.11 prontos para uso. Utilize `docker compose down` para parar e remover os containers quando terminar os testes.
+   O comando acima inicializa frontend, backend e um banco MariaDB 12.0 prontos para uso. Utilize `docker compose down` para parar e remover os containers quando terminar os testes.
 
 Serviços disponíveis:
 
@@ -143,16 +142,15 @@ Serviços disponíveis:
 | --- | --- | --- |
 | Frontend (Nginx) | `3000` | Interface web do TucasDesk. |
 | Backend (Spring Boot) | `8080` | API REST da aplicação. |
-| Banco de dados (MariaDB) | `3307` → `3306` | MariaDB 10.11 com credenciais configuradas via `.env`. |
+| Banco de dados (MariaDB) | `3307` → `3306` | MariaDB 12.0 com credenciais configuradas via `.env`. |
 
 Resumo das credenciais padrão sugeridas:
 
 | Perfil | Imagem | Porta exposta (host → container) | Usuário root | Senha root | Usuário de aplicação | Senha de aplicação | Observação |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `mariadb` (padrão) | `mariadb:10.11` | `3307` → `3306` | `root` | `DB_ROOT_PASSWORD` | `DB_USER` | `DB_PASSWORD` | Perfil recomendado e habilitado por padrão. |
-| `mysql` (opcional) | `mysql:8.0` | *(configuração manual)* | `root` | `DB_ROOT_PASSWORD` | `DB_USER` | `DB_PASSWORD` | Suporte legado: ajuste imagens/variáveis manualmente se precisar manter MySQL. |
+| `mariadb` (padrão) | `mariadb:12.0` | `3307` → `3306` | `root` | `DB_ROOT_PASSWORD` | `DB_USER` | `DB_PASSWORD` | Perfil recomendado e habilitado por padrão. |
 
-> ℹ️ O Compose já está preparado para MariaDB. Caso o projeto precise operar com MySQL por compatibilidade, faça override da imagem e das variáveis (como `DB_VENDOR`, `SPRING_ACTIVE_DATABASE_PROFILE`, URLs JDBC e driver) antes de subir os serviços.
+> ℹ️ O Compose já está preparado para MariaDB 12.0 e não disponibiliza mais perfis MySQL. Se precisar utilizar outra engine, ajuste manualmente a configuração do Docker Compose e do backend.
 
 > 📌 O Docker Compose é o caminho principal para executar a stack completa. A execução local (sem containers) é opcional e está detalhada na seção a seguir apenas para quem precisar personalizar ou depurar serviços individualmente.
 
@@ -180,50 +178,6 @@ Para que o endpoint `POST /auth/refresh` funcione corretamente é necessário co
 
 Com essa configuração o backend poderá trocar o refresh token por novos `idToken`/`accessToken`, mantendo a sessão do usuário alinhada entre frontend e Cognito.
 
-## Arquitetura do Sistema
-
-A arquitetura do TucasDesk foi desenhada para ser escalável, desacoplada e resiliente, combinando serviços síncronos e assíncronos para otimizar a experiência do usuário e a eficiência operacional.
-
-![Arquitetura do TucasDesk](docs/images/architecture-diagram.jpeg)
-
-O diagrama abaixo detalha os principais componentes e o fluxo de comunicação entre eles:
-
-### Componentes Principais
-
-1.  **Frontend/Cliente (React + TypeScript)**:
-    *   Interface web onde o usuário (cliente ou técnico) interage com o sistema.
-    *   Responsável por consumir os endpoints da API para criar, visualizar e gerenciar chamados e interações.
-    *   Realiza a validação de autenticação com a API, que delega a verificação para o AWS Cognito.
-
-2.  **API e Serviços Síncronos (Spring Boot)**:
-    *   **Endpoint-Tickets**: recebe requisições para criar (`TicketCreated`), fechar (`TicketClosed`) ou interagir (`TicketInteracted`) em um chamado.
-    *   **Service-Tickets e Service-Interações**: contêm a lógica de negócio principal. Eles orquestram as operações de CRUD (criar, ler, atualizar, deletar) no banco de dados e publicam eventos para notificação.
-    *   **Publica Evento**: ao criar, fechar ou adicionar uma interação a um chamado, a API publica eventos (ex: `TicketCreated`, `TicketClosed`) em um tópico do AWS SNS. Essa abordagem desacopla a API da lógica de notificação.
-
-3.  **Middleware e Serviços Assíncronos (AWS)**:
-    *   **AWS SNS (Simple Notification Service)**: atua como um tópico de distribuição de eventos. A API publica mensagens no SNS, que as encaminha para todas as filas SQS inscritas.
-    *   **AWS SQS (Simple Queue Service)**: fila que recebe os eventos do SNS. O `Service: Notifier` consome mensagens desta fila para processá-las de forma assíncrona. Isso garante que, mesmo em caso de falha no serviço de notificação, a mensagem não será perdida.
-    *   **Service: Notifier**: serviço que processa as mensagens da fila SQS. Ele é responsável por formatar e enviar e-mails utilizando o AWS SES.
-
-4.  **Persistência (MariaDB)**:
-    *   Banco de dados relacional onde todos os dados de chamados, usuários e interações são armazenados. As operações de CRUD são executadas pela API Spring Boot.
-
-5.  **APIs Externas**:
-    *   **AWS Cognito**: serviço de gerenciamento de identidade da AWS. A API o utiliza para validar os tokens de autenticação (`JWT`) enviados pelo frontend, garantindo que apenas usuários autenticados acessem os recursos.
-    *   **AWS SES (Simple Email Service)**: serviço de envio de e-mails da AWS. O `Service: Notifier` o utiliza para enviar notificações por e-mail quando eventos importantes ocorrem (ex: confirmação de abertura de chamado).
-
-### Fluxo de um Novo Chamado
-
-1.  O usuário cria um novo chamado no **Frontend**.
-2.  O **Frontend** envia uma requisição para o **Endpoint-Ticket** na API Spring Boot.
-3.  O **Service-Tickets** processa a requisição, salva os dados no **MariaDB** (operação de CRUD) e publica um evento `TicketCreated` no tópico **AWS SNS**.
-4.  O **AWS SNS** distribui o evento para a fila **AWS SQS**.
-5.  O **Service: Notifier** consome a mensagem da fila SQS.
-6.  O **Service: Notifier** utiliza o **AWS SES** para enviar um e-mail de notificação ao usuário.
-7.  O **Frontend** recebe a resposta da API e atualiza a interface para o usuário.
-
-Este design garante que a API principal permaneça rápida e responsiva, enquanto tarefas mais lentas, como o envio de e-mails, são executadas em segundo plano de forma confiável.
-
 ### Executando o backend localmente (opcional)
 
 ```sh
@@ -241,13 +195,13 @@ O backend lê as configurações sensíveis a partir de variáveis de ambiente. 
 | Variável | Descrição | Valor padrão |
 | --- | --- | --- |
 | `SPRING_DATASOURCE_URL` | URL JDBC do banco de dados. | `jdbc:mariadb://localhost:3307/tucasdesk?useSSL=true&serverTimezone=UTC` |
-| `SPRING_DATASOURCE_DRIVER_CLASS_NAME` | Driver JDBC utilizado pelo Spring. | `org.mariadb.jdbc.Driver` (ajuste para `com.mysql.cj.jdbc.Driver` apenas se executar com MySQL). |
+| `SPRING_DATASOURCE_DRIVER_CLASS_NAME` | Driver JDBC utilizado pelo Spring. | `org.mariadb.jdbc.Driver` |
 | `SPRING_DATASOURCE_USERNAME` | Usuário do banco de dados. | `user` |
 | `SPRING_DATASOURCE_PASSWORD` | Senha do banco de dados. | `password` |
-| `SPRING_JPA_DATABASE_PLATFORM` | Dialeto do Hibernate utilizado pelo JPA. | `org.hibernate.dialect.MariaDBDialect` (ajuste para `org.hibernate.dialect.MySQLDialect` somente se precisar de MySQL). |
+| `SPRING_JPA_DATABASE_PLATFORM` | Dialeto do Hibernate utilizado pelo JPA. | `org.hibernate.dialect.MariaDBDialect` |
 | `APP_CORS_ALLOWED_ORIGINS` | Lista de origens liberadas para o CORS (separadas por vírgula). | `http://localhost:5173,http://localhost:3000` (no perfil `docker`, o padrão é `http://localhost:3000`) |
 | `SPRING_PROFILES_ACTIVE` | Perfis ativos do Spring Boot. Utilize `docker` ao executar via Compose. | *(sem padrão)* |
-| `SPRING_ACTIVE_DATABASE_PROFILE` | Complemento do perfil ativo usado no Docker Compose (padrão `mariadb`; mantenha ou altere para `mysql` apenas se compatibilidade com MySQL for necessária). | *(sem padrão — `mariadb` é aplicado como fallback)* |
+| `SPRING_ACTIVE_DATABASE_PROFILE` | Complemento do perfil ativo usado no Docker Compose. | *(sem padrão — `mariadb` é aplicado como fallback e é o único perfil disponível atualmente)* |
 | `AWS_COGNITO_REGION` | Região da AWS onde o User Pool está provisionado. | *(sem padrão — configure no `.env`)* |
 | `AWS_COGNITO_USER_POOL_ID` | Identificador do User Pool utilizado pela aplicação. | *(sem padrão — configure no `.env`)* |
 | `AWS_COGNITO_APP_CLIENT_ID` | ID do App Client utilizado para autenticação. | *(sem padrão — configure no `.env`)* |
@@ -268,7 +222,7 @@ O backend lê as configurações sensíveis a partir de variáveis de ambiente. 
 | `AWS_ACCESS_KEY_ID` | Chave de acesso utilizada pelo SDK ao invocar SES/SNS/SQS. | *(vazio — utilize perfis IAM ou variáveis seguras)* |
 | `AWS_SECRET_ACCESS_KEY` | Segredo associado à chave de acesso. | *(vazio — utilize perfis IAM ou variáveis seguras)* |
 
-> 💡 Crie um arquivo `.env` na raiz do projeto (pode usar `.env.example` como base) para configurar as variáveis do Cognito (`AWS_COGNITO_REGION`, `AWS_COGNITO_USER_POOL_ID` e `AWS_COGNITO_APP_CLIENT_ID`) e, quando for enviar e-mails de verdade, informe também as credenciais/identidades do SES (`AWS_SES_ENABLED`, `AWS_SES_FROM_ADDRESS`, `AWS_SES_TO_ADDRESSES`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`). Ajuste variáveis como `SPRING_DATASOURCE_URL` e `DATABASE_URL` para o formato `mariadb` (por exemplo, `jdbc:mariadb://...`). Se ainda precisar rodar com MySQL por legado, adapte esses valores manualmente.
+> 💡 Crie um arquivo `.env` na raiz do projeto (pode usar `.env.example` como base) para configurar as variáveis do Cognito (`AWS_COGNITO_REGION`, `AWS_COGNITO_USER_POOL_ID` e `AWS_COGNITO_APP_CLIENT_ID`) e, quando for enviar e-mails de verdade, informe também as credenciais/identidades do SES (`AWS_SES_ENABLED`, `AWS_SES_FROM_ADDRESS`, `AWS_SES_TO_ADDRESSES`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`). Ajuste variáveis como `SPRING_DATASOURCE_URL` e `DATABASE_URL` para o formato `mariadb` (por exemplo, `jdbc:mariadb://...`).
 
 Para provisionar rapidamente os tópicos SNS dedicados e a role com permissão de publicação, utilize o template CloudFormation localizado em `infra/aws/ticket-notifications.yaml`.
 
