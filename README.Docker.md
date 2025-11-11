@@ -1,7 +1,7 @@
 ### Building and running your application
 
 When you're ready, start your application by running:
-`docker compose up --build`.
+`docker compose --env-file config/env/.env -f infra/docker/compose.yaml up --build`.
 
 ### Deploying your application to the cloud
 
