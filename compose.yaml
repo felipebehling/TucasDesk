@@ -1,12 +1,10 @@
-version: "3.9"
-
 services:
   db:
     image: mariadb:11.4
     container_name: tucasdesk-db
     restart: unless-stopped
     env_file:
-      - config/env/.env.db
+      - ./config/env/.env
     environment:
       TZ: America/Sao_Paulo
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
@@ -16,7 +14,7 @@ services:
       MARIADB_CHARACTER_SET_SERVER: utf8mb4
       MARIADB_COLLATION_SERVER: utf8mb4_unicode_ci
     ports:
-      - "3307:${DB_PORT}"
+      - "3307:3306" # host:container – container SEM usar variável
     volumes:
       - database-data:/var/lib/mysql
       - ./infra/docker/mysql-init:/docker-entrypoint-initdb.d
@@ -39,13 +37,16 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    env_file:
+      - ./config/env/.env
     environment:
       TZ: America/Sao_Paulo
       SPRING_PROFILES_ACTIVE: mariadb,docker
-      SPRING_DATASOURCE_URL: jdbc:mariadb://db:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8
+      # COMUNICAÇÃO INTERNA ENTRE CONTAINERS USA PORTA 3306 FIXA
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      DATABASE_URL: mariadb://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}
+      DATABASE_URL: mariadb://${DB_USER}:${DB_PASSWORD}@db:3306/${DB_NAME}
       AWS_COGNITO_REGION: ${AWS_COGNITO_REGION}
       AWS_COGNITO_USER_POOL_ID: ${AWS_COGNITO_USER_POOL_ID}
       AWS_COGNITO_APP_CLIENT_ID: ${AWS_COGNITO_APP_CLIENT_ID}
@@ -76,7 +77,7 @@ services:
     container_name: tucasdesk-frontend
     restart: unless-stopped
     env_file:
-      - apps/frontend/.env
+      - ./config/env/.env
     environment:
       TZ: America/Sao_Paulo
       VITE_API_URL: ${VITE_API_URL}
