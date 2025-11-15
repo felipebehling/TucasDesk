@@ -12,7 +12,7 @@ RUN mvn clean package -DskipTests
 FROM amazoncorretto:21-alpine3.18
 WORKDIR /app
 
-COPY --from=build /app/target/tucasdesk-backend-*.jar app.jar
+COPY --from=build /app/target/tucasdesk-*.jar app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
