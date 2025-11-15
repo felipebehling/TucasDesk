@@ -130,7 +130,7 @@ public class AuthController {
         try {
             CognitoAuthenticationResult tokens = cognitoService.authenticate(usuario.getEmail(), loginDTO.getSenha());
             AuthenticatedUserDTO usuarioDTO = UsuarioMapper.toAuthenticatedUserDTO(usuario);
-            LoginResponseDTO responseDTO = new LoginResponseDTO(tokens.idToken(), tokens.accessToken(), tokens.refreshToken(), usuarioDTO);
+            LoginResponseDTO responseDTO = new LoginResponseDTO(tokens.getIdToken(), tokens.getAccessToken(), tokens.getRefreshToken(), usuarioDTO);
             log.info("event=auth_login status=success userId={} email={}", usuario.getIdUsuario(), usuario.getEmail());
             return ResponseEntity.ok(responseDTO);
         } catch (ResponseStatusException ex) {
@@ -148,11 +148,11 @@ public class AuthController {
     public ResponseEntity<?> refresh(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
         try {
             CognitoAuthenticationResult tokens = cognitoService.refreshToken(refreshTokenRequest.getRefreshToken());
-            AuthenticatedUserDTO usuarioDTO = resolveUsuarioFromUsername(tokens.username());
+            AuthenticatedUserDTO usuarioDTO = resolveUsuarioFromUsername(tokens.getUsername());
             LoginResponseDTO responseDTO = new LoginResponseDTO(
-                    tokens.idToken(),
-                    tokens.accessToken(),
-                    tokens.refreshToken(),
+                      tokens.getIdToken(),
+                      tokens.getAccessToken(),
+                      tokens.getRefreshToken(),
                     usuarioDTO);
             log.info("event=auth_refresh status=success email={}", usuarioDTO.getEmail());
             return ResponseEntity.ok(responseDTO);
@@ -182,16 +182,18 @@ public class AuthController {
         }
 
         Object principal = authentication.getPrincipal();
-        if (principal instanceof Usuario usuario) {
+        if (principal instanceof Usuario) {
+            Usuario usuario = (Usuario) principal;
             AuthenticatedUserDTO usuarioDTO = UsuarioMapper.toAuthenticatedUserDTO(usuario);
             return ResponseEntity.ok(usuarioDTO);
         }
 
         String username = null;
-        if (principal instanceof UserDetails userDetails) {
+        if (principal instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) principal;
             username = userDetails.getUsername();
-        } else if (principal instanceof String principalString) {
-            username = principalString;
+        } else if (principal instanceof String) {
+            username = (String) principal;
         }
 
         if (username != null) {

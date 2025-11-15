@@ -33,23 +33,23 @@ public class ChamadoEventListener {
             return;
         }
         log.info("event=chamado_message_received type={} chamadoId={} usuarioId={} tecnicoId={} attempts={}",
-                payload.eventType(),
-                payload.chamadoId(),
-                payload.usuarioId(),
-                payload.tecnicoId(),
+                payload.getEventType(),
+                payload.getChamadoId(),
+                payload.getUsuarioId(),
+                payload.getTecnicoId(),
                 attempts);
-        if (payload.interacao() != null) {
+        if (payload.getInteracao() != null) {
             log.info("event=chamado_interacao_received chamadoId={} interacaoId={} usuarioId={} attempts={}",
-                    payload.chamadoId(),
-                    payload.interacao().interacaoId(),
-                    payload.interacao().usuarioId(),
+                    payload.getChamadoId(),
+                    payload.getInteracao().getInteracaoId(),
+                    payload.getInteracao().getUsuarioId(),
                     attempts);
         }
         try {
             notifier.notify(payload);
         } catch (RuntimeException ex) {
             log.error("event=chamado_notification_error chamadoId={} attempts={} message={}",
-                    payload.chamadoId(), attempts, ex.getMessage(), ex);
+                    payload.getChamadoId(), attempts, ex.getMessage(), ex);
             throw ex;
         }
     }

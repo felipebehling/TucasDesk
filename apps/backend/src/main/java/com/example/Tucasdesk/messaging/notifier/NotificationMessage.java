@@ -6,14 +6,32 @@ import java.util.Map;
 
 /**
  * Immutable representation of a notification to be sent by the notifier service.
- *
- * @param subject       human friendly summary displayed to the recipient.
- * @param body          detailed description containing contextual data for the event.
- * @param templateModel data model that can be interpolated into an e-mail template.
  */
-public record NotificationMessage(String subject, String body, Map<String, Object> templateModel) {
+public class NotificationMessage {
 
-    public NotificationMessage {
-        templateModel = templateModel != null ? Collections.unmodifiableMap(new LinkedHashMap<>(templateModel)) : Map.of();
+    private final String subject;
+    private final String body;
+    private final Map<String, Object> templateModel;
+
+    public NotificationMessage(String subject, String body, Map<String, Object> templateModel) {
+        this.subject = subject;
+        this.body = body;
+        if (templateModel != null) {
+            this.templateModel = Collections.unmodifiableMap(new LinkedHashMap<>(templateModel));
+        } else {
+            this.templateModel = Collections.emptyMap();
+        }
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public Map<String, Object> getTemplateModel() {
+        return templateModel;
     }
 }

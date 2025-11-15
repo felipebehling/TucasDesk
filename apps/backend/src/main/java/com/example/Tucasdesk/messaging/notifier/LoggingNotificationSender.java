@@ -21,6 +21,6 @@ public class LoggingNotificationSender implements NotificationSender {
     @Override
     public void send(NotificationMessage message) {
         log.info("event=notifier_notification_sent subject={} body={} templateModel={}",
-                message.subject(), message.body(), message.templateModel());
+                message.getSubject(), message.getBody(), message.getTemplateModel());
     }
 }

@@ -101,21 +101,21 @@ public class ChamadoMessagingService {
     }
 
     private boolean sendTicketEvent(TicketEventPayload payload, String topicArn) {
-        boolean delivered = sendToTopic(topicArn, payload, payload.eventType(), payload.chamadoId());
+        boolean delivered = sendToTopic(topicArn, payload, payload.getEventType(), payload.getChamadoId());
         if (!delivered) {
             log.debug("event=chamado_message_skipped reason=no_topic_configured type={} chamadoId={}",
-                    payload.eventType(), payload.chamadoId());
+                    payload.getEventType(), payload.getChamadoId());
         }
         return delivered;
     }
 
     private void send(ChamadoEventPayload payload) {
         boolean hasTargets = false;
-        hasTargets = sendToTopic(properties.getTopicArn(), payload, payload.eventType(), payload.chamadoId()) || hasTargets;
+        hasTargets = sendToTopic(properties.getTopicArn(), payload, payload.getEventType(), payload.getChamadoId()) || hasTargets;
         hasTargets = sendQueue(payload) || hasTargets;
         if (!hasTargets) {
             log.debug("event=chamado_message_skipped reason=no_targets_configured type={} chamadoId={}",
-                    payload.eventType(), payload.chamadoId());
+                    payload.getEventType(), payload.getChamadoId());
         }
     }
 

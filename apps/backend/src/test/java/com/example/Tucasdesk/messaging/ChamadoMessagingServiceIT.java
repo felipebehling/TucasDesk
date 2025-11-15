@@ -62,15 +62,15 @@ class ChamadoMessagingServiceIT {
         ArgumentCaptor<TicketCreatedEventPayload> snsPayloadCaptor = ArgumentCaptor.forClass(TicketCreatedEventPayload.class);
         verify(snsTemplate).convertAndSend(eq("arn:aws:sns:sa-east-1:123456789012:ticket-created"), snsPayloadCaptor.capture());
         TicketCreatedEventPayload snsPayload = snsPayloadCaptor.getValue();
-        Assertions.assertThat(snsPayload.eventType()).isEqualTo(TicketCreatedEventPayload.EVENT_TYPE);
-        Assertions.assertThat(snsPayload.chamadoId()).isEqualTo(chamado.getIdChamado());
-        Assertions.assertThat(snsPayload.solicitanteId()).isEqualTo(chamado.getUsuario().getIdUsuario());
+        Assertions.assertThat(snsPayload.getEventType()).isEqualTo(TicketCreatedEventPayload.EVENT_TYPE);
+        Assertions.assertThat(snsPayload.getChamadoId()).isEqualTo(chamado.getIdChamado());
+        Assertions.assertThat(snsPayload.getSolicitanteId()).isEqualTo(chamado.getUsuario().getIdUsuario());
 
         ArgumentCaptor<ChamadoEventPayload> sqsPayloadCaptor = ArgumentCaptor.forClass(ChamadoEventPayload.class);
         verify(sqsTemplate).send(eq("ticket-events-queue"), sqsPayloadCaptor.capture());
         ChamadoEventPayload sqsPayload = sqsPayloadCaptor.getValue();
-        Assertions.assertThat(sqsPayload.eventType()).isEqualTo(ChamadoMessagingService.EVENT_CHAMADO_CREATED);
-        Assertions.assertThat(sqsPayload.chamadoId()).isEqualTo(chamado.getIdChamado());
+        Assertions.assertThat(sqsPayload.getEventType()).isEqualTo(ChamadoMessagingService.EVENT_CHAMADO_CREATED);
+        Assertions.assertThat(sqsPayload.getChamadoId()).isEqualTo(chamado.getIdChamado());
     }
 
     @Test
@@ -87,8 +87,8 @@ class ChamadoMessagingServiceIT {
         ArgumentCaptor<TicketClosedEventPayload> snsPayloadCaptor = ArgumentCaptor.forClass(TicketClosedEventPayload.class);
         verify(snsTemplate).convertAndSend(eq("arn:aws:sns:sa-east-1:123456789012:ticket-closed"), snsPayloadCaptor.capture());
         TicketClosedEventPayload payload = snsPayloadCaptor.getValue();
-        Assertions.assertThat(payload.eventType()).isEqualTo(TicketClosedEventPayload.EVENT_TYPE);
-        Assertions.assertThat(payload.chamadoId()).isEqualTo(chamado.getIdChamado());
+        Assertions.assertThat(payload.getEventType()).isEqualTo(TicketClosedEventPayload.EVENT_TYPE);
+        Assertions.assertThat(payload.getChamadoId()).isEqualTo(chamado.getIdChamado());
 
         verifyNoInteractions(sqsTemplate);
     }

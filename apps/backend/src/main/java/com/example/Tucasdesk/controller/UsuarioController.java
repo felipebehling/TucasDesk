@@ -132,15 +132,17 @@ public class UsuarioController {
         }
 
         Object principal = authentication.getPrincipal();
-        if (principal instanceof Usuario usuario) {
-            return usuario;
+        if (principal instanceof Usuario) {
+            return (Usuario) principal;
         }
 
-        if (principal instanceof UserDetails userDetails) {
+        if (principal instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) principal;
             return usuarioService.buscarUsuarioPorEmail(userDetails.getUsername()).orElse(null);
         }
 
-        if (principal instanceof String username) {
+        if (principal instanceof String) {
+            String username = (String) principal;
             return usuarioService.buscarUsuarioPorEmail(username).orElse(null);
         }
 

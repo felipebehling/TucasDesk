@@ -10,20 +10,94 @@ import java.util.Objects;
 /**
  * Immutable payload sent through SNS/SQS for ticket related events.
  */
-public record ChamadoEventPayload(
-        String eventType,
-        Integer chamadoId,
-        String titulo,
-        String descricao,
-        Integer usuarioId,
-        Integer tecnicoId,
-        Integer categoriaId,
-        Integer prioridadeId,
-        Integer statusId,
-        LocalDateTime dataAbertura,
-        LocalDateTime dataFechamento,
-        InteracaoPayload interacao
-) {
+public class ChamadoEventPayload {
+
+    private final String eventType;
+    private final Integer chamadoId;
+    private final String titulo;
+    private final String descricao;
+    private final Integer usuarioId;
+    private final Integer tecnicoId;
+    private final Integer categoriaId;
+    private final Integer prioridadeId;
+    private final Integer statusId;
+    private final LocalDateTime dataAbertura;
+    private final LocalDateTime dataFechamento;
+    private final InteracaoPayload interacao;
+
+    public ChamadoEventPayload(String eventType,
+                               Integer chamadoId,
+                               String titulo,
+                               String descricao,
+                               Integer usuarioId,
+                               Integer tecnicoId,
+                               Integer categoriaId,
+                               Integer prioridadeId,
+                               Integer statusId,
+                               LocalDateTime dataAbertura,
+                               LocalDateTime dataFechamento,
+                               InteracaoPayload interacao) {
+        this.eventType = eventType;
+        this.chamadoId = chamadoId;
+        this.titulo = titulo;
+        this.descricao = descricao;
+        this.usuarioId = usuarioId;
+        this.tecnicoId = tecnicoId;
+        this.categoriaId = categoriaId;
+        this.prioridadeId = prioridadeId;
+        this.statusId = statusId;
+        this.dataAbertura = dataAbertura;
+        this.dataFechamento = dataFechamento;
+        this.interacao = interacao;
+    }
+
+    public String getEventType() {
+        return eventType;
+    }
+
+    public Integer getChamadoId() {
+        return chamadoId;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public Integer getUsuarioId() {
+        return usuarioId;
+    }
+
+    public Integer getTecnicoId() {
+        return tecnicoId;
+    }
+
+    public Integer getCategoriaId() {
+        return categoriaId;
+    }
+
+    public Integer getPrioridadeId() {
+        return prioridadeId;
+    }
+
+    public Integer getStatusId() {
+        return statusId;
+    }
+
+    public LocalDateTime getDataAbertura() {
+        return dataAbertura;
+    }
+
+    public LocalDateTime getDataFechamento() {
+        return dataFechamento;
+    }
+
+    public InteracaoPayload getInteracao() {
+        return interacao;
+    }
 
     /**
      * Creates a payload describing the current state of the ticket.
@@ -93,12 +167,44 @@ public record ChamadoEventPayload(
      * @param dataInteracao timestamp when the interaction was registered.
      * @param anexoUrl      optional attachment URL included with the interaction.
      */
-    public record InteracaoPayload(
-            Integer interacaoId,
-            Integer usuarioId,
-            String mensagem,
-            LocalDateTime dataInteracao,
-            String anexoUrl
-    ) {
+    public static final class InteracaoPayload {
+
+        private final Integer interacaoId;
+        private final Integer usuarioId;
+        private final String mensagem;
+        private final LocalDateTime dataInteracao;
+        private final String anexoUrl;
+
+        public InteracaoPayload(Integer interacaoId,
+                                Integer usuarioId,
+                                String mensagem,
+                                LocalDateTime dataInteracao,
+                                String anexoUrl) {
+            this.interacaoId = interacaoId;
+            this.usuarioId = usuarioId;
+            this.mensagem = mensagem;
+            this.dataInteracao = dataInteracao;
+            this.anexoUrl = anexoUrl;
+        }
+
+        public Integer getInteracaoId() {
+            return interacaoId;
+        }
+
+        public Integer getUsuarioId() {
+            return usuarioId;
+        }
+
+        public String getMensagem() {
+            return mensagem;
+        }
+
+        public LocalDateTime getDataInteracao() {
+            return dataInteracao;
+        }
+
+        public String getAnexoUrl() {
+            return anexoUrl;
+        }
     }
 }
