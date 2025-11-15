@@ -1,6 +1,7 @@
 package com.example.Tucasdesk.security;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -155,10 +156,12 @@ public class CognitoTokenService {
         }
 
         Object claim = jwt.getClaims().get(claimName);
-        if (claim instanceof String stringClaim) {
+        if (claim instanceof String) {
+            String stringClaim = (String) claim;
             return findPerfil(stringClaim);
         }
-        if (claim instanceof Collection<?> collection) {
+        if (claim instanceof Collection<?>) {
+            Collection<?> collection = (Collection<?>) claim;
             return collection.stream()
                     .map(Object::toString)
                     .map(this::findPerfil)
@@ -178,6 +181,6 @@ public class CognitoTokenService {
 
     private List<GrantedAuthority> authoritiesForPerfil(Perfil perfil) {
         String authority = AuthorityUtils.createRoleAuthority(perfil.getNome());
-        return List.of(new SimpleGrantedAuthority(authority));
+        return Collections.singletonList(new SimpleGrantedAuthority(authority));
     }
 }

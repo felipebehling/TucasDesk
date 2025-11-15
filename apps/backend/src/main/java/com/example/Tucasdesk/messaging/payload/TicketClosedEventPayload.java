@@ -9,23 +9,31 @@ import java.util.Objects;
 /**
  * Payload emitted when a ticket transitions to the closed state.
  */
-public record TicketClosedEventPayload(
-        String eventType,
-        Integer chamadoId,
-        Integer solicitanteId,
-        Integer tecnicoId,
-        Integer statusId,
-        LocalDateTime dataFechamento
-) implements TicketEventPayload {
+public class TicketClosedEventPayload implements TicketEventPayload {
 
     public static final String EVENT_TYPE = "TicketClosed";
 
-    /**
-     * Maps the provided entity into a message payload.
-     *
-     * @param chamado the ticket that has been closed.
-     * @return the resulting payload.
-     */
+    private final String eventType;
+    private final Integer chamadoId;
+    private final Integer solicitanteId;
+    private final Integer tecnicoId;
+    private final Integer statusId;
+    private final LocalDateTime dataFechamento;
+
+    public TicketClosedEventPayload(String eventType,
+                                    Integer chamadoId,
+                                    Integer solicitanteId,
+                                    Integer tecnicoId,
+                                    Integer statusId,
+                                    LocalDateTime dataFechamento) {
+        this.eventType = eventType;
+        this.chamadoId = chamadoId;
+        this.solicitanteId = solicitanteId;
+        this.tecnicoId = tecnicoId;
+        this.statusId = statusId;
+        this.dataFechamento = dataFechamento;
+    }
+
     public static TicketClosedEventPayload fromChamado(Chamado chamado) {
         return new TicketClosedEventPayload(
                 EVENT_TYPE,
@@ -39,5 +47,31 @@ public record TicketClosedEventPayload(
 
     private static Integer getUsuarioId(Usuario usuario) {
         return Objects.nonNull(usuario) ? usuario.getIdUsuario() : null;
+    }
+
+    @Override
+    public String getEventType() {
+        return eventType;
+    }
+
+    @Override
+    public Integer getChamadoId() {
+        return chamadoId;
+    }
+
+    public Integer getSolicitanteId() {
+        return solicitanteId;
+    }
+
+    public Integer getTecnicoId() {
+        return tecnicoId;
+    }
+
+    public Integer getStatusId() {
+        return statusId;
+    }
+
+    public LocalDateTime getDataFechamento() {
+        return dataFechamento;
     }
 }

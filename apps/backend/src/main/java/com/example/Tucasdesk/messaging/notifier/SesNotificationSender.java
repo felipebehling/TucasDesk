@@ -85,11 +85,11 @@ public class SesNotificationSender implements NotificationSender {
             String errorMessage = ex.awsErrorDetails() != null ? ex.awsErrorDetails().errorMessage() : ex.getMessage();
             String errorCode = ex.awsErrorDetails() != null ? ex.awsErrorDetails().errorCode() : "unknown";
             log.error("event=ses_notification_failed statusCode={} errorCode={} message={} subject={}",
-                    ex.statusCode(), errorCode, errorMessage, message.subject(), ex);
+                    ex.statusCode(), errorCode, errorMessage, message.getSubject(), ex);
             throw new NotificationDeliveryException("Failed to send notification via SES", ex);
         } catch (SdkClientException ex) {
             failureCounter.increment();
-            log.error("event=ses_notification_failed reason={} subject={}", ex.getMessage(), message.subject(), ex);
+            log.error("event=ses_notification_failed reason={} subject={}", ex.getMessage(), message.getSubject(), ex);
             throw new NotificationDeliveryException("Failed to send notification via SES", ex);
         }
     }
@@ -101,9 +101,9 @@ public class SesNotificationSender implements NotificationSender {
     }
 
     private String buildTemplateData(NotificationMessage message) {
-        Map<String, Object> templateModel = new LinkedHashMap<>(message.templateModel());
-        templateModel.putIfAbsent("subject", message.subject());
-        templateModel.putIfAbsent("body", message.body());
+        Map<String, Object> templateModel = new LinkedHashMap<>(message.getTemplateModel());
+        templateModel.putIfAbsent("subject", message.getSubject());
+        templateModel.putIfAbsent("body", message.getBody());
         try {
             return objectMapper.writeValueAsString(templateModel);
         } catch (JsonProcessingException e) {
@@ -133,14 +133,14 @@ public class SesNotificationSender implements NotificationSender {
         if (throttled) {
             throttledCounter.increment();
             log.warn("event=ses_notification_throttled subject={} statusCode={} message={}",
-                    message.subject(), statusCode, errorMessage);
+                    message.getSubject(), statusCode, errorMessage);
             throw new NotificationRateLimitException("SES throttled the request", ex);
         }
         log.error("event=ses_notification_failed statusCode={} errorCode={} message={} subject={}",
                 statusCode,
                 errorCode != null ? errorCode : "unknown",
                 errorMessage,
-                message.subject(), ex);
+                message.getSubject(), ex);
         throw new NotificationDeliveryException("SES rejected the request", ex);
     }
 }

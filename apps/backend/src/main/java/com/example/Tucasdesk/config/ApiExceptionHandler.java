@@ -41,7 +41,8 @@ public class ApiExceptionHandler {
         String message = ex.getBindingResult().getAllErrors().stream()
                 .findFirst()
                 .map(error -> {
-                    if (error instanceof FieldError fieldError) {
+                    if (error instanceof FieldError) {
+                        FieldError fieldError = (FieldError) error;
                         return fieldError.getDefaultMessage();
                     }
                     return error.getDefaultMessage();

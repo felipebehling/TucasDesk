@@ -27,11 +27,17 @@ public class CognitoAudienceValidator implements OAuth2TokenValidator<Jwt> {
         }
 
         Object audClaim = token.getClaims().get("aud");
-        if (audClaim instanceof String aud && expectedClientId.equals(aud)) {
-            return OAuth2TokenValidatorResult.success();
+        if (audClaim instanceof String) {
+            String aud = (String) audClaim;
+            if (expectedClientId.equals(aud)) {
+                return OAuth2TokenValidatorResult.success();
+            }
         }
-        if (audClaim instanceof Collection<?> audience && audience.stream().anyMatch(expectedClientId::equals)) {
-            return OAuth2TokenValidatorResult.success();
+        if (audClaim instanceof Collection<?>) {
+            Collection<?> audience = (Collection<?>) audClaim;
+            if (audience.stream().anyMatch(expectedClientId::equals)) {
+                return OAuth2TokenValidatorResult.success();
+            }
         }
 
         Object clientId = token.getClaims().get("client_id");

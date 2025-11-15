@@ -45,7 +45,7 @@ public class Notifier {
             sender.send(message);
         } catch (RuntimeException ex) {
             log.error("event=notifier_delivery_failed chamadoId={} eventType={} message={}",
-                    payload.chamadoId(), payload.eventType(), ex.getMessage(), ex);
+                    payload.getChamadoId(), payload.getEventType(), ex.getMessage(), ex);
             throw ex;
         }
     }
@@ -58,49 +58,52 @@ public class Notifier {
     }
 
     private String buildSubject(ChamadoEventPayload payload) {
-        String titulo = StringUtils.hasText(payload.titulo()) ? payload.titulo() : "Sem título";
-        return switch (payload.eventType()) {
-            case ChamadoMessagingService.EVENT_CHAMADO_CREATED ->
-                    "Chamado #%d criado: %s".formatted(payload.chamadoId(), titulo);
-            case ChamadoMessagingService.EVENT_CHAMADO_UPDATED ->
-                    "Chamado #%d atualizado".formatted(payload.chamadoId());
-            case ChamadoMessagingService.EVENT_CHAMADO_STATUS_CHANGED ->
-                    "Status atualizado para o chamado #%d".formatted(payload.chamadoId());
-            case ChamadoMessagingService.EVENT_CHAMADO_INTERACAO_ADDED ->
-                    "Nova interação no chamado #%d".formatted(payload.chamadoId());
-            default -> "Atualização no chamado #%d".formatted(payload.chamadoId());
-        };
+        String titulo = StringUtils.hasText(payload.getTitulo()) ? payload.getTitulo() : "Sem título";
+        String eventType = payload.getEventType();
+        if (ChamadoMessagingService.EVENT_CHAMADO_CREATED.equals(eventType)) {
+            return String.format("Chamado #%d criado: %s", payload.getChamadoId(), titulo);
+        }
+        if (ChamadoMessagingService.EVENT_CHAMADO_UPDATED.equals(eventType)) {
+            return String.format("Chamado #%d atualizado", payload.getChamadoId());
+        }
+        if (ChamadoMessagingService.EVENT_CHAMADO_STATUS_CHANGED.equals(eventType)) {
+            return String.format("Status atualizado para o chamado #%d", payload.getChamadoId());
+        }
+        if (ChamadoMessagingService.EVENT_CHAMADO_INTERACAO_ADDED.equals(eventType)) {
+            return String.format("Nova interação no chamado #%d", payload.getChamadoId());
+        }
+        return String.format("Atualização no chamado #%d", payload.getChamadoId());
     }
 
     private String buildBody(ChamadoEventPayload payload) {
         StringBuilder body = new StringBuilder();
-        body.append("Evento: ").append(payload.eventType()).append('\n');
-        body.append("Chamado: #").append(payload.chamadoId()).append('\n');
-        if (StringUtils.hasText(payload.titulo())) {
-            body.append("Título: ").append(payload.titulo()).append('\n');
+        body.append("Evento: ").append(payload.getEventType()).append('\n');
+        body.append("Chamado: #").append(payload.getChamadoId()).append('\n');
+        if (StringUtils.hasText(payload.getTitulo())) {
+            body.append("Título: ").append(payload.getTitulo()).append('\n');
         }
-        if (StringUtils.hasText(payload.descricao())) {
-            body.append("Descrição: ").append(payload.descricao()).append('\n');
+        if (StringUtils.hasText(payload.getDescricao())) {
+            body.append("Descrição: ").append(payload.getDescricao()).append('\n');
         }
-        if (payload.dataAbertura() != null) {
-            body.append("Aberto em: ").append(DATE_FORMATTER.format(payload.dataAbertura())).append('\n');
+        if (payload.getDataAbertura() != null) {
+            body.append("Aberto em: ").append(DATE_FORMATTER.format(payload.getDataAbertura())).append('\n');
         }
-        if (payload.dataFechamento() != null) {
-            body.append("Fechado em: ").append(DATE_FORMATTER.format(payload.dataFechamento())).append('\n');
+        if (payload.getDataFechamento() != null) {
+            body.append("Fechado em: ").append(DATE_FORMATTER.format(payload.getDataFechamento())).append('\n');
         }
-        if (payload.interacao() != null) {
-            body.append('\n').append("Interação #").append(payload.interacao().interacaoId()).append('\n');
-            if (payload.interacao().usuarioId() != null) {
-                body.append("Usuário: ").append(payload.interacao().usuarioId()).append('\n');
+        if (payload.getInteracao() != null) {
+            body.append('\n').append("Interação #").append(payload.getInteracao().getInteracaoId()).append('\n');
+            if (payload.getInteracao().getUsuarioId() != null) {
+                body.append("Usuário: ").append(payload.getInteracao().getUsuarioId()).append('\n');
             }
-            if (StringUtils.hasText(payload.interacao().mensagem())) {
-                body.append("Mensagem: ").append(payload.interacao().mensagem()).append('\n');
+            if (StringUtils.hasText(payload.getInteracao().getMensagem())) {
+                body.append("Mensagem: ").append(payload.getInteracao().getMensagem()).append('\n');
             }
-            if (payload.interacao().dataInteracao() != null) {
-                body.append("Data: ").append(DATE_FORMATTER.format(payload.interacao().dataInteracao())).append('\n');
+            if (payload.getInteracao().getDataInteracao() != null) {
+                body.append("Data: ").append(DATE_FORMATTER.format(payload.getInteracao().getDataInteracao())).append('\n');
             }
-            if (StringUtils.hasText(payload.interacao().anexoUrl())) {
-                body.append("Anexo: ").append(payload.interacao().anexoUrl()).append('\n');
+            if (StringUtils.hasText(payload.getInteracao().getAnexoUrl())) {
+                body.append("Anexo: ").append(payload.getInteracao().getAnexoUrl()).append('\n');
             }
         }
         return body.toString();
@@ -110,34 +113,34 @@ public class Notifier {
         Map<String, Object> model = new LinkedHashMap<>();
         model.put("subject", subject);
         model.put("body", body);
-        model.put("eventType", payload.eventType());
-        model.put("ticketId", payload.chamadoId());
-        if (StringUtils.hasText(payload.titulo())) {
-            model.put("titulo", payload.titulo());
+        model.put("eventType", payload.getEventType());
+        model.put("ticketId", payload.getChamadoId());
+        if (StringUtils.hasText(payload.getTitulo())) {
+            model.put("titulo", payload.getTitulo());
         }
-        if (StringUtils.hasText(payload.descricao())) {
-            model.put("descricao", payload.descricao());
+        if (StringUtils.hasText(payload.getDescricao())) {
+            model.put("descricao", payload.getDescricao());
         }
-        if (payload.dataAbertura() != null) {
-            model.put("dataAbertura", DATE_FORMATTER.format(payload.dataAbertura()));
+        if (payload.getDataAbertura() != null) {
+            model.put("dataAbertura", DATE_FORMATTER.format(payload.getDataAbertura()));
         }
-        if (payload.dataFechamento() != null) {
-            model.put("dataFechamento", DATE_FORMATTER.format(payload.dataFechamento()));
+        if (payload.getDataFechamento() != null) {
+            model.put("dataFechamento", DATE_FORMATTER.format(payload.getDataFechamento()));
         }
-        if (payload.interacao() != null) {
+        if (payload.getInteracao() != null) {
             Map<String, Object> interaction = new LinkedHashMap<>();
-            interaction.put("interacaoId", payload.interacao().interacaoId());
-            if (payload.interacao().usuarioId() != null) {
-                interaction.put("usuarioId", payload.interacao().usuarioId());
+            interaction.put("interacaoId", payload.getInteracao().getInteracaoId());
+            if (payload.getInteracao().getUsuarioId() != null) {
+                interaction.put("usuarioId", payload.getInteracao().getUsuarioId());
             }
-            if (StringUtils.hasText(payload.interacao().mensagem())) {
-                interaction.put("mensagem", payload.interacao().mensagem());
+            if (StringUtils.hasText(payload.getInteracao().getMensagem())) {
+                interaction.put("mensagem", payload.getInteracao().getMensagem());
             }
-            if (payload.interacao().dataInteracao() != null) {
-                interaction.put("dataInteracao", DATE_FORMATTER.format(payload.interacao().dataInteracao()));
+            if (payload.getInteracao().getDataInteracao() != null) {
+                interaction.put("dataInteracao", DATE_FORMATTER.format(payload.getInteracao().getDataInteracao()));
             }
-            if (StringUtils.hasText(payload.interacao().anexoUrl())) {
-                interaction.put("anexoUrl", payload.interacao().anexoUrl());
+            if (StringUtils.hasText(payload.getInteracao().getAnexoUrl())) {
+                interaction.put("anexoUrl", payload.getInteracao().getAnexoUrl());
             }
             model.put("interacao", interaction);
         }

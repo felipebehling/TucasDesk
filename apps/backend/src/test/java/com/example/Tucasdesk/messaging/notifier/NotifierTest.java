@@ -51,14 +51,14 @@ class NotifierTest {
         ArgumentCaptor<NotificationMessage> messageCaptor = ArgumentCaptor.forClass(NotificationMessage.class);
         verify(sender).send(messageCaptor.capture());
         NotificationMessage message = messageCaptor.getValue();
-        assertThat(message.subject()).isEqualTo("Chamado #101 criado: Novo computador");
-        assertThat(message.body())
+        assertThat(message.getSubject()).isEqualTo("Chamado #101 criado: Novo computador");
+        assertThat(message.getBody())
                 .contains("Evento: CHAMADO_CREATED")
                 .contains("Chamado: #101")
                 .contains("Título: Novo computador")
                 .contains("Descrição: Instalação de estação de trabalho")
                 .contains("Aberto em: 05/10/2024 14:30");
-        assertThat(message.templateModel())
+        assertThat(message.getTemplateModel())
                 .containsEntry("subject", "Chamado #101 criado: Novo computador")
                 .containsEntry("eventType", ChamadoMessagingService.EVENT_CHAMADO_CREATED)
                 .containsEntry("ticketId", 101)
@@ -92,18 +92,18 @@ class NotifierTest {
 
         NotificationMessage message = notifier.buildMessage(payload);
 
-        assertThat(message.subject()).isEqualTo("Nova interação no chamado #55");
-        assertThat(message.body())
+        assertThat(message.getSubject()).isEqualTo("Nova interação no chamado #55");
+        assertThat(message.getBody())
                 .contains("Interação #900")
                 .contains("Usuário: 10")
                 .contains("Mensagem: Enviei logs para análise")
                 .contains("Anexo: https://s3.amazonaws.com/anexos/logs.txt")
                 .contains("Data: 15/09/2024 10:15");
-        assertThat(message.templateModel())
+        assertThat(message.getTemplateModel())
                 .containsEntry("ticketId", 55)
                 .containsEntry("titulo", "Problema no e-mail")
                 .containsKey("interacao");
-        assertThat(message.templateModel())
+        assertThat(message.getTemplateModel())
                 .extractingByKey("interacao")
                 .asInstanceOf(InstanceOfAssertFactories.MAP)
                 .containsEntry("interacaoId", 900)
