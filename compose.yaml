@@ -1,3 +1,104 @@
+# services:
+#   db:
+#     image: mariadb:11.4
+#     container_name: tucasdesk-db
+#     restart: unless-stopped
+#     env_file:
+#       - ./.env
+#     environment:
+#       TZ: America/Sao_Paulo
+#       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+#       MARIADB_DATABASE: ${DB_NAME}
+#       MARIADB_USER: ${DB_USER}
+#       MARIADB_PASSWORD: ${DB_PASSWORD}
+#       MARIADB_CHARACTER_SET_SERVER: utf8mb4
+#       MARIADB_COLLATION_SERVER: utf8mb4_unicode_ci
+#     ports:
+#       - "3307:3306" # host:container – container SEM usar variável
+#     volumes:
+#       - database-data:/var/lib/mysql
+#       - ./infra/docker/mysql-init:/docker-entrypoint-initdb.d
+#     healthcheck:
+#       test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "tucasdesk", "-p${DB_PASSWORD}", "--silent"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 10
+#       start_period: 40s
+#     logging:
+#       driver: json-file
+#       options:
+#         max-size: "10m"
+#         max-file: "3"
+
+#   backend:
+#     build: ./apps/backend
+#     container_name: tucasdesk-backend
+#     restart: unless-stopped
+#     depends_on:
+#       db:
+#         condition: service_healthy
+#     environment:
+#       TZ: America/Sao_Paulo
+#       SPRING_PROFILES_ACTIVE: mariadb,docker
+#       # COMUNICAÇÃO INTERNA ENTRE CONTAINERS USA PORTA 3306 FIXA
+#       SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8
+#       SPRING_DATASOURCE_USERNAME: ${DB_USER}
+#       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+#       DATABASE_URL: mariadb://${DB_USER}:${DB_PASSWORD}@db:3306/${DB_NAME}
+#       AWS_COGNITO_REGION: ${AWS_COGNITO_REGION}
+#       AWS_COGNITO_USER_POOL_ID: ${AWS_COGNITO_USER_POOL_ID}
+#       AWS_COGNITO_APP_CLIENT_ID: ${AWS_COGNITO_APP_CLIENT_ID}
+#       AWS_COGNITO_ISSUER_URI: ${AWS_COGNITO_ISSUER_URI}
+#       AWS_COGNITO_JWK_SET_URI: ${AWS_COGNITO_JWK_SET_URI}
+#       SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 10
+#       SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 20000
+#       SPRING_JPA_OPEN_IN_VIEW: "false"
+#     ports:
+#       - "8080:8080"
+#     healthcheck:
+#       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+#       interval: 30s
+#       timeout: 5s
+#       retries: 5
+#       start_period: 30s
+#     logging:
+#       driver: json-file
+#       options:
+#         max-size: "10m"
+#         max-file: "3"
+
+#   frontend:
+#     build:
+#       context: ./apps/frontend
+#       args:
+#         VITE_API_URL: ${VITE_API_URL}
+#     container_name: tucasdesk-frontend
+#     restart: unless-stopped
+#     environment:
+#       TZ: America/Sao_Paulo
+#       VITE_API_URL: ${VITE_API_URL}
+#     ports:
+#       - "3000:80"
+#     depends_on:
+#       - backend
+#     logging:
+#       driver: json-file
+#       options:
+#         max-size: "10m"
+#         max-file: "3"
+
+# volumes:
+#   database-data:
+
+
+
+
+
+
+
+
+version: "3.9"
+
 services:
   db:
     image: mariadb:11.4
@@ -14,12 +115,12 @@ services:
       MARIADB_CHARACTER_SET_SERVER: utf8mb4
       MARIADB_COLLATION_SERVER: utf8mb4_unicode_ci
     ports:
-      - "3307:3306" # host:container – container SEM usar variável
+      - "3307:3306"
     volumes:
       - database-data:/var/lib/mysql
       - ./infra/docker/mysql-init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "tucasdesk", "-p${DB_PASSWORD}", "--silent"]
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot", "-p${DB_ROOT_PASSWORD}", "--silent"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -37,22 +138,50 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    env_file:
+      - ./.env
     environment:
       TZ: America/Sao_Paulo
+
+      # Spring perfis
       SPRING_PROFILES_ACTIVE: mariadb,docker
-      # COMUNICAÇÃO INTERNA ENTRE CONTAINERS USA PORTA 3306 FIXA
-      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8
-      SPRING_DATASOURCE_USERNAME: ${DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      DATABASE_URL: mariadb://${DB_USER}:${DB_PASSWORD}@db:3306/${DB_NAME}
+
+      # DB
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      DATABASE_URL: ${DATABASE_URL}
+
+      # CORS
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
+
+      # Cognito
       AWS_COGNITO_REGION: ${AWS_COGNITO_REGION}
       AWS_COGNITO_USER_POOL_ID: ${AWS_COGNITO_USER_POOL_ID}
       AWS_COGNITO_APP_CLIENT_ID: ${AWS_COGNITO_APP_CLIENT_ID}
       AWS_COGNITO_ISSUER_URI: ${AWS_COGNITO_ISSUER_URI}
       AWS_COGNITO_JWK_SET_URI: ${AWS_COGNITO_JWK_SET_URI}
-      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 10
-      SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 20000
-      SPRING_JPA_OPEN_IN_VIEW: "false"
+
+      # AWS genérico / credentials
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+
+      # SQS / SNS
+      AWS_SQS_QUEUE_NAME: ${AWS_SQS_QUEUE_NAME}
+      AWS_SNS_TOPIC_ARN: ${AWS_SNS_TOPIC_ARN}
+      AWS_SNS_TICKET_CREATED_TOPIC_ARN: ${AWS_SNS_TICKET_CREATED_TOPIC_ARN}
+      AWS_SNS_TICKET_CLOSED_TOPIC_ARN: ${AWS_SNS_TICKET_CLOSED_TOPIC_ARN}
+
+      # SES
+      AWS_SES_ENABLED: ${AWS_SES_ENABLED}
+      AWS_SES_REGION: ${AWS_SES_REGION}
+      AWS_SES_FROM_ADDRESS: ${AWS_SES_FROM_ADDRESS}
+      AWS_SES_REPLY_TO_ADDRESS: ${AWS_SES_REPLY_TO_ADDRESS}
+      AWS_SES_TO_ADDRESSES: ${AWS_SES_TO_ADDRESSES}
+      AWS_SES_TEMPLATE_NAME: ${AWS_SES_TEMPLATE_NAME}
+      AWS_SES_CONFIGURATION_SET: ${AWS_SES_CONFIGURATION_SET}
+
     ports:
       - "8080:8080"
     healthcheck:
@@ -74,6 +203,8 @@ services:
         VITE_API_URL: ${VITE_API_URL}
     container_name: tucasdesk-frontend
     restart: unless-stopped
+    env_file:
+      - ./.env
     environment:
       TZ: America/Sao_Paulo
       VITE_API_URL: ${VITE_API_URL}
