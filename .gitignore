@@ -1,4 +1,5 @@
 .vscode/
 apps/frontend/.env
+apps/frontend/*.tsbuildinfo
 !config/env/.env
 !config/env/.env.example
