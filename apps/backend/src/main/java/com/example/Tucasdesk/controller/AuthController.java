@@ -6,6 +6,8 @@ import com.example.Tucasdesk.dtos.LoginDTO;
 import com.example.Tucasdesk.dtos.LoginResponseDTO;
 import com.example.Tucasdesk.dtos.RegisterRequest;
 import com.example.Tucasdesk.dtos.RefreshTokenRequest;
+import com.example.Tucasdesk.dtos.PasswordResetRequestDTO;
+import com.example.Tucasdesk.dtos.PasswordResetConfirmationDTO;
 import com.example.Tucasdesk.dtos.UsuarioResponseDTO;
 import com.example.Tucasdesk.mappers.UsuarioMapper;
 import com.example.Tucasdesk.model.Usuario;
@@ -13,6 +15,7 @@ import com.example.Tucasdesk.repository.UsuarioRepository;
 import com.example.Tucasdesk.security.CognitoAuthenticationResult;
 import com.example.Tucasdesk.security.CognitoService;
 import com.example.Tucasdesk.service.UsuarioService;
+import com.example.Tucasdesk.service.PasswordResetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +55,9 @@ public class AuthController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private PasswordResetService passwordResetService;
 
     private static final Pattern STRONG_PASSWORD_PATTERN = Pattern.compile(
             "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\"\\-=`~{}\\[\\]:;'<>?,./]).{8,}$"
@@ -165,6 +171,20 @@ public class AuthController {
             log.warn("event=auth_refresh status=error message=\"{}\"", message, ex);
             return ResponseEntity.status(ex.getStatusCode()).body(new ErrorResponseDTO(message, status.name()));
         }
+    }
+
+    @PostMapping("/password/reset-request")
+    public ResponseEntity<?> requestPasswordReset(@Valid @RequestBody PasswordResetRequestDTO requestDTO) {
+        passwordResetService.requestReset(requestDTO);
+        return ResponseEntity.ok(new ErrorResponseDTO(
+                "Se encontrarmos uma conta com este e-mail, enviaremos instruções para redefinir a senha.",
+                HttpStatus.OK.name()));
+    }
+
+    @PostMapping("/password/reset")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody PasswordResetConfirmationDTO confirmationDTO) {
+        passwordResetService.resetPassword(confirmationDTO);
+        return ResponseEntity.ok(new ErrorResponseDTO("Senha redefinida com sucesso.", HttpStatus.OK.name()));
     }
 
     /**

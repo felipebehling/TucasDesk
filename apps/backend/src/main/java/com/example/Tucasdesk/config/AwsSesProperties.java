@@ -48,6 +48,11 @@ public class AwsSesProperties {
      */
     private String configurationSetName;
 
+    /**
+     * Charset used when building the e-mail subject/body for simple e-mails.
+     */
+    private String charset = "UTF-8";
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -109,5 +114,13 @@ public class AwsSesProperties {
 
     public void setConfigurationSetName(String configurationSetName) {
         this.configurationSetName = configurationSetName;
+    }
+
+    public String getCharset() {
+        return charset;
+    }
+
+    public void setCharset(String charset) {
+        this.charset = charset;
     }
 }

@@ -135,9 +135,9 @@ export default function Login() {
               />
               <span>Lembrar-me</span>
             </label>
-            <a href="#" className="text-link">
+            <Link to="/redefinir-senha" className="text-link">
               Esqueci minha senha!
-            </a>
+            </Link>
           </div>
           <button type="submit" className="btn-primary" disabled={isProcessing}>
             {isProcessing ? "Entrando..." : "Login"}
