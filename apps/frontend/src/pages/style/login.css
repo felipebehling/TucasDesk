@@ -142,12 +142,12 @@ body {
 
 /* Elementos do Formulário */
 .form-input {
-  width: 94%;
+  width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--border-default);
   background: var(--bg-primary); /* Fundo escuro para o input */
   color: var(--text-primary); /* Texto claro */
-  border-radius: 10px;
+  border-radius: 5px;
   font-size: 14px;
   outline: none;
   transition: box-shadow 0.2s, border-color 0.2s;

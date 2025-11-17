@@ -37,7 +37,8 @@ export default function Login() {
 
   function extractErrorMessage(err: unknown) {
     if (isAxiosError(err)) {
-      const data = err.response?.data as ErrorResponse | undefined;
+      const axiosErr = err as { response?: { data?: ErrorResponse } };
+      const data = axiosErr.response?.data;
       if (data?.message) {
         return data.message;
       }
