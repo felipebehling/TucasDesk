@@ -8,6 +8,7 @@ import com.example.Tucasdesk.repository.UsuarioRepository;
 import com.example.Tucasdesk.security.CognitoAuthenticationFilter;
 import com.example.Tucasdesk.security.CognitoService;
 import com.example.Tucasdesk.security.CognitoAuthenticationResult;
+import com.example.Tucasdesk.service.PasswordResetService;
 import com.example.Tucasdesk.service.UsuarioService;
 import com.example.Tucasdesk.model.Usuario;
 import com.example.Tucasdesk.model.Perfil;
@@ -54,6 +55,9 @@ class AuthControllerTest {
 
     @MockBean
     private PasswordEncoder passwordEncoder;
+
+    @MockBean
+    private PasswordResetService passwordResetService;
 
     @MockBean
     private CognitoService cognitoService;

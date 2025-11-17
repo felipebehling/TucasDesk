@@ -8,6 +8,7 @@ import { ThemeProvider } from "./context/ThemeProvider";
 // 1. Lazy load all page components for code-splitting
 const LoginPage = lazy(() => import("./pages/Login"));
 const RegisterPage = lazy(() => import("./pages/Registro"));
+const PasswordResetPage = lazy(() => import("./pages/RedefinirSenha"));
 const DashboardPage = lazy(() => import("./pages/Dashboard"));
 const ChamadosPage = lazy(() => import("./pages/Chamados"));
 const ChamadoDetalhePage = lazy(() => import("./pages/ChamadoDetalhe"));
@@ -41,6 +42,7 @@ export default function App() {
             <Route element={<AuthLayout />}>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/registro" element={<RegisterPage />} />
+              <Route path="/redefinir-senha" element={<PasswordResetPage />} />
             </Route>
 
             {/* Rotas Protegidas (Aplicação Principal) */}
