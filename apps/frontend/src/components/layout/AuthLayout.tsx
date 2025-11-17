@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { useContext } from "react";
 import { ThemeContext } from "../../context/ThemeContext";
+import "../../styles/auth-pages.css";
 
 /**
  * A simple layout component that renders the nested route.
@@ -10,25 +11,14 @@ import { ThemeContext } from "../../context/ThemeContext";
 export default function AuthLayout() {
   const { theme, toggleTheme } = useContext(ThemeContext);
 
-  const buttonStyle: React.CSSProperties = {
-    position: "absolute",
-    top: "20px",
-    right: "20px",
-    padding: "10px 15px",
-    cursor: "pointer",
-    borderRadius: "8px",
-    border: "1px solid var(--border-default)",
-    background: "var(--bg-accent)",
-    color: "var(--text-primary)",
-    zIndex: 1000,
-  };
-
   return (
-    <>
-      <button onClick={toggleTheme} style={buttonStyle}>
+    <div className="auth-layout">
+      <button className="auth-layout__theme-toggle" onClick={toggleTheme}>
         {theme === "dark" ? "Light" : "Dark"}
       </button>
-      <Outlet />
-    </>
+      <div className="auth-layout__content">
+        <Outlet />
+      </div>
+    </div>
   );
 }

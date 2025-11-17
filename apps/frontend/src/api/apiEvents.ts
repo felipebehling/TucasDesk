@@ -22,7 +22,6 @@ export function emitApiEvent(type: ApiEventType, payload: ApiEventPayload) {
     try {
       listener(payload);
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error("Unhandled error while processing API event listener", error);
     }
   });

@@ -6,7 +6,6 @@ import { Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/api";
 import type { RegisterRequest } from "../interfaces/Auth";
-import "./style/login.css";
 
 interface FormValues extends RegisterRequest {
   termos: boolean;
