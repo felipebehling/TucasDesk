@@ -5,7 +5,6 @@ import {
   confirmPasswordReset,
   requestPasswordReset,
 } from "../services/passwordResetService";
-import "./style/login.css";
 
 interface ErrorResponse {
   message?: string;
