@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+<parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.5</version>
@@ -19,26 +20,42 @@
     </properties>
 
     <dependencies>
-        <!-- AWS Cognito Integration -->
+
+        <!-- AWS Cognito -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>cognitoidentityprovider</artifactId>
             <version>${aws.sdk.version}</version>
         </dependency>
+
+        <!-- AWS SES -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>sesv2</artifactId>
             <version>${aws.sdk.version}</version>
         </dependency>
+
+        <!-- Spring Security OAuth2 / OIDC (Cognito Login) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-jose</artifactId>
         </dependency>
-        <!-- Spring Boot JPA + Web -->
+
+        <!-- Thymeleaf + Extras Security (exigido pelo exemplo que você passou) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+        </dependency>
+
+        <!-- Core do Spring -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -49,41 +66,24 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-oauth2-client</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-security</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-thymeleaf</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.thymeleaf.extras</groupId>
-        <artifactId>thymeleaf-extras-springsecurity6</artifactId>
-    </dependency>
-
-        <!-- Observability -->
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-core</artifactId>
-        </dependency>
-
-        <!-- MariaDB Connector -->
+        <!-- MariaDB -->
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- Observabilidade -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
         </dependency>
 
         <!-- Testes -->
@@ -98,37 +98,31 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- AWS SQS + SNS -->
+        <dependency>
+            <groupId>io.awspring.cloud</groupId>
+            <artifactId>spring-cloud-aws-starter-sns</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.awspring.cloud</groupId>
+            <artifactId>spring-cloud-aws-starter-sqs</artifactId>
+        </dependency>
 
-		<!-- SQS + SNS Dependencies -->
-		<dependency>
-    		<groupId>io.awspring.cloud</groupId>
-    		<artifactId>spring-cloud-aws-starter-sns</artifactId>
-		</dependency>
-		
-		<dependency>
-    		<groupId>io.awspring.cloud</groupId>
-    		<artifactId>spring-cloud-aws-starter-sqs</artifactId>
-		</dependency>
-		
     </dependencies>
 
+    <!-- Importação das versões do Spring Cloud AWS -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.awspring.cloud</groupId>
+                <artifactId>spring-cloud-aws-dependencies</artifactId>
+                <version>3.4.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-	
-	<!-- AWS SQS + SNS for Spring Boot -->
-	<dependencyManagement>
-    	<dependencies>
-        	<dependency>
-            	<groupId>io.awspring.cloud</groupId>
-            	<artifactId>spring-cloud-aws-dependencies</artifactId>
-            	<version>3.4.0</version>
-            	<type>pom</type>
-            	<scope>import</scope>
-        	</dependency>
-    	</dependencies>
-	</dependencyManagement>
-
-	
-	
     <build>
         <plugins>
             <plugin>
@@ -137,4 +131,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
