@@ -150,6 +150,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * Refreshes an expired access token using a valid refresh token.
+     *
+     * @param refreshTokenRequest The request containing the refresh token.
+     * @return A {@link ResponseEntity} with a new set of tokens on success, or an error response on failure.
+     */
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
         try {
@@ -173,6 +179,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * Initiates the password reset process for a user.
+     *
+     * @param requestDTO The request containing the user's email.
+     * @return A {@link ResponseEntity} with a confirmation message.
+     */
     @PostMapping("/password/reset-request")
     public ResponseEntity<?> requestPasswordReset(@Valid @RequestBody PasswordResetRequestDTO requestDTO) {
         passwordResetService.requestReset(requestDTO);
@@ -181,6 +193,12 @@ public class AuthController {
                 HttpStatus.OK.name()));
     }
 
+    /**
+     * Confirms and completes the password reset process.
+     *
+     * @param confirmationDTO The request containing the reset token and the new password.
+     * @return A {@link ResponseEntity} with a success message.
+     */
     @PostMapping("/password/reset")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody PasswordResetConfirmationDTO confirmationDTO) {
         passwordResetService.resetPassword(confirmationDTO);

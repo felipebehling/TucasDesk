@@ -10,6 +10,12 @@ interface BreadcrumbsProps {
   items: BreadcrumbItem[];
 }
 
+/**
+ * A breadcrumb navigation component.
+ *
+ * @param {BreadcrumbsProps} props - The component props.
+ * @returns {JSX.Element | null} The rendered breadcrumbs, or null if there are no items.
+ */
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
   if (!items.length) {
     return null;

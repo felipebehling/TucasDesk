@@ -17,6 +17,12 @@ const listeners: Record<ApiEventType, Set<ApiEventListener>> = {
   "request:error": new Set(),
 };
 
+/**
+ * Emits an API event to all subscribed listeners.
+ *
+ * @param {ApiEventType} type - The type of the event to emit.
+ * @param {ApiEventPayload} payload - The payload to send with the event.
+ */
 export function emitApiEvent(type: ApiEventType, payload: ApiEventPayload) {
   listeners[type].forEach((listener) => {
     try {
@@ -27,6 +33,13 @@ export function emitApiEvent(type: ApiEventType, payload: ApiEventPayload) {
   });
 }
 
+/**
+ * Subscribes a listener to a specific type of API event.
+ *
+ * @param {ApiEventType} type - The type of the event to subscribe to.
+ * @param {ApiEventListener} listener - The callback function to execute when the event is emitted.
+ * @returns {() => void} A function that unsubscribes the listener when called.
+ */
 export function subscribeToApiEvents(type: ApiEventType, listener: ApiEventListener) {
   listeners[type].add(listener);
   return () => {

@@ -19,6 +19,11 @@ public class StatusController {
 
     private final LookupService lookupService;
 
+    /**
+     * Constructs a new {@code StatusController} with the specified lookup service.
+     *
+     * @param lookupService The service responsible for handling lookup-related operations.
+     */
     public StatusController(LookupService lookupService) {
         this.lookupService = lookupService;
     }

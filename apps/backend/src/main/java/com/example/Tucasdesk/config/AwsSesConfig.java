@@ -16,6 +16,15 @@ import software.amazon.awssdk.services.sesv2.SesV2ClientBuilder;
 @EnableConfigurationProperties(AwsSesProperties.class)
 public class AwsSesConfig {
 
+    /**
+     * Creates a {@link SesV2Client} bean if email notifications are enabled.
+     * <p>
+     * This bean is conditionally created only when {@code app.aws.ses.enabled} is {@code true}.
+     * It configures the client with the specified AWS region.
+     *
+     * @param properties The AWS SES configuration properties.
+     * @return A configured {@link SesV2Client} instance for sending emails.
+     */
     @Bean
     @ConditionalOnProperty(prefix = "app.aws.ses", name = "enabled", havingValue = "true")
     public SesV2Client sesV2Client(AwsSesProperties properties) {

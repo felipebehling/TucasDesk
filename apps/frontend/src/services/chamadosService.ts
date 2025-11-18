@@ -25,16 +25,36 @@ function withSuccessMessage(
   };
 }
 
+/**
+ * Fetches a list of all tickets.
+ *
+ * @param {ApiRequestConfig} [config] - Optional request configuration.
+ * @returns {Promise<ChamadoResponse[]>} A promise that resolves to an array of tickets.
+ */
 async function listar(config?: ApiRequestConfig): Promise<ChamadoResponse[]> {
   const { data } = await api.get<ChamadoResponse[]>(resource, config);
   return data;
 }
 
+/**
+ * Fetches a single ticket by its ID.
+ *
+ * @param {number} id - The ID of the ticket.
+ * @param {ApiRequestConfig} [config] - Optional request configuration.
+ * @returns {Promise<ChamadoResponse>} A promise that resolves to the ticket data.
+ */
 async function buscarPorId(id: number, config?: ApiRequestConfig): Promise<ChamadoResponse> {
   const { data } = await api.get<ChamadoResponse>(`${resource}/${id}`, config);
   return data;
 }
 
+/**
+ * Creates a new ticket.
+ *
+ * @param {CreateChamadoPayload} payload - The data for the new ticket.
+ * @param {ApiRequestConfig} [config] - Optional request configuration.
+ * @returns {Promise<ChamadoResponse>} A promise that resolves to the newly created ticket.
+ */
 async function criar(
   payload: CreateChamadoPayload,
   config?: ApiRequestConfig,
@@ -47,6 +67,14 @@ async function criar(
   return data;
 }
 
+/**
+ * Updates an existing ticket.
+ *
+ * @param {number} id - The ID of the ticket to update.
+ * @param {UpdateChamadoPayload} payload - The data to update.
+ * @param {ApiRequestConfig} [config] - Optional request configuration.
+ * @returns {Promise<ChamadoResponse>} A promise that resolves to the updated ticket.
+ */
 async function atualizar(
   id: number,
   payload: UpdateChamadoPayload,
@@ -60,6 +88,14 @@ async function atualizar(
   return data;
 }
 
+/**
+ * Updates the status of a ticket.
+ *
+ * @param {number} id - The ID of the ticket.
+ * @param {number} statusId - The ID of the new status.
+ * @param {ApiRequestConfig} [config] - Optional request configuration.
+ * @returns {Promise<ChamadoResponse>} A promise that resolves to the updated ticket.
+ */
 async function atualizarStatus(
   id: number,
   statusId: number,
@@ -75,6 +111,14 @@ async function atualizarStatus(
   return data;
 }
 
+/**
+ * Updates the priority of a ticket.
+ *
+ * @param {number} id - The ID of the ticket.
+ * @param {number} prioridadeId - The ID of the new priority.
+ * @param {ApiRequestConfig} [config] - Optional request configuration.
+ * @returns {Promise<ChamadoResponse>} A promise that resolves to the updated ticket.
+ */
 async function atualizarPrioridade(
   id: number,
   prioridadeId: number,
@@ -90,6 +134,14 @@ async function atualizarPrioridade(
   return data;
 }
 
+/**
+ * Adds an interaction to a ticket.
+ *
+ * @param {number} id - The ID of the ticket.
+ * @param {CreateInteracaoPayload} payload - The data for the new interaction.
+ * @param {ApiRequestConfig} [config] - Optional request configuration.
+ * @returns {Promise<InteracaoResponse>} A promise that resolves to the newly created interaction.
+ */
 async function adicionarInteracao(
   id: number,
   payload: CreateInteracaoPayload,
@@ -103,6 +155,14 @@ async function adicionarInteracao(
   return data;
 }
 
+/**
+ * Removes an interaction from a ticket.
+ *
+ * @param {number} id - The ID of the ticket.
+ * @param {number} interacaoId - The ID of the interaction to remove.
+ * @param {ApiRequestConfig} [config] - Optional request configuration.
+ * @returns {Promise<void>} A promise that resolves when the interaction is removed.
+ */
 async function removerInteracao(
   id: number,
   interacaoId: number,

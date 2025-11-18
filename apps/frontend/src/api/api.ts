@@ -17,6 +17,12 @@ interface QueueItem {
 let isRefreshing = false;
 let failedQueue: QueueItem[] = [];
 
+/**
+ * Processes a queue of failed API requests.
+ *
+ * @param {unknown | null} error - An error object if the token refresh failed, otherwise null.
+ * @param {string | null} token - The new access token if the refresh was successful, otherwise null.
+ */
 function processQueue(error: unknown | null, token: string | null) {
   failedQueue.forEach(({ resolve, reject, config }) => {
     if (error) {

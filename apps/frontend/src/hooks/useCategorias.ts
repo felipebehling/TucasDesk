@@ -11,6 +11,12 @@ export interface UseCategoriasResult {
   createCategoria: (nome: string) => Promise<Categoria>;
 }
 
+/**
+ * Custom hook for managing categories.
+ *
+ * @param {boolean} [autoFetch=true] - Whether to fetch categories automatically on mount.
+ * @returns {UseCategoriasResult} The state and functions for managing categories.
+ */
 export function useCategorias(autoFetch: boolean = true): UseCategoriasResult {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);

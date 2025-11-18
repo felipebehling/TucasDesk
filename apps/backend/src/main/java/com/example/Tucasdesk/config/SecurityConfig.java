@@ -24,6 +24,12 @@ public class SecurityConfig {
     private final CognitoAuthenticationFilter cognitoAuthenticationFilter;
     private final CognitoLogoutHandler cognitoLogoutHandler;
 
+    /**
+     * Constructs a new {@code SecurityConfig} with the specified authentication filter and logout handler.
+     *
+     * @param cognitoAuthenticationFilter The filter responsible for authenticating requests using Cognito tokens.
+     * @param cognitoLogoutHandler        The handler responsible for processing logout requests with Cognito.
+     */
     public SecurityConfig(CognitoAuthenticationFilter cognitoAuthenticationFilter,
             CognitoLogoutHandler cognitoLogoutHandler) {
         this.cognitoAuthenticationFilter = cognitoAuthenticationFilter;

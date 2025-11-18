@@ -46,6 +46,12 @@ public class TicketCreatedEventPayload implements TicketEventPayload {
         this.dataAbertura = dataAbertura;
     }
 
+    /**
+     * Factory method to create a {@link TicketCreatedEventPayload} from a {@link Chamado} entity.
+     *
+     * @param chamado The source {@link Chamado} entity.
+     * @return A new {@link TicketCreatedEventPayload} instance.
+     */
     public static TicketCreatedEventPayload fromChamado(Chamado chamado) {
         return new TicketCreatedEventPayload(
                 EVENT_TYPE,

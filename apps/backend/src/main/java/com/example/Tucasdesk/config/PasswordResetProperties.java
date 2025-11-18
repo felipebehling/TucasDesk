@@ -27,26 +27,44 @@ public class PasswordResetProperties {
      */
     private String emailSubject = "Redefinição de senha - TucasDesk";
 
+    /**
+     * @return The base URL of the frontend password reset page.
+     */
     public String getFrontendUrl() {
         return frontendUrl;
     }
 
+    /**
+     * @param frontendUrl The base URL of the frontend password reset page.
+     */
     public void setFrontendUrl(String frontendUrl) {
         this.frontendUrl = frontendUrl;
     }
 
+    /**
+     * @return The Time-to-Live (TTL) for password reset tokens.
+     */
     public Duration getTokenTtl() {
         return tokenTtl;
     }
 
+    /**
+     * @param tokenTtl The Time-to-Live (TTL) for password reset tokens.
+     */
     public void setTokenTtl(Duration tokenTtl) {
         this.tokenTtl = tokenTtl;
     }
 
+    /**
+     * @return The email subject for password reset emails.
+     */
     public String getEmailSubject() {
         return emailSubject;
     }
 
+    /**
+     * @param emailSubject The email subject for password reset emails.
+     */
     public void setEmailSubject(String emailSubject) {
         this.emailSubject = emailSubject;
     }

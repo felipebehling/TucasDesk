@@ -10,6 +10,12 @@ export interface UseUsuariosResult {
   refetch: () => Promise<void>;
 }
 
+/**
+ * Custom hook for managing users.
+ *
+ * @param {boolean} [autoFetch=true] - Whether to fetch users automatically on mount.
+ * @returns {UseUsuariosResult} The state and functions for managing users.
+ */
 export function useUsuarios(autoFetch: boolean = true): UseUsuariosResult {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);

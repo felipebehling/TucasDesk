@@ -40,6 +40,11 @@ public class PasswordResetConfirmationDTO {
         this.confirmacaoSenha = confirmacaoSenha;
     }
 
+    /**
+     * Checks if the new password and its confirmation match.
+     *
+     * @return {@code true} if passwords match, {@code false} otherwise.
+     */
     public boolean hasMatchingPasswords() {
         return novaSenha != null && novaSenha.equals(confirmacaoSenha);
     }

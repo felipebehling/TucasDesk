@@ -70,6 +70,11 @@ function parseUsuario(raw: string | null): AuthenticatedUser | null {
   }
 }
 
+/**
+ * Retrieves authentication information (tokens and user data) from storage.
+ *
+ * @returns {StoredAuth} The stored authentication data.
+ */
 export function getStoredAuth(): StoredAuth {
   if (!isBrowser) {
     return { token: null, refreshToken: null, usuario: null, storageType: null };
@@ -102,6 +107,16 @@ export function getStoredAuth(): StoredAuth {
   };
 }
 
+/**
+ * Persists the authentication state (tokens and user data) to the appropriate storage.
+ *
+ * @param {object} params - The authentication data to persist.
+ * @param {string} params.token - The access token.
+ * @param {string | null} [params.refreshToken] - The refresh token.
+ * @param {AuthenticatedUser | null} [params.usuario] - The authenticated user's data.
+ * @param {boolean} params.remember - Whether to use local storage (persistent) or session storage.
+ * @returns {StorageType | null} The type of storage used, or null if not in a browser environment.
+ */
 export function persistAuthState(params: {
   token: string;
   refreshToken?: string | null;
@@ -124,6 +139,12 @@ export function persistAuthState(params: {
   return storageType;
 }
 
+/**
+ * Updates the stored user information.
+ *
+ * @param {AuthenticatedUser | null} usuario - The user data to store.
+ * @param {StorageType | null} [storageType] - The type of storage to use.
+ */
 export function persistUsuario(
   usuario: AuthenticatedUser | null,
   storageType?: StorageType | null,
@@ -146,6 +167,13 @@ export function persistUsuario(
   notify("update");
 }
 
+/**
+ * Updates the stored authentication tokens.
+ *
+ * @param {string} token - The new access token.
+ * @param {string | null} [refreshToken] - The new refresh token.
+ * @param {StorageType | null} [storageType] - The type of storage to use.
+ */
 export function updateStoredTokens(
   token: string,
   refreshToken?: string | null,
@@ -172,6 +200,9 @@ export function updateStoredTokens(
   notify("update");
 }
 
+/**
+ * Clears all stored authentication data from both local and session storage.
+ */
 export function clearStoredAuth() {
   if (!isBrowser) {
     return;
@@ -182,6 +213,12 @@ export function clearStoredAuth() {
   notify("clear");
 }
 
+/**
+ * Subscribes a listener to authentication state changes.
+ *
+ * @param {AuthChangeListener} listener - The callback function to execute on change.
+ * @returns {() => void} A function that unsubscribes the listener when called.
+ */
 export function subscribeToAuthChanges(listener: AuthChangeListener) {
   listeners.add(listener);
   return () => {

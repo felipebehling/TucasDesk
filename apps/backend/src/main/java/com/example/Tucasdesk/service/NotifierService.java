@@ -15,6 +15,9 @@ import software.amazon.awssdk.services.sesv2.model.*;
 
 import java.util.List;
 
+/**
+ * Service responsible for processing messages from an SQS queue and sending email notifications via AWS SES.
+ */
 @Service
 public class NotifierService {
 
@@ -24,6 +27,13 @@ public class NotifierService {
     private final AwsSesProperties awsSesProperties;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Constructs a new NotifierService.
+     *
+     * @param sesV2ClientProvider A provider for the {@link SesV2Client}.
+     * @param awsSesProperties    Configuration properties for AWS SES.
+     * @param objectMapper        The Jackson ObjectMapper for JSON processing.
+     */
     public NotifierService(ObjectProvider<SesV2Client> sesV2ClientProvider,
                            AwsSesProperties awsSesProperties,
                            ObjectMapper objectMapper) {
@@ -32,6 +42,11 @@ public class NotifierService {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Receives and processes a message from the SQS queue.
+     *
+     * @param messageJson The raw JSON message from SQS.
+     */
     @SqsListener("${app.aws.messaging.queue-name}")
     public void receiveMessage(String messageJson) {
         log.info("Received SQS message: {}", messageJson);

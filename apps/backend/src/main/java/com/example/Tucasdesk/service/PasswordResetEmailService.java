@@ -50,6 +50,13 @@ public class PasswordResetEmailService {
         this.passwordResetProperties = passwordResetProperties;
     }
 
+    /**
+     * Sends a password reset email to the specified recipient.
+     *
+     * @param recipient The email address of the recipient.
+     * @param token     The password reset token.
+     * @param expiresAt The expiration time of the token.
+     */
     public void sendPasswordResetEmail(String recipient, String token, Instant expiresAt) {
         SesV2Client sesV2Client = sesV2ClientProvider.getIfAvailable();
         if (sesV2Client == null || !awsSesProperties.isEnabled()) {

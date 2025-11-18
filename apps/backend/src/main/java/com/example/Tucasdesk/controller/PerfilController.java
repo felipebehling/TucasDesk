@@ -19,6 +19,11 @@ public class PerfilController {
 
     private final LookupService lookupService;
 
+    /**
+     * Constructs a new {@code PerfilController} with the specified lookup service.
+     *
+     * @param lookupService The service responsible for handling lookup-related operations.
+     */
     public PerfilController(LookupService lookupService) {
         this.lookupService = lookupService;
     }

@@ -19,6 +19,11 @@ public class ChamadoController {
 
     private final ChamadoService chamadoService;
 
+    /**
+     * Constructs a new {@code ChamadoController} with the specified ticket service.
+     *
+     * @param chamadoService The service responsible for handling ticket-related operations.
+     */
     public ChamadoController(ChamadoService chamadoService) {
         this.chamadoService = chamadoService;
     }

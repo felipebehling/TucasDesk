@@ -16,6 +16,12 @@ export interface UseChamadosResult {
   updateChamado: (id: number, payload: UpdateChamadoPayload) => Promise<ChamadoResponse>;
 }
 
+/**
+ * Custom hook for managing tickets (chamados).
+ *
+ * @param {boolean} [autoFetch=true] - Whether to fetch tickets automatically on mount.
+ * @returns {UseChamadosResult} The state and functions for managing tickets.
+ */
 export function useChamados(autoFetch: boolean = true): UseChamadosResult {
   const [chamados, setChamados] = useState<ChamadoResponse[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);

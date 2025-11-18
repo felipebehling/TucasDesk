@@ -14,6 +14,13 @@ import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityPr
 @EnableConfigurationProperties(AwsCognitoProperties.class)
 public class AwsCognitoConfig {
 
+    /**
+     * Creates a {@link CognitoIdentityProviderClient} bean configured with the AWS region
+     * specified in the application properties.
+     *
+     * @param properties The AWS Cognito configuration properties.
+     * @return A configured {@link CognitoIdentityProviderClient} instance.
+     */
     @Bean
     public CognitoIdentityProviderClient cognitoIdentityProviderClient(AwsCognitoProperties properties) {
         String region = properties.getRegion();

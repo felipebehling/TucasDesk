@@ -19,6 +19,11 @@ public class CategoriaController {
 
     private final LookupService lookupService;
 
+    /**
+     * Constructs a new {@code CategoriaController} with the specified lookup service.
+     *
+     * @param lookupService The service responsible for handling lookup-related operations.
+     */
     public CategoriaController(LookupService lookupService) {
         this.lookupService = lookupService;
     }

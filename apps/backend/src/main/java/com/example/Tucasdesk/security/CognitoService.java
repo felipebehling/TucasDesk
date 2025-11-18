@@ -47,6 +47,14 @@ public class CognitoService {
         this.properties = properties;
     }
 
+    /**
+     * Authenticates a user with the given credentials against the Cognito User Pool.
+     *
+     * @param username The user's username (email).
+     * @param password The user's password.
+     * @return A {@link CognitoAuthenticationResult} containing the authentication tokens.
+     * @throws ResponseStatusException if authentication fails.
+     */
     public CognitoAuthenticationResult authenticate(String username, String password) {
         try {
             AdminInitiateAuthResponse response = cognitoClient.adminInitiateAuth(AdminInitiateAuthRequest.builder()
@@ -70,6 +78,13 @@ public class CognitoService {
         }
     }
 
+    /**
+     * Refreshes the authentication tokens using a refresh token.
+     *
+     * @param refreshToken The refresh token to use.
+     * @return A new {@link CognitoAuthenticationResult} with refreshed tokens.
+     * @throws ResponseStatusException if the refresh token is invalid or expired.
+     */
     public CognitoAuthenticationResult refreshToken(String refreshToken) {
         if (!StringUtils.hasText(refreshToken)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe um refresh token válido.");
@@ -135,6 +150,13 @@ public class CognitoService {
         }
     }
 
+    /**
+     * Registers a new user in the Cognito User Pool.
+     *
+     * @param email    The user's email, which will also be their username.
+     * @param password The user's password.
+     * @throws ResponseStatusException if the user already exists or if registration fails.
+     */
     public void registerUser(String email, String password) {
         try {
             AdminCreateUserResponse createResponse = cognitoClient.adminCreateUser(AdminCreateUserRequest.builder()
@@ -168,6 +190,13 @@ public class CognitoService {
         }
     }
 
+    /**
+     * Updates the password for a user in the Cognito User Pool.
+     *
+     * @param email       The email of the user whose password is to be updated.
+     * @param newPassword The new password for the user.
+     * @throws ResponseStatusException if the user is not found or the password update fails.
+     */
     public void updatePassword(String email, String newPassword) {
         try {
             cognitoClient.adminSetUserPassword(AdminSetUserPasswordRequest.builder()
@@ -191,6 +220,13 @@ public class CognitoService {
         }
     }
 
+    /**
+     * Adds a user to a specified group in the Cognito User Pool.
+     *
+     * @param username  The username of the user to add to the group.
+     * @param groupName The name of the group to add the user to.
+     * @throws ResponseStatusException if the user is not found or the group assignment fails.
+     */
     public void addUserToGroup(String username, String groupName) {
         if (!org.springframework.util.StringUtils.hasText(groupName)) {
             return;

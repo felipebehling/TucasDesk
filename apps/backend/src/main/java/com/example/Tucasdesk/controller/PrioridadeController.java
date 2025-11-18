@@ -19,6 +19,11 @@ public class PrioridadeController {
 
     private final LookupService lookupService;
 
+    /**
+     * Constructs a new {@code PrioridadeController} with the specified lookup service.
+     *
+     * @param lookupService The service responsible for handling lookup-related operations.
+     */
     public PrioridadeController(LookupService lookupService) {
         this.lookupService = lookupService;
     }

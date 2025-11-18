@@ -2,6 +2,11 @@ package com.example.Tucasdesk.dtos;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+/**
+ * Data Transfer Object (DTO) for partially updating a ticket.
+ * This DTO is used to update specific fields of a ticket, such as its status or priority,
+ * without requiring the full ticket details in the request.
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChamadoUpdateParcialRequest {
 

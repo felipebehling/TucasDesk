@@ -90,6 +90,12 @@ public class PasswordResetToken {
         this.used = used;
     }
 
+    /**
+     * Checks if the token has expired based on the current time.
+     *
+     * @param now The current time.
+     * @return {@code true} if the token has expired, {@code false} otherwise.
+     */
     public boolean isExpired(Instant now) {
         return now.isAfter(expiresAt);
     }

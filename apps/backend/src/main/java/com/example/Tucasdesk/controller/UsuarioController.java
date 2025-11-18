@@ -119,6 +119,7 @@ public class UsuarioController {
      * Creates a new user. The user's password will be encoded before being saved.
      *
      * @param usuario The {@link Usuario} object to create, based on the request body.
+     * @param bindingResult Validation result for the request body.
      * @return The created user represented as a {@link UsuarioResponseDTO}.
      */
     @PostMapping

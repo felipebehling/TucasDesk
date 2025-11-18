@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Service class for managing interactions.
+ */
 @Service
 public class InteracaoService {
 
@@ -23,6 +26,14 @@ public class InteracaoService {
     @Autowired
     private ChamadoMessagingService chamadoMessagingService;
 
+    /**
+     * Creates a new interaction for a given ticket.
+     *
+     * @param ticketId       The ID of the ticket to add the interaction to.
+     * @param newInteraction The interaction to be created.
+     * @return The saved interaction.
+     * @throws ResourceNotFoundException if the ticket is not found.
+     */
     public Interacao createInteraction(Integer ticketId, Interacao newInteraction) {
         Chamado ticket = chamadoRepository.findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + ticketId));
@@ -35,6 +46,12 @@ public class InteracaoService {
         return savedInteraction;
     }
 
+    /**
+     * Retrieves all interactions for a specific ticket.
+     *
+     * @param ticketId The ID of the ticket.
+     * @return A list of interactions for the specified ticket.
+     */
     public List<Interacao> getInteractionsByTicketId(Integer ticketId) {
         return interacaoRepository.findByChamadoId(ticketId);
     }

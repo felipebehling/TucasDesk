@@ -24,6 +24,12 @@ public class ChamadoEventListener {
         this.notifier = notifier;
     }
 
+    /**
+     * SQS listener method that consumes ticket-related events from the queue.
+     *
+     * @param payload      The deserialized message payload.
+     * @param receiveCount The approximate number of times this message has been received.
+     */
     @SqsListener("${app.aws.messaging.queue-name}")
     public void onChamadoEvent(ChamadoEventPayload payload,
                                @Header(name = "ApproximateReceiveCount", required = false) String receiveCount) {

@@ -53,42 +53,74 @@ public class AwsSesProperties {
      */
     private String charset = "UTF-8";
 
+    /**
+     * @return {@code true} if SES is enabled, {@code false} otherwise.
+     */
     public boolean isEnabled() {
         return enabled;
     }
 
+    /**
+     * @param enabled A flag to enable or disable SES.
+     */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
+    /**
+     * @return The AWS region for SES.
+     */
     public String getRegion() {
         return region;
     }
 
+    /**
+     * @param region The AWS region for SES.
+     */
     public void setRegion(String region) {
         this.region = region;
     }
 
+    /**
+     * @return The sender's email address.
+     */
     public String getFromAddress() {
         return fromAddress;
     }
 
+    /**
+     * @param fromAddress The sender's email address.
+     */
     public void setFromAddress(String fromAddress) {
         this.fromAddress = fromAddress;
     }
 
+    /**
+     * @return The reply-to email address.
+     */
     public String getReplyToAddress() {
         return replyToAddress;
     }
 
+    /**
+     * @param replyToAddress The reply-to email address.
+     */
     public void setReplyToAddress(String replyToAddress) {
         this.replyToAddress = replyToAddress;
     }
 
+    /**
+     * @return An unmodifiable list of recipient email addresses.
+     */
     public List<String> getToAddresses() {
         return Collections.unmodifiableList(toAddresses);
     }
 
+    /**
+     * Sets the list of recipient addresses, filtering out any null or blank values.
+     *
+     * @param addresses The list of recipient email addresses.
+     */
     public void setToAddresses(List<String> addresses) {
         this.toAddresses.clear();
         if (addresses != null) {
@@ -100,26 +132,44 @@ public class AwsSesProperties {
         }
     }
 
+    /**
+     * @return The name of the SES template.
+     */
     public String getTemplateName() {
         return templateName;
     }
 
+    /**
+     * @param templateName The name of the SES template.
+     */
     public void setTemplateName(String templateName) {
         this.templateName = templateName;
     }
 
+    /**
+     * @return The name of the SES configuration set.
+     */
     public String getConfigurationSetName() {
         return configurationSetName;
     }
 
+    /**
+     * @param configurationSetName The name of the SES configuration set.
+     */
     public void setConfigurationSetName(String configurationSetName) {
         this.configurationSetName = configurationSetName;
     }
 
+    /**
+     * @return The character set for emails.
+     */
     public String getCharset() {
         return charset;
     }
 
+    /**
+     * @param charset The character set for emails.
+     */
     public void setCharset(String charset) {
         this.charset = charset;
     }

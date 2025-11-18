@@ -31,6 +31,12 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: number)
   );
 }
 
+/**
+ * Provides a context for displaying toast notifications.
+ *
+ * @param {PropsWithChildren} props - The component props.
+ * @returns {JSX.Element} The rendered component.
+ */
 export function ToastProvider({ children }: PropsWithChildren) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const idRef = useRef(0);
@@ -106,6 +112,12 @@ export function ToastProvider({ children }: PropsWithChildren) {
   );
 }
 
+/**
+ * Custom hook for accessing the toast context.
+ *
+ * @returns {object} The toast context.
+ * @throws {Error} If used outside of a ToastProvider.
+ */
 /* eslint-disable-next-line react-refresh/only-export-components */
 export function useToast() {
   const context = useContext(ToastContext);

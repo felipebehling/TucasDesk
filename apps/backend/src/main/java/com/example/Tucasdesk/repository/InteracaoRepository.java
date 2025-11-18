@@ -22,5 +22,11 @@ public interface InteracaoRepository extends JpaRepository<Interacao, Integer> {
      */
     List<Interacao> findByChamadoOrderByDataInteracaoAsc(Chamado chamado);
 
+    /**
+     * Finds all interactions associated with a given ticket ID.
+     *
+     * @param chamadoId The ID of the ticket.
+     * @return A list of interactions for the specified ticket.
+     */
     List<Interacao> findByChamadoId(Integer chamadoId);
 }

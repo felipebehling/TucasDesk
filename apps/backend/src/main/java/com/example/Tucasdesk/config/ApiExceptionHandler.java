@@ -25,6 +25,13 @@ public class ApiExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
+    /**
+     * Handles exceptions thrown when a requested resource is not found.
+     *
+     * @param ex      The thrown {@link ResourceNotFoundException}.
+     * @param request The current web request.
+     * @return A {@link ResponseEntity} with a 404 Not Found status and a standardized error body.
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleResourceNotFound(ResourceNotFoundException ex, WebRequest request) {
         HttpStatus status = HttpStatus.NOT_FOUND;
@@ -32,6 +39,13 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(status).body(new ErrorResponseDTO(ex.getMessage(), status.name()));
     }
 
+    /**
+     * Handles generic exceptions triggered by response status codes.
+     *
+     * @param ex      The thrown {@link ResponseStatusException}.
+     * @param request The current web request.
+     * @return A {@link ResponseEntity} with the corresponding HTTP status and a standardized error body.
+     */
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponseDTO> handleResponseStatus(ResponseStatusException ex, WebRequest request) {
         HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
@@ -43,6 +57,12 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(status).body(new ErrorResponseDTO(message, status.name()));
     }
 
+    /**
+     * Handles exceptions from validation errors, such as @Valid annotations.
+     *
+     * @param ex The thrown {@link MethodArgumentNotValidException}.
+     * @return A {@link ResponseEntity} with a 400 Bad Request status and a message from the validation error.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidation(MethodArgumentNotValidException ex) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
@@ -60,6 +80,12 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(status).body(new ErrorResponseDTO(message, status.name()));
     }
 
+    /**
+     * Handles exceptions related to bad requests, such as illegal arguments or unreadable messages.
+     *
+     * @param ex The thrown exception (e.g., {@link IllegalArgumentException}).
+     * @return A {@link ResponseEntity} with a 400 Bad Request status and a standardized error body.
+     */
     @ExceptionHandler({IllegalArgumentException.class, HttpMessageNotReadableException.class})
     public ResponseEntity<ErrorResponseDTO> handleBadRequest(Exception ex) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
@@ -68,6 +94,13 @@ public class ApiExceptionHandler {
                 .body(new ErrorResponseDTO(Optional.ofNullable(ex.getMessage()).orElse("Requisição inválida."), status.name()));
     }
 
+    /**
+     * Handles any other unexpected exceptions as a fallback.
+     *
+     * @param ex      The generic {@link Exception} thrown.
+     * @param request The current web request.
+     * @return A {@link ResponseEntity} with a 500 Internal Server Error status and a generic error message.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGeneric(Exception ex, WebRequest request) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;

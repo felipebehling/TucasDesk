@@ -24,6 +24,12 @@ function extractErrorMessage(error: unknown) {
   return "Não foi possível processar sua solicitação. Tente novamente.";
 }
 
+/**
+ * Renders the password reset page.
+ * This page allows users to request a password reset link or to reset their password using a token.
+ *
+ * @returns {JSX.Element} The password reset page component.
+ */
 export default function RedefinirSenha() {
   const [searchParams] = useSearchParams();
   const tokenFromQuery = searchParams.get("token") ?? "";
