@@ -1,13 +1,7 @@
 package com.example.Tucasdesk.controller;
 
 import com.example.Tucasdesk.config.ApiExceptionHandler;
-import com.example.Tucasdesk.config.SecurityConfig;
-import com.example.Tucasdesk.security.CognitoAuthenticationFilter;
 import com.example.Tucasdesk.service.ChamadoService;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,13 +12,22 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.example.Tucasdesk.config.SecurityConfig;
+import com.example.Tucasdesk.security.CognitoAuthenticationFilter;
+import com.example.Tucasdesk.security.CognitoLogoutHandler;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 
 @WebMvcTest(ChamadoController.class)
 @Import({SecurityConfig.class, ApiExceptionHandler.class})
@@ -35,6 +38,9 @@ class ChamadoControllerTest {
 
     @MockBean
     private ChamadoService chamadoService;
+
+    @MockBean
+    private CognitoLogoutHandler cognitoLogoutHandler;
 
     @MockBean
     private CognitoAuthenticationFilter cognitoAuthenticationFilter;

@@ -1,15 +1,10 @@
 package com.example.Tucasdesk.controller;
 
-import com.example.Tucasdesk.config.SecurityConfig;
+import com.example.Tucasdesk.config.ApiExceptionHandler;
 import com.example.Tucasdesk.dtos.UsuarioResponseDTO;
 import com.example.Tucasdesk.model.Usuario;
-import com.example.Tucasdesk.security.CognitoAuthenticationFilter;
 import com.example.Tucasdesk.service.UsuarioService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,7 +19,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -32,8 +26,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.example.Tucasdesk.config.SecurityConfig;
+import com.example.Tucasdesk.security.CognitoAuthenticationFilter;
+import com.example.Tucasdesk.security.CognitoLogoutHandler;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
+
+import static org.mockito.Mockito.doAnswer;
+
 @WebMvcTest(UsuarioController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, ApiExceptionHandler.class})
 class UsuarioControllerTest {
 
     @Autowired
@@ -41,6 +45,9 @@ class UsuarioControllerTest {
 
     @MockBean
     private UsuarioService usuarioService;
+
+    @MockBean
+    private CognitoLogoutHandler cognitoLogoutHandler;
 
     @MockBean
     private CognitoAuthenticationFilter cognitoAuthenticationFilter;

@@ -254,4 +254,25 @@ class ChamadoServiceTest {
 
         verify(interacaoRepository, never()).delete(any());
     }
+
+    @Test
+    void deveLancarExcecaoAoRemoverInteracaoSemUsuarioId() {
+        // Cenário
+        Chamado chamado = new Chamado();
+        chamado.setIdChamado(15);
+
+        Interacao interacao = new Interacao();
+        interacao.setIdInteracao(90);
+        interacao.setChamado(chamado);
+
+        when(chamadoRepository.findById(15)).thenReturn(Optional.of(chamado));
+        when(interacaoRepository.findById(90)).thenReturn(Optional.of(interacao));
+
+        // Ação e Verificação
+        assertThatThrownBy(() -> chamadoService.removerInteracao(15, 90, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("O usuário é obrigatório para remover a interação.");
+
+        verify(interacaoRepository, never()).delete(interacao);
+    }
 }

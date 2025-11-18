@@ -122,7 +122,7 @@ public class ChamadoController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removerInteracao(@PathVariable Integer id,
                                  @PathVariable Integer interacaoId,
-                                 @RequestParam(value = "usuarioId", required = false) Integer usuarioId) {
+                                 @RequestParam(value = "usuarioId") Integer usuarioId) {
         chamadoService.removerInteracao(id, interacaoId, usuarioId);
     }
 }
