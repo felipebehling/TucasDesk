@@ -76,7 +76,7 @@ public class ChamadoController {
      * @return the updated ticket.
      */
     @PatchMapping("/{id}/status")
-    public ChamadoResponseDTO atualizarStatus(@PathVariable Integer id, @RequestBody ChamadoUpdateRequest request) {
+    public ChamadoResponseDTO atualizarStatus(@PathVariable Integer id, @RequestBody ChamadoUpdateParcialRequest request) {
         if (request.getStatusId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O status é obrigatório para atualização parcial.");
         }
@@ -91,7 +91,7 @@ public class ChamadoController {
      * @return the updated ticket.
      */
     @PatchMapping("/{id}/prioridade")
-    public ChamadoResponseDTO atualizarPrioridade(@PathVariable Integer id, @RequestBody ChamadoUpdateRequest request) {
+    public ChamadoResponseDTO atualizarPrioridade(@PathVariable Integer id, @RequestBody ChamadoUpdateParcialRequest request) {
         if (request.getPrioridadeId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A prioridade é obrigatória para atualização parcial.");
         }
