@@ -166,7 +166,7 @@ aws cloudformation deploy \
   --parameter-overrides ProjectName=tucasdesk DomainPrefix=tucasdesk-helpdesk
 ```
 
-After creation, copy the outputs `UserPoolId`, `UserPoolClientId`, and, if you configured `DomainPrefix`, also `UserPoolDomainUrl` to the variables `AWS_COGNITO_USER_POOL_ID`, `AWS_COGNITO_APP_CLIENT_ID`, and `AWS_COGNITO_ISSUER_URI` (or `AWS_COGNITO_JWK_SET_URI`). Adjust the `CallbackUrls` and `LogoutUrls` parameters according to the frontend domains to ensure the Hosted UI accepts the configured OAuth flow.
+After creation, copy the outputs `UserPoolId`, `UserPoolClientId`, and, if you configured `DomainPrefix`, also `UserPoolDomainUrl` to the variables `AWS_COGNITO_USER_POOL_ID`, `AWS_COGNITO_APP_CLIENT_ID`, `AWS_COGNITO_ISSUER_URI` (or `AWS_COGNITO_JWK_SET_URI`), and `AWS_COGNITO_DOMAIN`. Adjust the `CallbackUrls` and `LogoutUrls` parameters according to the frontend domains to ensure the Hosted UI accepts the configured OAuth flow.
 
 ### Enabling the Refresh Token Flow
 
@@ -207,6 +207,8 @@ The backend reads sensitive settings from environment variables. All of them hav
 | `AWS_COGNITO_APP_CLIENT_ID` | App Client ID used for authentication. | *(no default — configure in `config/env/.env`)* |
 | `AWS_COGNITO_ISSUER_URI` | (Optional) Public Issuer URI of the User Pool. | *(empty)* |
 | `AWS_COGNITO_JWK_SET_URI` | (Optional) Cognito JWKS endpoint. | *(empty)* |
+| `AWS_COGNITO_DOMAIN` | Hosted UI domain assigned to the User Pool (for example, `https://example.auth.sa-east-1.amazoncognito.com`). | *(empty – configure in `config/env/.env`)* |
+| `APP_FRONTEND_LOGIN_URL` | URL of the frontend login page used as the `logout_uri`. | `http://localhost:5173/login` |
 | `AWS_REGION` | Default AWS region for messaging integrations. | `sa-east-1` |
 | `AWS_SNS_TOPIC_ARN` | Generic ARN used as a fallback when dedicated topics are not configured. | *(empty)* |
 | `AWS_SQS_QUEUE_NAME` | Name of the SQS queue that will receive legacy messages. | *(empty)* |

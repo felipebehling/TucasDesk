@@ -167,7 +167,7 @@ aws cloudformation deploy \
   --parameter-overrides ProjectName=tucasdesk DomainPrefix=tucasdesk-helpdesk
 ```
 
-Ao final da criação copie os outputs `UserPoolId`, `UserPoolClientId` e, se tiver configurado `DomainPrefix`, também `UserPoolDomainUrl` para as variáveis `AWS_COGNITO_USER_POOL_ID`, `AWS_COGNITO_APP_CLIENT_ID` e `AWS_COGNITO_ISSUER_URI` (ou `AWS_COGNITO_JWK_SET_URI`). Ajuste os parâmetros `CallbackUrls` e `LogoutUrls` conforme os domínios do frontend para garantir que o Hosted UI aceite o fluxo OAuth configurado.
+Ao final da criação copie os outputs `UserPoolId`, `UserPoolClientId` e, se tiver configurado `DomainPrefix`, também `UserPoolDomainUrl` para as variáveis `AWS_COGNITO_USER_POOL_ID`, `AWS_COGNITO_APP_CLIENT_ID`, `AWS_COGNITO_ISSUER_URI` (ou `AWS_COGNITO_JWK_SET_URI`) e `AWS_COGNITO_DOMAIN`. Ajuste os parâmetros `CallbackUrls` e `LogoutUrls` conforme os domínios do frontend para garantir que o Hosted UI aceite o fluxo OAuth configurado.
 
 ### Habilitando o fluxo de refresh de tokens
 
@@ -208,6 +208,8 @@ O backend lê as configurações sensíveis a partir de variáveis de ambiente. 
 | `AWS_COGNITO_APP_CLIENT_ID` | ID do App Client utilizado para autenticação. | *(sem padrão — configure em `config/env/.env`)* |
 | `AWS_COGNITO_ISSUER_URI` | (Opcional) Issuer URI público do User Pool. | *(vazio)* |
 | `AWS_COGNITO_JWK_SET_URI` | (Opcional) Endpoint JWKS do Cognito. | *(vazio)* |
+| `AWS_COGNITO_DOMAIN` | Domínio do Hosted UI associado ao User Pool (por exemplo, `https://exemplo.auth.sa-east-1.amazoncognito.com`). | *(vazio – configure em `config/env/.env`)* |
+| `APP_FRONTEND_LOGIN_URL` | URL da página de login do frontend utilizada como `logout_uri`. | `http://localhost:5173/login` |
 | `AWS_REGION` | Região padrão da AWS para integrações de mensageria. | `sa-east-1` |
 | `AWS_SNS_TOPIC_ARN` | ARN genérico utilizado como fallback quando tópicos dedicados não estão configurados. | *(vazio)* |
 | `AWS_SQS_QUEUE_NAME` | Nome da fila SQS que receberá as mensagens legadas. | *(vazio)* |
