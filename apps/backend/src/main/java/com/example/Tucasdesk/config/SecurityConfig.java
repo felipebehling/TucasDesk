@@ -1,7 +1,7 @@
 package com.example.Tucasdesk.config;
 
 import com.example.Tucasdesk.security.CognitoAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.Tucasdesk.security.CognitoLogoutHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,8 +21,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private CognitoAuthenticationFilter cognitoAuthenticationFilter;
+    private final CognitoAuthenticationFilter cognitoAuthenticationFilter;
+    private final CognitoLogoutHandler cognitoLogoutHandler;
+
+    public SecurityConfig(CognitoAuthenticationFilter cognitoAuthenticationFilter,
+            CognitoLogoutHandler cognitoLogoutHandler) {
+        this.cognitoAuthenticationFilter = cognitoAuthenticationFilter;
+        this.cognitoLogoutHandler = cognitoLogoutHandler;
+    }
 
     /**
      * Configures the security filter chain.
@@ -37,6 +43,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .logout(logout -> logout.logoutSuccessHandler(cognitoLogoutHandler))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
