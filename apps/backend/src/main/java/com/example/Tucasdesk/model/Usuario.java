@@ -1,6 +1,7 @@
 package com.example.Tucasdesk.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,16 +30,19 @@ public class Usuario implements UserDetails {
     /**
      * The name of the user.
      */
+    @NotBlank(message = "O nome não pode estar em branco")
     private String nome;
 
     /**
      * The email address of the user. This is used for login and communication.
      */
+    @NotBlank(message = "O email não pode estar em branco")
     private String email;
 
     /**
      * The password for the user's account.
      */
+    @NotBlank(message = "A senha não pode estar em branco")
     private String senha;
 
     /**
