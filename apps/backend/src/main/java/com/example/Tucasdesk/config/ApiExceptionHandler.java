@@ -1,6 +1,7 @@
 package com.example.Tucasdesk.config;
 
 import com.example.Tucasdesk.dtos.ErrorResponseDTO;
+import com.example.Tucasdesk.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,13 @@ import java.util.Optional;
 public class ApiExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleResourceNotFound(ResourceNotFoundException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        log.warn("event=api_resource_not_found status={} path={} message=\"{}\"", status.value(), request.getDescription(false), ex.getMessage());
+        return ResponseEntity.status(status).body(new ErrorResponseDTO(ex.getMessage(), status.name()));
+    }
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponseDTO> handleResponseStatus(ResponseStatusException ex, WebRequest request) {
