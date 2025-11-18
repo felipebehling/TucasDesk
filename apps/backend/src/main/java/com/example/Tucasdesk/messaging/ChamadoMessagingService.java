@@ -97,6 +97,12 @@ public class ChamadoMessagingService {
      * @param interacao interaction saved for the ticket.
      */
     public void publishChamadoInteracaoAddedEvent(Chamado chamado, Interacao interacao) {
+        String topicArn = properties.getTopics().getTicketInteractedArn();
+        if (StringUtils.hasText(topicArn)) {
+            // Placeholder for a specific TicketInteractedEventPayload if needed
+            sendToTopic(topicArn, ChamadoEventPayload.fromInteracao(EVENT_CHAMADO_INTERACAO_ADDED, chamado, interacao), EVENT_CHAMADO_INTERACAO_ADDED, chamado.getIdChamado());
+            return;
+        }
         send(ChamadoEventPayload.fromInteracao(EVENT_CHAMADO_INTERACAO_ADDED, chamado, interacao));
     }
 

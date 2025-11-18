@@ -58,6 +58,11 @@ public class AwsMessagingProperties {
          */
         private String ticketClosedArn;
 
+        /**
+         * Topic ARN used for {@code TicketInteracted} notifications.
+         */
+        private String ticketInteractedArn;
+
         public String getTicketCreatedArn() {
             return ticketCreatedArn;
         }
@@ -72,6 +77,14 @@ public class AwsMessagingProperties {
 
         public void setTicketClosedArn(String ticketClosedArn) {
             this.ticketClosedArn = ticketClosedArn;
+        }
+
+        public String getTicketInteractedArn() {
+            return ticketInteractedArn;
+        }
+
+        public void setTicketInteractedArn(String ticketInteractedArn) {
+            this.ticketInteractedArn = ticketInteractedArn;
         }
     }
 }

@@ -21,4 +21,6 @@ public interface InteracaoRepository extends JpaRepository<Interacao, Integer> {
      * @return an ordered list of interactions.
      */
     List<Interacao> findByChamadoOrderByDataInteracaoAsc(Chamado chamado);
+
+    List<Interacao> findByChamadoId(Integer chamadoId);
 }
