@@ -84,10 +84,27 @@ class UsuarioControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.idUsuario").value(1))
                 .andExpect(jsonPath("$.email").value("test@example.com"))
                 .andExpect(jsonPath("$.senha").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMINISTRADOR")
+    void testCriarUsuario_comNomeInvalido() throws Exception {
+        String payload = "{" +
+                "\"nome\":\"\"," +
+                "\"email\":\"test@example.com\"," +
+                "\"senha\":\"password\"" +
+                "}";
+
+        mockMvc.perform(post("/api/usuarios")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("O nome não pode estar em branco"));
     }
 
     @Test

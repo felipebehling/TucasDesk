@@ -122,8 +122,17 @@ public class UsuarioController {
      * @return The created user represented as a {@link UsuarioResponseDTO}.
      */
     @PostMapping
-    public UsuarioResponseDTO criar(@RequestBody Usuario usuario) {
-        return usuarioService.criarUsuario(usuario);
+    public ResponseEntity<?> criar(@Valid @RequestBody Usuario usuario, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            String errorMessage = bindingResult.getAllErrors().stream()
+                    .map(error -> error.getDefaultMessage())
+                    .findFirst()
+                    .orElse("Dados inválidos.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponseDTO(errorMessage, HttpStatus.BAD_REQUEST.name()));
+        }
+        UsuarioResponseDTO novoUsuario = usuarioService.criarUsuario(usuario);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
 
     private Usuario extrairUsuarioAutenticado(Authentication authentication) {
