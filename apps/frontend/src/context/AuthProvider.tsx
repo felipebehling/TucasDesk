@@ -30,26 +30,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const restoreSession = useCallback(async () => {
     setCarregando(true);
-    const stored = getStoredAuth();
-
-    if (!stored.token) {
-      setUsuario(null);
-      setCarregando(false);
-      return;
-    }
-
-    const storedUsuario = selectUsuarioFromStorage(stored);
-    if (storedUsuario) {
-      setUsuario(storedUsuario);
-    }
-
     try {
-      const { data } = await api.get<AuthenticatedUser>("/auth/me");
+      const { data } = await api.get<AuthenticatedUser>("/api/usuarios/me");
       setUsuario(data);
-      persistUsuario(data, stored.storageType);
     } catch (error) {
       console.error("Failed to restore session", error);
-      clearStoredAuth();
       setUsuario(null);
     } finally {
       setCarregando(false);
@@ -60,83 +45,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     restoreSession();
   }, [restoreSession]);
 
-  useEffect(() => {
-    const unsubscribe = subscribeToAuthChanges(({ data, type }) => {
-      if (type === "clear" || !data.usuario) {
-        setUsuario(null);
-        return;
-      }
-      setUsuario(data.usuario);
-    });
-    return unsubscribe;
-  }, []);
-
-  /**
-   * Logs the user in by sending credentials to the backend, storing the received
-   * token, and updating the user state.
-   *
-   * @param {LoginRequest} data - The user's login credentials.
-   * @param {LoginOptions} options - Additional options such as persistence strategy.
-   */
-  const login = useCallback(
-    async (data: LoginRequest, options?: LoginOptions) => {
-      const remember = options?.remember ?? false;
-      try {
-        const response = await api.post<LoginResponse>("/auth/login", data, {
-          skipAuth: true,
-        });
-
-        const storageType = persistAuthState({
-          token: response.data.token,
-          refreshToken: response.data.refreshToken ?? null,
-          usuario: response.data.usuario,
-          remember,
-        });
-        setUsuario(response.data.usuario);
-
-        try {
-          const { data: me } = await api.get<AuthenticatedUser>("/auth/me");
-          setUsuario(me);
-          persistUsuario(me, storageType);
-        } catch (meError) {
-          console.warn("Failed to fetch /auth/me after login", meError);
-          persistUsuario(response.data.usuario, storageType);
-        }
-      } catch (error) {
-        clearStoredAuth();
-        setUsuario(null);
-        throw error;
-      }
-    },
-    [],
-  );
-
   /**
    * Logs the user out by removing the token from local storage and clearing the user state.
    */
   const logout = useCallback(() => {
-    clearStoredAuth();
-    setUsuario(null);
+    window.location.href = "http://localhost:8080/logout";
   }, []);
 
+  const login = useCallback(
+    async (data: LoginRequest, options?: LoginOptions) => {
+      // no-op
+    },
+    [],
+  );
+
   const refreshSession = useCallback(async () => {
-    const stored = getStoredAuth();
-
-    if (!stored.token) {
-      setUsuario(null);
-      return;
-    }
-
-    try {
-      const { data } = await api.get<AuthenticatedUser>("/auth/me");
-      setUsuario(data);
-      persistUsuario(data, stored.storageType);
-    } catch (error) {
-      console.error("Failed to refresh authenticated user", error);
-      clearStoredAuth();
-      setUsuario(null);
-      throw error;
-    }
+    // no-op
   }, []);
 
   return (

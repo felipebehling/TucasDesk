@@ -27,14 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.Tucasdesk.config.SecurityConfig;
-import com.example.Tucasdesk.security.CognitoAuthenticationFilter;
 import com.example.Tucasdesk.security.CognitoLogoutHandler;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.BeforeEach;
-
-import static org.mockito.Mockito.doAnswer;
 
 @WebMvcTest(UsuarioController.class)
 @Import({SecurityConfig.class, ApiExceptionHandler.class})
@@ -49,22 +42,8 @@ class UsuarioControllerTest {
     @MockBean
     private CognitoLogoutHandler cognitoLogoutHandler;
 
-    @MockBean
-    private CognitoAuthenticationFilter cognitoAuthenticationFilter;
-
     @Autowired
     private ObjectMapper objectMapper;
-
-    @BeforeEach
-    void setupFilterChain() throws Exception {
-        doAnswer(invocation -> {
-            HttpServletRequest request = invocation.getArgument(0);
-            HttpServletResponse response = invocation.getArgument(1);
-            FilterChain chain = invocation.getArgument(2);
-            chain.doFilter(request, response);
-            return null;
-        }).when(cognitoAuthenticationFilter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
-    }
 
     @Test
     @WithMockUser(roles = "ADMINISTRADOR")

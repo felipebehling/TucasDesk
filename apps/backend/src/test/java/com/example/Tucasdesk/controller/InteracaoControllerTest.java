@@ -4,7 +4,6 @@ import com.example.Tucasdesk.config.ApiExceptionHandler;
 import com.example.Tucasdesk.config.SecurityConfig;
 import com.example.Tucasdesk.model.Interacao;
 import com.example.Tucasdesk.model.Usuario;
-import com.example.Tucasdesk.security.CognitoAuthenticationFilter;
 import com.example.Tucasdesk.security.CognitoLogoutHandler;
 import com.example.Tucasdesk.service.InteracaoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,21 +44,8 @@ public class InteracaoControllerTest {
     @MockBean
     private CognitoLogoutHandler cognitoLogoutHandler;
 
-    @MockBean
-    private CognitoAuthenticationFilter cognitoAuthenticationFilter;
-
     @Autowired
     private ObjectMapper objectMapper;
-
-    @BeforeEach
-    void setupFilterChain() throws Exception {
-        // Mock the filter to bypass actual authentication during tests
-        doAnswer(invocation -> {
-            FilterChain chain = invocation.getArgument(2);
-            chain.doFilter(invocation.getArgument(0), invocation.getArgument(1));
-            return null;
-        }).when(cognitoAuthenticationFilter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
-    }
 
     @Test
     @WithMockUser // Simulate an authenticated user
