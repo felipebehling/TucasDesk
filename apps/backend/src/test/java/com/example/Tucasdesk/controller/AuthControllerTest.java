@@ -5,6 +5,7 @@ import com.example.Tucasdesk.dtos.RefreshTokenRequest;
 import com.example.Tucasdesk.dtos.RegisterRequest;
 import com.example.Tucasdesk.dtos.UsuarioResponseDTO;
 import com.example.Tucasdesk.repository.UsuarioRepository;
+import com.example.Tucasdesk.security.CognitoLogoutHandler;
 import com.example.Tucasdesk.security.CognitoService;
 import com.example.Tucasdesk.security.CognitoAuthenticationResult;
 import com.example.Tucasdesk.service.PasswordResetService;
@@ -32,17 +33,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.Tucasdesk.config.SecurityConfig;
-import com.example.Tucasdesk.security.CognitoAuthenticationFilter;
-import com.example.Tucasdesk.security.CognitoLogoutHandler;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.BeforeEach;
-
-import static org.mockito.Mockito.doAnswer;
+import org.springframework.security.test.context.support.WithMockUser;
 
 @WebMvcTest(AuthController.class)
 @Import({SecurityConfig.class, ApiExceptionHandler.class})
+@WithMockUser
 class AuthControllerTest {
 
     @Autowired
@@ -69,19 +64,6 @@ class AuthControllerTest {
     @MockBean
     private CognitoLogoutHandler cognitoLogoutHandler;
 
-    @MockBean
-    private CognitoAuthenticationFilter cognitoAuthenticationFilter;
-
-    @BeforeEach
-    void setupFilterChain() throws Exception {
-        doAnswer(invocation -> {
-            HttpServletRequest request = invocation.getArgument(0);
-            HttpServletResponse response = invocation.getArgument(1);
-            FilterChain chain = invocation.getArgument(2);
-            chain.doFilter(request, response);
-            return null;
-        }).when(cognitoAuthenticationFilter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
-    }
 
     @Test
     @DisplayName("Deve registrar um usuário com sucesso")
