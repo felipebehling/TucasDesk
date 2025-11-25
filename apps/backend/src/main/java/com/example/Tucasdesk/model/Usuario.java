@@ -2,6 +2,7 @@ package com.example.Tucasdesk.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -48,6 +49,7 @@ public class Usuario implements UserDetails {
     /**
      * The profile associated with the user, which defines their role and permissions.
      */
+    @NotNull(message = "O perfil não pode ser nulo")
     @ManyToOne
     @JoinColumn(name = "perfil_id")
     private Perfil perfil;
