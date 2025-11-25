@@ -72,7 +72,8 @@ class UsuarioControllerTest {
         String payload = "{" +
                 "\"nome\":\"Test User\"," +
                 "\"email\":\"test@example.com\"," +
-                "\"senha\":\"password\"" +
+                "\"senha\":\"password\"," +
+                "\"perfil\": {\"idPerfil\": 1, \"nome\": \"Usuário\"}" +
                 "}";
 
         UsuarioResponseDTO responseDTO = new UsuarioResponseDTO(1, "Test User", "test@example.com", null,
@@ -96,7 +97,8 @@ class UsuarioControllerTest {
         String payload = "{" +
                 "\"nome\":\"\"," +
                 "\"email\":\"test@example.com\"," +
-                "\"senha\":\"password\"" +
+                "\"senha\":\"password\"," +
+                "\"perfil\": {\"idPerfil\": 1, \"nome\": \"Usuário\"}" +
                 "}";
 
         mockMvc.perform(post("/api/usuarios")
@@ -108,6 +110,23 @@ class UsuarioControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "ADMINISTRADOR")
+    void testCriarUsuario_comPerfilNulo() throws Exception {
+        String payload = "{" +
+                "\"nome\":\"Test User\"," +
+                "\"email\":\"test@example.com\"," +
+                "\"senha\":\"password\"," +
+                "\"perfil\":null" +
+                "}";
+
+        mockMvc.perform(post("/api/usuarios")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("O perfil não pode ser nulo"));
+    }
+
     @WithMockUser(roles = "ADMINISTRADOR")
     void testListarTodosSemSenha() throws Exception {
         UsuarioResponseDTO responseDTO = new UsuarioResponseDTO(1, "Test User", "test@example.com", null,
