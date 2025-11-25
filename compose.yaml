@@ -130,10 +130,12 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    networks:
+      - tucasdesk-net
 
-  backend:
+  backend-1:
     build: ./apps/backend
-    container_name: tucasdesk-backend
+    container_name: tucasdesk-backend-1
     restart: unless-stopped
     depends_on:
       db:
@@ -142,39 +144,27 @@ services:
       - ./.env
     environment:
       TZ: America/Sao_Paulo
-
-      # Spring perfis
+      INSTANCE_ID: 1
+      APP_CLUSTER_SIZE: 2
       SPRING_PROFILES_ACTIVE: mariadb,docker
-
-      # DB
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       DATABASE_URL: ${DATABASE_URL}
-
-      # CORS
       APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
-
-      # Cognito
       AWS_COGNITO_REGION: ${AWS_COGNITO_REGION}
       AWS_COGNITO_USER_POOL_ID: ${AWS_COGNITO_USER_POOL_ID}
       AWS_COGNITO_APP_CLIENT_ID: ${AWS_COGNITO_APP_CLIENT_ID}
       AWS_COGNITO_ISSUER_URI: ${AWS_COGNITO_ISSUER_URI}
       AWS_COGNITO_JWK_SET_URI: ${AWS_COGNITO_JWK_SET_URI}
-
-      # AWS genérico / credentials
       AWS_REGION: ${AWS_REGION}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-
-      # SQS / SNS
       AWS_SQS_QUEUE_NAME: ${AWS_SQS_QUEUE_NAME}
       AWS_SNS_TOPIC_ARN: ${AWS_SNS_TOPIC_ARN}
       AWS_SNS_TICKET_CREATED_TOPIC_ARN: ${AWS_SNS_TICKET_CREATED_TOPIC_ARN}
       AWS_SNS_TICKET_CLOSED_TOPIC_ARN: ${AWS_SNS_TICKET_CLOSED_TOPIC_ARN}
       AWS_SNS_TICKET_INTERACTED_TOPIC_ARN: ${AWS_SNS_TICKET_INTERACTED_TOPIC_ARN}
-
-      # SES
       AWS_SES_ENABLED: ${AWS_SES_ENABLED}
       AWS_SES_REGION: ${AWS_SES_REGION}
       AWS_SES_FROM_ADDRESS: ${AWS_SES_FROM_ADDRESS}
@@ -182,9 +172,8 @@ services:
       AWS_SES_TO_ADDRESSES: ${AWS_SES_TO_ADDRESSES}
       AWS_SES_TEMPLATE_NAME: ${AWS_SES_TEMPLATE_NAME}
       AWS_SES_CONFIGURATION_SET: ${AWS_SES_CONFIGURATION_SET}
-
     ports:
-      - "8080:8080"
+      - "8081:8080"
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
       interval: 30s
@@ -196,6 +185,63 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    networks:
+      - tucasdesk-net
+
+  backend-2:
+    build: ./apps/backend
+    container_name: tucasdesk-backend-2
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    environment:
+      TZ: America/Sao_Paulo
+      INSTANCE_ID: 2
+      APP_CLUSTER_SIZE: 2
+      SPRING_PROFILES_ACTIVE: mariadb,docker
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      DATABASE_URL: ${DATABASE_URL}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
+      AWS_COGNITO_REGION: ${AWS_COGNITO_REGION}
+      AWS_COGNITO_USER_POOL_ID: ${AWS_COGNITO_USER_POOL_ID}
+      AWS_COGNITO_APP_CLIENT_ID: ${AWS_COGNITO_APP_CLIENT_ID}
+      AWS_COGNITO_ISSUER_URI: ${AWS_COGNITO_ISSUER_URI}
+      AWS_COGNITO_JWK_SET_URI: ${AWS_COGNITO_JWK_SET_URI}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_SQS_QUEUE_NAME: ${AWS_SQS_QUEUE_NAME}
+      AWS_SNS_TOPIC_ARN: ${AWS_SNS_TOPIC_ARN}
+      AWS_SNS_TICKET_CREATED_TOPIC_ARN: ${AWS_SNS_TICKET_CREATED_TOPIC_ARN}
+      AWS_SNS_TICKET_CLOSED_TOPIC_ARN: ${AWS_SNS_TICKET_CLOSED_TOPIC_ARN}
+      AWS_SNS_TICKET_INTERACTED_TOPIC_ARN: ${AWS_SNS_TICKET_INTERACTED_TOPIC_ARN}
+      AWS_SES_ENABLED: ${AWS_SES_ENABLED}
+      AWS_SES_REGION: ${AWS_SES_REGION}
+      AWS_SES_FROM_ADDRESS: ${AWS_SES_FROM_ADDRESS}
+      AWS_SES_REPLY_TO_ADDRESS: ${AWS_SES_REPLY_TO_ADDRESS}
+      AWS_SES_TO_ADDRESSES: ${AWS_SES_TO_ADDRESSES}
+      AWS_SES_TEMPLATE_NAME: ${AWS_SES_TEMPLATE_NAME}
+      AWS_SES_CONFIGURATION_SET: ${AWS_SES_CONFIGURATION_SET}
+    ports:
+      - "8082:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - tucasdesk-net
 
   frontend:
     build:
@@ -212,12 +258,18 @@ services:
     ports:
       - "3000:80"
     depends_on:
-      - backend
+      - backend-1
+      - backend-2
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
+    networks:
+      - tucasdesk-net
 
 volumes:
   database-data:
+
+networks:
+  tucasdesk-net:

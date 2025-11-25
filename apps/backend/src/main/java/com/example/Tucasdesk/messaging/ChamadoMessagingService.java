@@ -30,13 +30,16 @@ public class ChamadoMessagingService {
     private final SnsTemplate snsTemplate;
     private final SqsTemplate sqsTemplate;
     private final AwsMessagingProperties properties;
+    private final com.example.Tucasdesk.leader.LeaderElectionService leaderElectionService;
 
     public ChamadoMessagingService(SnsTemplate snsTemplate,
                                    SqsTemplate sqsTemplate,
-                                   AwsMessagingProperties properties) {
+                                   AwsMessagingProperties properties,
+                                   com.example.Tucasdesk.leader.LeaderElectionService leaderElectionService) {
         this.snsTemplate = snsTemplate;
         this.sqsTemplate = sqsTemplate;
         this.properties = properties;
+        this.leaderElectionService = leaderElectionService;
     }
 
     /**
@@ -45,6 +48,9 @@ public class ChamadoMessagingService {
      * @param chamado ticket that triggered the event.
      */
     public void publishChamadoCreatedEvent(Chamado chamado) {
+        if (!leaderElectionService.isLeader()) {
+            return;
+        }
         String topicArn = properties.getTopics().getTicketCreatedArn();
         if (StringUtils.hasText(topicArn)) {
             TicketCreatedEventPayload payload = TicketCreatedEventPayload.fromChamado(chamado);
@@ -62,6 +68,9 @@ public class ChamadoMessagingService {
      * @param chamado ticket that triggered the event.
      */
     public void publishChamadoClosedEvent(Chamado chamado) {
+        if (!leaderElectionService.isLeader()) {
+            return;
+        }
         String topicArn = properties.getTopics().getTicketClosedArn();
         if (StringUtils.hasText(topicArn)) {
             TicketClosedEventPayload payload = TicketClosedEventPayload.fromChamado(chamado);
@@ -78,6 +87,9 @@ public class ChamadoMessagingService {
      * @param chamado ticket that triggered the event.
      */
     public void publishChamadoUpdatedEvent(Chamado chamado) {
+        if (!leaderElectionService.isLeader()) {
+            return;
+        }
         send(ChamadoEventPayload.fromChamado(EVENT_CHAMADO_UPDATED, chamado));
     }
 
@@ -87,6 +99,9 @@ public class ChamadoMessagingService {
      * @param chamado ticket that triggered the event.
      */
     public void publishChamadoStatusChangedEvent(Chamado chamado) {
+        if (!leaderElectionService.isLeader()) {
+            return;
+        }
         send(ChamadoEventPayload.fromChamado(EVENT_CHAMADO_STATUS_CHANGED, chamado));
     }
 
@@ -97,6 +112,9 @@ public class ChamadoMessagingService {
      * @param interacao interaction saved for the ticket.
      */
     public void publishChamadoInteracaoAddedEvent(Chamado chamado, Interacao interacao) {
+        if (!leaderElectionService.isLeader()) {
+            return;
+        }
         String topicArn = properties.getTopics().getTicketInteractedArn();
         if (StringUtils.hasText(topicArn)) {
             // Placeholder for a specific TicketInteractedEventPayload if needed

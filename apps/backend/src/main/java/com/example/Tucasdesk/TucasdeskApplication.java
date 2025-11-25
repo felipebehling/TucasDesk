@@ -2,11 +2,13 @@ package com.example.Tucasdesk;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * The main entry point for the TucasDesk Spring Boot application.
  */
 @SpringBootApplication
+@EnableScheduling
 public class TucasdeskApplication {
 
 	/**
