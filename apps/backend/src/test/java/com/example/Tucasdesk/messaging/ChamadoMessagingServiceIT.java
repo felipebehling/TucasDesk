@@ -127,10 +127,16 @@ class ChamadoMessagingServiceIT {
         }
 
         @Bean
+        com.example.Tucasdesk.leader.LeaderElectionService leaderElectionService() {
+            return Mockito.mock(com.example.Tucasdesk.leader.LeaderElectionService.class);
+        }
+
+        @Bean
         ChamadoMessagingService chamadoMessagingService(SnsTemplate snsTemplate,
                                                         SqsTemplate sqsTemplate,
-                                                        AwsMessagingProperties properties) {
-            return new ChamadoMessagingService(snsTemplate, sqsTemplate, properties);
+                                                        AwsMessagingProperties properties,
+                                                        com.example.Tucasdesk.leader.LeaderElectionService leaderElectionService) {
+            return new ChamadoMessagingService(snsTemplate, sqsTemplate, properties, leaderElectionService);
         }
     }
 }
