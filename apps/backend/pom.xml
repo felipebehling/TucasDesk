@@ -35,24 +35,14 @@
             <version>${aws.sdk.version}</version>
         </dependency>
 
-        <!-- Spring Security OAuth2 / OIDC (Cognito Login) -->
+        <!-- Spring Security OAuth2 / OIDC -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-jose</artifactId>
-        </dependency>
-
-        <!-- Thymeleaf + Extras Security (exigido pelo exemplo que você passou) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.thymeleaf.extras</groupId>
-            <artifactId>thymeleaf-extras-springsecurity6</artifactId>
         </dependency>
 
         <!-- Core do Spring -->

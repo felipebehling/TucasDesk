@@ -28,4 +28,12 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
      * @return An {@link Optional} containing the user if found, or empty otherwise.
      */
     Optional<Usuario> findByEmail(String email);
+
+    /**
+     * Finds a user by their Cognito ID.
+     *
+     * @param cognitoId The Cognito ID of the user to find.
+     * @return An {@link Optional} containing the user if found, or empty otherwise.
+     */
+    Optional<Usuario> findByCognitoId(String cognitoId);
 }
