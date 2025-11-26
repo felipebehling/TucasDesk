@@ -2,16 +2,7 @@ package com.example.Tucasdesk.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.util.StringUtils;
-
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-
-import com.example.Tucasdesk.security.AuthorityUtils;
 
 /**
  * Represents a user in the system.
@@ -19,13 +10,19 @@ import com.example.Tucasdesk.security.AuthorityUtils;
  */
 @Entity
 @Table(name = "usuarios")
-public class Usuario implements UserDetails {
+public class Usuario {
     /**
      * The unique identifier for the user.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idUsuario;
+
+    /**
+     * The unique identifier from the Cognito User Pool.
+     */
+    @Column(unique = true)
+    private String cognitoId;
 
     /**
      * The name of the user.
@@ -42,7 +39,6 @@ public class Usuario implements UserDetails {
     /**
      * The password for the user's account.
      */
-    @NotBlank(message = "A senha não pode estar em branco")
     private String senha;
 
     /**
@@ -174,41 +170,19 @@ public class Usuario implements UserDetails {
         this.ativo = ativo;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        String profileName = this.perfil != null && StringUtils.hasText(this.perfil.getNome())
-                ? this.perfil.getNome()
-                : null;
-        return List.of(new SimpleGrantedAuthority(AuthorityUtils.createRoleAuthority(profileName)));
+    /**
+     * Gets the unique identifier from the Cognito User Pool.
+     * @return The Cognito user identifier.
+     */
+    public String getCognitoId() {
+        return cognitoId;
     }
 
-    @Override
-    public String getPassword() {
-        return this.senha;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return this.ativo;
+    /**
+     * Sets the unique identifier from the Cognito User Pool.
+     * @param cognitoId The Cognito user identifier.
+     */
+    public void setCognitoId(String cognitoId) {
+        this.cognitoId = cognitoId;
     }
 }
