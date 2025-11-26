@@ -8,19 +8,17 @@ export default function Callback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Verifica se não estamos já no processo de redirecionamento
-    if (!auth.isLoading && !auth.isAuthenticated) {
-      // Tenta completar o login
-      auth.signinRedirectCallback().then(() => {
+    // O AuthProvider está a tratar do retorno de chamada de redirecionamento.
+    // Apenas precisamos de esperar que o estado de autenticação seja resolvido.
+    if (!auth.isLoading) {
+      if (auth.isAuthenticated) {
+        // Se autenticado, redireciona para a página inicial
         navigate('/');
-      }).catch(() => {
-        // Se falhar (ex: usuário voltou), inicia o login
+      } else {
+        // Se não estiver autenticado, pode ser um erro ou o utilizador cancelou.
+        // Redireciona para iniciar o login novamente.
         auth.signinRedirect();
-      });
-    } else if (auth.isAuthenticated) {
-        navigate('/');
-    } else {
-        auth.signinRedirect();
+      }
     }
   }, [auth, navigate]);
 
