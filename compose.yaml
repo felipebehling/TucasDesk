@@ -133,6 +133,29 @@ services:
     networks:
       - tucasdesk-net
 
+  localstack:
+    container_name: tucasdesk-localstack
+    image: localstack/localstack:3.5.0
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=cognito-idp,sqs,ses,sns
+      - DEBUG=1
+      - DEFAULT_REGION=${AWS_REGION}
+      - AWS_DEFAULT_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    volumes:
+      - ./infra/localstack:/etc/localstack/init/ready.d
+      - localstack-sync:/tmp/localstack
+    networks:
+      - tucasdesk-net
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/localstack/initialized"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+
   backend-1:
     build: ./apps/backend
     container_name: tucasdesk-backend-1
@@ -140,13 +163,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      localstack:
+        condition: service_healthy
     env_file:
       - ./.env
+    volumes:
+      - localstack-sync:/tmp/localstack
     environment:
       TZ: America/Sao_Paulo
       INSTANCE_ID: 1
       APP_CLUSTER_SIZE: 2
-      SPRING_PROFILES_ACTIVE: mariadb,docker
+      SPRING_PROFILES_ACTIVE: mariadb,docker,localstack
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
@@ -195,13 +222,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      localstack:
+        condition: service_healthy
     env_file:
       - ./.env
+    volumes:
+      - localstack-sync:/tmp/localstack
     environment:
       TZ: America/Sao_Paulo
       INSTANCE_ID: 2
       APP_CLUSTER_SIZE: 2
-      SPRING_PROFILES_ACTIVE: mariadb,docker
+      SPRING_PROFILES_ACTIVE: mariadb,docker,localstack
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
@@ -252,6 +283,8 @@ services:
     restart: unless-stopped
     env_file:
       - ./.env
+    volumes:
+      - localstack-sync:/tmp/localstack
     environment:
       TZ: America/Sao_Paulo
       VITE_API_URL: ${VITE_API_URL}
@@ -260,6 +293,7 @@ services:
     depends_on:
       - backend-1
       - backend-2
+      - localstack
     logging:
       driver: json-file
       options:
@@ -270,6 +304,7 @@ services:
 
 volumes:
   database-data:
+  localstack-sync:
 
 networks:
   tucasdesk-net:

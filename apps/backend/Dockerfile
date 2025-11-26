@@ -14,5 +14,11 @@ WORKDIR /app
 
 COPY --from=build /app/target/tucasdesk-*.jar app.jar
 
+COPY docker-entrypoint.sh .
+RUN chmod +x docker-entrypoint.sh
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["./docker-entrypoint.sh", "java", "-jar", "app.jar"]
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=5 \
+  CMD wget --spider -q http://localhost:8080/actuator/health || exit 1
