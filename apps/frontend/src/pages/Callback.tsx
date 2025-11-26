@@ -8,21 +8,13 @@ export default function Callback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Verifica se não estamos já no processo de redirecionamento
-    if (!auth.isLoading && !auth.isAuthenticated) {
-      // Tenta completar o login
-      auth.signinRedirectCallback().then(() => {
-        navigate('/');
-      }).catch(() => {
-        // Se falhar (ex: usuário voltou), inicia o login
-        auth.signinRedirect();
-      });
-    } else if (auth.isAuthenticated) {
-        navigate('/');
-    } else {
-        auth.signinRedirect();
+    if (!auth.isLoading && auth.isAuthenticated) {
+      navigate('/');
     }
-  }, [auth, navigate]);
+    // Optional: handle cases where the user lands here without being authenticated
+    // a signinRedirect could be initiated, or a redirect to an error page.
+    // For now, we'll rely on the AuthProvider to handle the redirect.
+  }, [auth.isLoading, auth.isAuthenticated, navigate]);
 
   return <LoadingOverlay fullscreen message="Autenticando..." />;
 }
