@@ -58,6 +58,23 @@ public class NotifierServiceTest {
     }
 
     @Test
+    void receiveMessage_shouldHandleDirectSqsPayload() {
+        // Arrange
+        String directSqsMessage = "{\"eventType\":\"TICKET_UPDATED\",\"chamadoId\":321}";
+
+        when(awsSesProperties.isEnabled()).thenReturn(true);
+        when(awsSesProperties.getFromAddress()).thenReturn("sender@example.com");
+        when(awsSesProperties.getToAddresses()).thenReturn(List.of("recipient@example.com"));
+        when(sesV2ClientProvider.getIfAvailable()).thenReturn(sesV2Client);
+
+        // Act
+        notifierService.receiveMessage(directSqsMessage);
+
+        // Assert
+        verify(sesV2Client, times(1)).sendEmail(any(SendEmailRequest.class));
+    }
+
+    @Test
     void receiveMessage_shouldDoNothing_whenSesIsDisabled() {
         // Arrange
         String snsMessage = "{\"Message\":\"{}\"}";
