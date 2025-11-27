@@ -318,7 +318,7 @@ public class ChamadoService {
     }
 
     private void validarTransicaoStatus(Status statusAtual, Status novoStatus) {
-        if (statusAtual != null && statusAtual.equals(novoStatus)) {
+        if (statusAtual != null && statusAtual.getIdStatus().equals(novoStatus.getIdStatus())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O chamado já está com o status informado.");
         }
     }

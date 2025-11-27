@@ -274,4 +274,27 @@ class ChamadoServiceTest {
         // Verificação
         verify(interacaoRepository).delete(interacao);
     }
+
+    @Test
+    void naoDevePermitirAtualizarParaMesmoStatusComInstanciasDiferentes() {
+        Chamado chamado = new Chamado();
+        chamado.setIdChamado(101);
+        Status statusAtual = new Status();
+        statusAtual.setIdStatus(10);
+        statusAtual.setNome("Em Análise");
+        chamado.setStatus(statusAtual);
+
+        Status novoStatusComMesmoId = new Status();
+        novoStatusComMesmoId.setIdStatus(10);
+        novoStatusComMesmoId.setNome("Em Análise");
+
+        when(chamadoRepository.findById(101)).thenReturn(Optional.of(chamado));
+        when(statusRepository.findById(10)).thenReturn(Optional.of(novoStatusComMesmoId));
+
+        assertThatThrownBy(() -> chamadoService.atualizarStatus(101, 10))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("já está com o status informado");
+
+        verify(chamadoRepository, never()).save(any());
+    }
 }
