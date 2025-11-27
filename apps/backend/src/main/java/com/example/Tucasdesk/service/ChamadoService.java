@@ -133,9 +133,11 @@ public class ChamadoService {
         boolean statusAlterado = false;
         if (request.getStatusId() != null) {
             Status novoStatus = buscarStatus(request.getStatusId());
-            validarTransicaoStatus(chamado.getStatus(), novoStatus);
-            chamado.setStatus(novoStatus);
-            statusAlterado = true;
+            if (chamado.getStatus() == null || !chamado.getStatus().getIdStatus().equals(novoStatus.getIdStatus())) {
+                validarTransicaoStatus(chamado.getStatus(), novoStatus);
+                chamado.setStatus(novoStatus);
+                statusAlterado = true;
+            }
         }
         if (request.getTecnicoId() != null) {
             chamado.setTecnico(buscarUsuario(request.getTecnicoId()));
