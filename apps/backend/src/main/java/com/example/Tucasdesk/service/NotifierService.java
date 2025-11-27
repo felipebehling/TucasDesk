@@ -37,8 +37,10 @@ public class NotifierService {
         log.info("Received SQS message: {}", messageJson);
         try {
             JsonNode rootNode = objectMapper.readTree(messageJson);
-            String eventPayloadString = rootNode.path("Message").asText();
-            JsonNode eventPayload = objectMapper.readTree(eventPayloadString);
+            JsonNode messageNode = rootNode.get("Message");
+            JsonNode eventPayload = (messageNode != null && messageNode.isTextual() && StringUtils.hasText(messageNode.asText()))
+                    ? objectMapper.readTree(messageNode.asText())
+                    : rootNode;
 
             String eventType = eventPayload.path("eventType").asText("UNKNOWN");
             int ticketId = eventPayload.path("chamadoId").asInt();
