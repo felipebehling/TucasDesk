@@ -240,14 +240,12 @@ public class ChamadoService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A interação não pertence ao chamado informado.");
         }
 
-        if (usuarioId == null) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "O usuário é obrigatório para remover a interação.");
-        }
-
-        Usuario usuarioInteracao = interacao.getUsuario();
-        if (usuarioInteracao == null || usuarioInteracao.getIdUsuario() == null
-                || !usuarioId.equals(usuarioInteracao.getIdUsuario())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "A interação não pertence ao usuário informado.");
+        if (usuarioId != null) {
+            Usuario usuarioInteracao = interacao.getUsuario();
+            if (usuarioInteracao == null || usuarioInteracao.getIdUsuario() == null
+                    || !usuarioId.equals(usuarioInteracao.getIdUsuario())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "A interação não pertence ao usuário informado.");
+            }
         }
 
         interacaoRepository.delete(interacao);
