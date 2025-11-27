@@ -1,10 +1,13 @@
 package com.example.Tucasdesk.dtos;
 
+import jakarta.validation.constraints.Size;
+
 /**
  * DTO used to update an existing {@code Chamado}.
  */
 public class ChamadoUpdateRequest {
 
+    @Size(min = 1, max = 255, message = "O título deve ter entre 1 e 255 caracteres.")
     private String titulo;
     private String descricao;
     private Integer categoriaId;

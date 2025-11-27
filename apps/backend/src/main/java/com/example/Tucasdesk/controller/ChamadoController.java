@@ -64,7 +64,7 @@ public class ChamadoController {
      * @return the updated ticket.
      */
     @PutMapping("/{id}")
-    public ChamadoResponseDTO atualizar(@PathVariable Integer id, @RequestBody ChamadoUpdateRequest request) {
+    public ChamadoResponseDTO atualizar(@PathVariable Integer id, @Valid @RequestBody ChamadoUpdateRequest request) {
         return chamadoService.atualizar(id, request);
     }
 
